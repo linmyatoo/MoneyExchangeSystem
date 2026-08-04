@@ -80,6 +80,14 @@ class DashboardRepository:
         ).scalar() or 0.0
         return float(thb_balance)
 
+    def get_mmk_inventory(self) -> float:
+        mmk_bank_types = ['KPay', 'WavePay', 'AYAPay', 'CB Pay', 'KBZ Bank', 'AYA Bank', 'YOMA Bank', 'CB Bank', 'MAB Bank', 'Cash']
+        mmk_balance = self.db.query(func.sum(WalletAccount.balance)).join(WalletType).filter(
+            WalletType.name.in_(mmk_bank_types),
+            WalletAccount.deleted_at.is_(None)
+        ).scalar() or 0.0
+        return float(mmk_balance)
+
     def get_outstanding_credit(self) -> float:
         outstanding = self.db.query(func.sum(Credit.remaining_amount)).filter(
             Credit.remaining_amount > 0,

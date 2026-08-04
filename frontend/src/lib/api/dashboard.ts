@@ -6,6 +6,7 @@ export interface MetricCards {
   period_transaction_profit: number;
   period_transactions_count: number;
   thb_inventory: number;
+  mmk_inventory: number;
   outstanding_credit: number;
   active_buy_rate: number;
   active_sell_rate: number;

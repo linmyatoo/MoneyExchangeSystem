@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Customer } from "@/lib/api/customers";
 import { WalletAccount } from "@/lib/api/wallets";
 import { ExchangeRate } from "@/lib/api/exchange-rates";
@@ -73,12 +74,12 @@ export function SellForm({ open, onOpenChange, customers, mmkWallets, thbWallets
   const rateUsed = watch("rate_used") || 0;
   const mmkWalletId = watch("mmk_wallet_id");
   const thbWalletId = watch("thb_wallet_id");
-  const customerId = watch("customer_id");
+
 
   useEffect(() => {
     if (open) {
       reset({
-        customer_id: "",
+        customer_id: null,
         customer_name: "",
         mmk_wallet_id: "",
         thb_wallet_id: "",
@@ -95,7 +96,7 @@ export function SellForm({ open, onOpenChange, customers, mmkWallets, thbWallets
       // Convert empty strings to null for optional UUID/string fields
       const sanitized = {
         ...data,
-        customer_id: data.customer_id && data.customer_id !== "walkin" ? data.customer_id : null,
+        customer_id: null,
         customer_name: data.customer_name || null,
         notes: data.notes || null,
       };
@@ -116,32 +117,9 @@ export function SellForm({ open, onOpenChange, customers, mmkWallets, thbWallets
         </DialogHeader>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Select Customer</Label>
-              <Select 
-                value={customerId || ""} 
-                onValueChange={(val) => {
-                  setValue("customer_id", val || "", { shouldValidate: true });
-                  if (val) setValue("customer_name", "");
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Existing Customer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="walkin">-- Walk-in --</SelectItem>
-                  {customers.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Or Walk-in Name</Label>
-              <Input {...register("customer_name")} disabled={!!customerId && customerId !== "walkin"} placeholder="John Doe" />
-            </div>
+          <div className="space-y-2">
+            <Label>Customer Name (Optional)</Label>
+            <Input {...register("customer_name")} placeholder="Enter customer name..." />
           </div>
 
           <div className="space-y-2">
@@ -206,7 +184,7 @@ export function SellForm({ open, onOpenChange, customers, mmkWallets, thbWallets
 
           <div className="space-y-2">
             <Label>Remark</Label>
-            <Input {...register("notes")} />
+            <Textarea {...register("notes")} rows={2} />
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">

@@ -20,6 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Customer } from "@/lib/api/customers";
 import { WalletAccount } from "@/lib/api/wallets";
 
@@ -149,8 +151,8 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
         customer_name: data.customer_name || null,
         from_wallet_account_id: data.transaction_type !== "cash_to_wallet" ? data.from_wallet_account_id : null,
         to_wallet_account_id: data.transaction_type !== "wallet_to_cash" ? data.to_wallet_account_id : null,
-        amount: data.amount,
-        profit: data.profit,
+        amount: data.amount || 0,
+        profit: data.profit || 0,
         profit_wallet_account_id: data.profit_wallet_account_id || null,
         notes: data.notes || null,
         is_credit: data.is_credit,
@@ -169,11 +171,11 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{transaction ? "Edit Transaction" : "New Wallet Transaction"}</DialogTitle>
+          <DialogTitle className="font-bold">{transaction ? "Edit Transaction" : "New Wallet Transaction"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-2 col-span-2 sm:col-span-1">
               <Label>Transaction Type</Label>
               <Select 
                 value={transactionType} 
@@ -194,7 +196,7 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
               </Select>
             </div>
 
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-2 col-span-2 sm:col-span-1">
               <Label>Customer Name (Optional)</Label>
               <Input 
                 {...register("customer_name")} 
@@ -283,23 +285,25 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
 
             <div className="space-y-2 col-span-2 sm:col-span-1">
               <Label>Credit Transaction</Label>
-              <Select 
+              <RadioGroup 
                 value={isCredit ? "yes" : "no"} 
                 onValueChange={(val) => setValue("is_credit", val === "yes", { shouldValidate: true })}
+                className="flex items-center space-x-4 h-9"
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="no">No</SelectItem>
-                  <SelectItem value="yes">Yes</SelectItem>
-                </SelectContent>
-              </Select>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="credit-no" />
+                  <Label htmlFor="credit-no" className="font-normal">No</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="credit-yes" />
+                  <Label htmlFor="credit-yes" className="font-normal">Yes</Label>
+                </div>
+              </RadioGroup>
             </div>
 
             <div className="space-y-2 col-span-2">
               <Label>Remark</Label>
-              <Input {...register("notes")} placeholder="Optional details..." />
+              <Textarea {...register("notes")} placeholder="Optional details..." rows={2} />
             </div>
 
           </div>

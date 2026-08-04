@@ -57,7 +57,7 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
       account_name: "",
       account_number: "",
       wallet_type_id: "",
-      opening_balance: 0,
+      opening_balance: "" as any,
       is_active: true,
     },
   });
@@ -80,7 +80,7 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
         account_name: "",
         account_number: "",
         wallet_type_id: "",
-        opening_balance: 0,
+        opening_balance: "" as any,
         is_active: true,
       });
     }
@@ -93,7 +93,7 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
         account_name: "",
         account_number: "",
         wallet_type_id: "",
-        opening_balance: 0,
+        opening_balance: "" as any,
         is_active: true,
       });
     }
@@ -105,6 +105,7 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
       await onSubmit({
         ...data,
         account_number: data.account_number || null, // Convert empty string to null
+        opening_balance: data.opening_balance || 0,
       });
       onOpenChange(false);
     } catch (error) {
@@ -118,12 +119,12 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{wallet ? "Edit Wallet" : "Create New Wallet"}</DialogTitle>
+          <DialogTitle className="font-bold">{wallet ? "Edit Wallet" : "Create New Wallet"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="account_name">Wallet Name</Label>
-            <Input id="account_name" {...register("account_name")} placeholder="e.g. KBZ Main Account" />
+            <Input id="account_name" {...register("account_name")} placeholder="Enter wallet name..." />
             {errors.account_name && <p className="text-sm text-red-500">{errors.account_name.message}</p>}
           </div>
 

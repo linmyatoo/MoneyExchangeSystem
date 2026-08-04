@@ -20,6 +20,7 @@ class DashboardService:
             "period_transaction_profit": profit_data["transaction_profit"],
             "period_transactions_count": self.repo.get_transaction_count(period),
             "thb_inventory": self.repo.get_thb_inventory(),
+            "mmk_inventory": self.repo.get_mmk_inventory(),
             "outstanding_credit": self.repo.get_outstanding_credit(),
             "active_buy_rate": rates["buy"],
             "active_sell_rate": rates["sell"],

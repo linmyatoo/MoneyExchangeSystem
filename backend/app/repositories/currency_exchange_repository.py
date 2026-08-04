@@ -1,5 +1,6 @@
 import uuid
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
+import calendar
 from decimal import Decimal
 from typing import List, Optional, Tuple
 
@@ -34,6 +35,7 @@ class CurrencyExchangeRepository:
         limit: int = 20,
         search: Optional[str] = None,
         tx_type: Optional[str] = None,
+        period: Optional[str] = None,
     ) -> Tuple[List[dict], int]:
         # Since history mixes Buy and Sell, we can query both and merge, 
         # or do a UNION in SQLAlchemy. For simplicity, we query both and sort in python, 
@@ -70,6 +72,27 @@ class CurrencyExchangeRepository:
             mmk_wallet_alias.account_name.label("mmk_wallet_name"),
             thb_wallet_alias.account_name.label("thb_wallet_name")
         ).outerjoin(mmk_wallet_alias, CurrencySellTransaction.mmk_wallet_id == mmk_wallet_alias.id).outerjoin(thb_wallet_alias, CurrencySellTransaction.thb_wallet_id == thb_wallet_alias.id)
+        
+        if period:
+            today_date = date.today()
+            if period == "today":
+                start_dt = datetime.combine(today_date, time.min)
+                end_dt = datetime.combine(today_date, time.max)
+            elif period == "yesterday":
+                yesterday_date = today_date - timedelta(days=1)
+                start_dt = datetime.combine(yesterday_date, time.min)
+                end_dt = datetime.combine(yesterday_date, time.max)
+            elif period == "this_month":
+                start_dt = datetime.combine(today_date.replace(day=1), time.min)
+                _, last_day = calendar.monthrange(today_date.year, today_date.month)
+                end_dt = datetime.combine(today_date.replace(day=last_day), time.max)
+            else:
+                start_dt = None
+                end_dt = None
+                
+            if start_dt and end_dt:
+                buys_q = buys_q.filter(CurrencyBuyTransaction.transaction_date.between(start_dt, end_dt))
+                sells_q = sells_q.filter(CurrencySellTransaction.transaction_date.between(start_dt, end_dt))
         
         if tx_type == "buy":
             query = buys_q

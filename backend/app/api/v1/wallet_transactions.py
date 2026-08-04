@@ -23,6 +23,7 @@ def list_wallet_transactions(
     wallet_account_id: Optional[uuid.UUID] = Query(None, description="Filter by wallet account"),
     customer_id: Optional[uuid.UUID] = Query(None, description="Filter by customer"),
     is_credit: Optional[bool] = Query(None, description="Filter by credit status"),
+    period: Optional[str] = Query(None, description="Filter by 'today', 'yesterday', 'this_month'"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     db: Session = Depends(get_db),
@@ -38,6 +39,7 @@ def list_wallet_transactions(
         wallet_account_id=wallet_account_id,
         customer_id=customer_id,
         is_credit=is_credit,
+        period=period,
     )
     return {
         "items": items,

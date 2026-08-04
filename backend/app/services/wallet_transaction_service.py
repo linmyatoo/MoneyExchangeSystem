@@ -37,6 +37,7 @@ class WalletTransactionService:
         wallet_account_id: Optional[uuid.UUID] = None,
         customer_id: Optional[uuid.UUID] = None,
         is_credit: Optional[bool] = None,
+        period: Optional[str] = None,
     ) -> Tuple[List[WalletTransaction], int]:
         return self.transaction_repo.get_paginated_transactions(
             skip=skip,
@@ -45,6 +46,7 @@ class WalletTransactionService:
             wallet_account_id=wallet_account_id,
             customer_id=customer_id,
             is_credit=is_credit,
+            period=period,
         )
 
     def get_transaction(self, id: uuid.UUID) -> WalletTransaction:

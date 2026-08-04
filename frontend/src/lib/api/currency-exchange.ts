@@ -69,6 +69,7 @@ export const getInventorySummary = async (): Promise<THBInventorySummary> => {
 export const getExchangeHistory = async (params?: {
   q?: string;
   tx_type?: string;
+  period?: string;
   page?: number;
   page_size?: number;
 }): Promise<CurrencyExchangeResponse> => {

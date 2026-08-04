@@ -105,10 +105,10 @@ class CurrencyExchangeService:
         return tx
 
     def get_history(
-        self, skip: int = 0, limit: int = 20, search: str = None, tx_type: str = None
+        self, skip: int = 0, limit: int = 20, search: str = None, tx_type: str = None, period: str = None
     ) -> Tuple[List[dict], int]:
         return self.exchange_repo.get_paginated_history(
-            skip=skip, limit=limit, search=search, tx_type=tx_type
+            skip=skip, limit=limit, search=search, tx_type=tx_type, period=period
         )
 
     def get_inventory_summary(self) -> dict:

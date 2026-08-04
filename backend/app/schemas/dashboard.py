@@ -11,6 +11,7 @@ class MetricCards(BaseModel):
     period_transaction_profit: Decimal
     period_transactions_count: int
     thb_inventory: Decimal
+    mmk_inventory: Decimal
     outstanding_credit: Decimal
     active_buy_rate: Decimal
     active_sell_rate: Decimal

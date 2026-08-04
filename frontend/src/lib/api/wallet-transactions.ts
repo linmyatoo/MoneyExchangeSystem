@@ -45,6 +45,7 @@ export const getWalletTransactions = async (params?: {
   wallet_account_id?: string;
   customer_id?: string;
   is_credit?: boolean;
+  period?: string;
   page?: number;
   page_size?: number;
 }): Promise<WalletTransactionsResponse> => {

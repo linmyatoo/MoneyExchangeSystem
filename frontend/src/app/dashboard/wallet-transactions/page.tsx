@@ -33,6 +33,7 @@ export default function WalletTransactionsPage() {
   const [wallets, setWallets] = useState<WalletAccount[]>([]);
   
   const [search, setSearch] = useState("");
+  const [period, setPeriod] = useState<string>("today");
   const [isLoading, setIsLoading] = useState(true);
 
   // Pagination & Form states
@@ -50,7 +51,7 @@ export default function WalletTransactionsPage() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [page, search]);
+  }, [page, search, period]);
 
   const fetchCustomersAndWallets = async () => {
     try {
@@ -72,6 +73,7 @@ export default function WalletTransactionsPage() {
         page,
         page_size: 10,
         q: search,
+        period: period || undefined,
       });
       setTransactions(response.items);
       setTotalPages(response.total_pages);
@@ -147,6 +149,20 @@ export default function WalletTransactionsPage() {
             }}
           />
         </div>
+
+        <select
+          className="flex h-10 w-40 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          value={period}
+          onChange={(e) => {
+            setPeriod(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="">All Time</option>
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="this_month">This Month</option>
+        </select>
       </div>
 
       {isLoading ? (

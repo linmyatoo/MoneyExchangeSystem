@@ -99,18 +99,31 @@ export default function DashboardPage() {
       </div>
 
       {/* Metric Cards Row 1 */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
         
-        <div className="rounded-xl border bg-card text-card-foreground shadow border-green-200">
+        <div className="rounded-xl border bg-card text-card-foreground shadow border-orange-200">
           <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">THB Exchange Profit</h3>
-            <TrendingUp className="h-4 w-4 text-green-500" />
+            <h3 className="tracking-tight text-sm font-medium">MMK Inventory</h3>
+            <Wallet className="h-4 w-4 text-orange-500" />
           </div>
           <div className="p-6 pt-0">
-            <div className="text-2xl font-bold text-green-600 mb-1">
-              {new Intl.NumberFormat("en-US").format(cards.period_exchange_profit)} K
+            <div className="text-2xl font-bold text-orange-600">
+              {new Intl.NumberFormat("en-US").format(cards.mmk_inventory)} MMK
             </div>
-            <p className="text-xs text-muted-foreground">From selling THB ({period})</p>
+            <p className="text-xs text-muted-foreground">Total Myanmar Kyat available</p>
+          </div>
+        </div>
+
+        <div className="rounded-xl border bg-card text-card-foreground shadow border-purple-200">
+          <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+            <h3 className="tracking-tight text-sm font-medium">THB Inventory</h3>
+            <Wallet className="h-4 w-4 text-purple-500" />
+          </div>
+          <div className="p-6 pt-0">
+            <div className="text-2xl font-bold text-purple-600">
+              {new Intl.NumberFormat("en-US").format(cards.thb_inventory)} THB
+            </div>
+            <p className="text-xs text-muted-foreground">Total Thai Baht available</p>
           </div>
         </div>
 
@@ -126,6 +139,19 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">From wallet transactions ({period})</p>
           </div>
         </div>
+
+        <div className="rounded-xl border bg-card text-card-foreground shadow border-green-200">
+          <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+            <h3 className="tracking-tight text-sm font-medium">THB Exchange Profit</h3>
+            <TrendingUp className="h-4 w-4 text-green-500" />
+          </div>
+          <div className="p-6 pt-0">
+            <div className="text-2xl font-bold text-green-600 mb-1">
+              {new Intl.NumberFormat("en-US").format(cards.period_exchange_profit)} K
+            </div>
+            <p className="text-xs text-muted-foreground">From selling THB ({period})</p>
+          </div>
+        </div>
         
         <div className="rounded-xl border bg-card text-card-foreground shadow border-blue-200">
           <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
@@ -139,20 +165,6 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">Total system activities ({period})</p>
           </div>
         </div>
-        
-        <div className="rounded-xl border bg-card text-card-foreground shadow border-purple-200">
-          <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">THB Inventory</h3>
-            <Wallet className="h-4 w-4 text-purple-500" />
-          </div>
-          <div className="p-6 pt-0">
-            <div className="text-2xl font-bold text-purple-600">
-              {new Intl.NumberFormat("en-US").format(cards.thb_inventory)} THB
-            </div>
-            <p className="text-xs text-muted-foreground">Total Thai Baht available</p>
-          </div>
-        </div>
-        
 
       </div>
 

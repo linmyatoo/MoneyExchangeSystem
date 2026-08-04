@@ -38,6 +38,7 @@ export default function THBExchangePage() {
   
   const [search, setSearch] = useState("");
   const [txType, setTxType] = useState<string>("");
+  const [period, setPeriod] = useState<string>("today");
   const [isLoading, setIsLoading] = useState(true);
   const [currentRate, setCurrentRate] = useState<ExchangeRate | null>(null);
 
@@ -56,7 +57,7 @@ export default function THBExchangePage() {
   useEffect(() => {
     fetchHistory();
     fetchSummary();
-  }, [page, search, txType]);
+  }, [page, search, txType, period]);
 
   const fetchPrerequisites = async () => {
     try {
@@ -97,6 +98,7 @@ export default function THBExchangePage() {
         page_size: 10,
         q: search,
         tx_type: txType || undefined,
+        period: period || undefined,
       });
       setHistory(response.items);
       setTotalPages(response.total_pages);
@@ -215,6 +217,20 @@ export default function THBExchangePage() {
             }}
           />
         </div>
+        
+        <select
+          className="flex h-10 w-40 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          value={period}
+          onChange={(e) => {
+            setPeriod(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="">All Time</option>
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="this_month">This Month</option>
+        </select>
         
         <select
           className="flex h-10 w-40 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"

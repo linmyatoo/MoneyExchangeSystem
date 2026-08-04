@@ -1,4 +1,6 @@
 import uuid
+import calendar
+from datetime import datetime, date, time, timedelta
 from typing import List, Optional, Tuple
 
 from sqlalchemy import or_
@@ -20,6 +22,7 @@ class WalletTransactionRepository(BaseRepository[WalletTransaction]):
         wallet_account_id: Optional[uuid.UUID] = None,
         customer_id: Optional[uuid.UUID] = None,
         is_credit: Optional[bool] = None,
+        period: Optional[str] = None,
     ) -> Tuple[List[WalletTransaction], int]:
         query = self.db.query(WalletTransaction).filter(WalletTransaction.deleted_at.is_(None))
 
@@ -45,6 +48,26 @@ class WalletTransactionRepository(BaseRepository[WalletTransaction]):
 
         if is_credit is not None:
             query = query.filter(WalletTransaction.is_credit == is_credit)
+
+        if period:
+            today_date = date.today()
+            if period == "today":
+                start_dt = datetime.combine(today_date, time.min)
+                end_dt = datetime.combine(today_date, time.max)
+            elif period == "yesterday":
+                yesterday_date = today_date - timedelta(days=1)
+                start_dt = datetime.combine(yesterday_date, time.min)
+                end_dt = datetime.combine(yesterday_date, time.max)
+            elif period == "this_month":
+                start_dt = datetime.combine(today_date.replace(day=1), time.min)
+                _, last_day = calendar.monthrange(today_date.year, today_date.month)
+                end_dt = datetime.combine(today_date.replace(day=last_day), time.max)
+            else:
+                start_dt = None
+                end_dt = None
+                
+            if start_dt and end_dt:
+                query = query.filter(WalletTransaction.transaction_date.between(start_dt, end_dt))
 
         total = query.count()
         items = query.order_by(WalletTransaction.transaction_date.desc()).offset(skip).limit(limit).all()

@@ -32,6 +32,7 @@ def get_inventory(
 def get_history(
     q: Optional[str] = Query(None, description="Search by transaction number or customer"),
     tx_type: Optional[str] = Query(None, description="Filter by 'buy' or 'sell'"),
+    period: Optional[str] = Query(None, description="Filter by 'today', 'yesterday', 'this_month'"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     db: Session = Depends(get_db),
@@ -40,7 +41,7 @@ def get_history(
     """Get combined history of Buy and Sell transactions."""
     service = CurrencyExchangeService(db)
     skip = (page - 1) * page_size
-    items, total = service.get_history(skip=skip, limit=page_size, search=q, tx_type=tx_type)
+    items, total = service.get_history(skip=skip, limit=page_size, search=q, tx_type=tx_type, period=period)
     return {
         "items": items,
         "total": total,
