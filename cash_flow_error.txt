@@ -1,0 +1,300 @@
+ems_backend  |     WalletTransaction.to_wallet_id.isnot(None),
+ems_backend  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  | AttributeError: type object 'WalletTransaction' has no attribute 'to_wallet_id'
+ems_backend  | ERROR:    Exception in ASGI application
+ems_backend  | Traceback (most recent call last):
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+ems_backend  |     result = await app(  # type: ignore[func-returns-value]
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+ems_backend  |     return await self.app(scope, receive, send)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/applications.py", line 1163, in __call__
+ems_backend  |     await super().__call__(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/applications.py", line 90, in __call__
+ems_backend  |     await self.middleware_stack(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+ems_backend  |     await self.app(scope, receive, _send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+ems_backend  |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+ems_backend  |     await self.middleware_stack(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2734, in app
+ems_backend  |     await route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1780, in handle
+ems_backend  |     await self.original_router.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2789, in handle
+ems_backend  |     await included_router._handle_selected(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+ems_backend  |     await original_route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1279, in handle
+ems_backend  |     await app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 158, in app
+ems_backend  |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 144, in app
+ems_backend  |     response = await f(request)
+ems_backend  |                ^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 706, in app
+ems_backend  |     raw_response = await run_endpoint_function(
+ems_backend  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+ems_backend  |     return await run_in_threadpool(dependant.call, **values)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+ems_backend  |     return await anyio.to_thread.run_sync(func)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 65, in run_sync
+ems_backend  |     return await get_async_backend().run_sync_in_worker_thread(
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2641, in run_sync_in_worker_thread
+ems_backend  |     return await future
+ems_backend  |            ^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1033, in run
+ems_backend  |     result = context.run(func, *args)
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/api/v1/reports.py", line 51, in get_cash_flow_report
+ems_backend  |     return service.generate_cash_flow_report(start_date, end_date)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/services/report_service.py", line 43, in generate_cash_flow_report
+ems_backend  |     items = self.repo.get_cash_flow_report(start_date, end_date)
+ems_backend  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/repositories/report_repository.py", line 92, in get_cash_flow_report
+ems_backend  |     WalletTransaction.to_wallet_id.isnot(None),
+ems_backend  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  | AttributeError: type object 'WalletTransaction' has no attribute 'to_wallet_id'
+ems_backend  | INFO:     172.19.0.4:38144 - "GET /api/v1/reports/wallet-balances HTTP/1.1" 200 OK
+ems_backend  | 2026-08-02 15:54:57,215 INFO sqlalchemy.engine.Engine ROLLBACK
+ems_backend  | 2026-08-02 15:54:57,230 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+ems_backend  | 2026-08-02 15:54:57,231 INFO sqlalchemy.engine.Engine SELECT users.username AS users_username, users.email AS users_email, users.hashed_password AS users_hashed_password, users.full_name AS users_full_name, users.is_active AS users_is_active, users.last_login_at AS users_last_login_at, users.role_id AS users_role_id, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.deleted_at AS users_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at 
+ems_backend  | FROM users LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users.role_id 
+ems_backend  | WHERE users.id = %(id_1)s::UUID 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:54:57,231 INFO sqlalchemy.engine.Engine [cached since 17.09s ago] {'id_1': UUID('3e2a83e3-6218-4fcb-8220-71c70cdddb54'), 'param_1': 1}
+ems_backend  | 2026-08-02 15:54:57,237 INFO sqlalchemy.engine.Engine ROLLBACK
+ems_backend  | Unhandled exception: type object 'WalletTransaction' has no attribute 'fee'
+ems_backend  | INFO:     172.19.0.4:38152 - "GET /api/v1/reports/profit?start_date=2026-07-03&end_date=2026-08-02 HTTP/1.1" 500 Internal Server Error
+ems_backend  | Traceback (most recent call last):
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+ems_backend  |     await self.app(scope, receive, _send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+ems_backend  |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+ems_backend  |     await self.middleware_stack(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2734, in app
+ems_backend  |     await route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1780, in handle
+ems_backend  |     await self.original_router.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2789, in handle
+ems_backend  |     await included_router._handle_selected(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+ems_backend  |     await original_route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1279, in handle
+ems_backend  |     await app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 158, in app
+ems_backend  |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 144, in app
+ems_backend  |     response = await f(request)
+ems_backend  |                ^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 706, in app
+ems_backend  |     raw_response = await run_endpoint_function(
+ems_backend  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+ems_backend  |     return await run_in_threadpool(dependant.call, **values)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+ems_backend  |     return await anyio.to_thread.run_sync(func)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 65, in run_sync
+ems_backend  |     return await get_async_backend().run_sync_in_worker_thread(
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2641, in run_sync_in_worker_thread
+ems_backend  |     return await future
+ems_backend  |            ^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1033, in run
+ems_backend  |     result = context.run(func, *args)
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/api/v1/reports.py", line 29, in get_profit_report
+ems_backend  |     return service.generate_profit_report(start_date, end_date)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/services/report_service.py", line 15, in generate_profit_report
+ems_backend  |     items = self.repo.get_profit_report(start_date, end_date)
+ems_backend  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/repositories/report_repository.py", line 28, in get_profit_report
+ems_backend  |     func.sum(WalletTransaction.fee).label("fee_profit")
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^
+ems_backend  | AttributeError: type object 'WalletTransaction' has no attribute 'fee'
+ems_backend  | ERROR:    Exception in ASGI application
+ems_backend  | Traceback (most recent call last):
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+ems_backend  |     result = await app(  # type: ignore[func-returns-value]
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+ems_backend  |     return await self.app(scope, receive, send)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/applications.py", line 1163, in __call__
+ems_backend  |     await super().__call__(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/applications.py", line 90, in __call__
+ems_backend  |     await self.middleware_stack(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+ems_backend  |     await self.app(scope, receive, _send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+ems_backend  |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+ems_backend  |     await self.middleware_stack(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2734, in app
+ems_backend  |     await route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1780, in handle
+ems_backend  |     await self.original_router.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2789, in handle
+ems_backend  |     await included_router._handle_selected(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+ems_backend  |     await original_route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1279, in handle
+ems_backend  |     await app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 158, in app
+ems_backend  |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 144, in app
+ems_backend  |     response = await f(request)
+ems_backend  |                ^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 706, in app
+ems_backend  |     raw_response = await run_endpoint_function(
+ems_backend  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+ems_backend  |     return await run_in_threadpool(dependant.call, **values)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+ems_backend  |     return await anyio.to_thread.run_sync(func)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 65, in run_sync
+ems_backend  |     return await get_async_backend().run_sync_in_worker_thread(
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2641, in run_sync_in_worker_thread
+ems_backend  |     return await future
+ems_backend  |            ^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1033, in run
+ems_backend  |     result = context.run(func, *args)
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/api/v1/reports.py", line 29, in get_profit_report
+ems_backend  |     return service.generate_profit_report(start_date, end_date)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/services/report_service.py", line 15, in generate_profit_report
+ems_backend  |     items = self.repo.get_profit_report(start_date, end_date)
+ems_backend  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/repositories/report_repository.py", line 28, in get_profit_report
+ems_backend  |     func.sum(WalletTransaction.fee).label("fee_profit")
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^
+ems_backend  | AttributeError: type object 'WalletTransaction' has no attribute 'fee'
+ems_backend  | 2026-08-02 15:54:59,678 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+ems_backend  | 2026-08-02 15:54:59,678 INFO sqlalchemy.engine.Engine SELECT users.username AS users_username, users.email AS users_email, users.hashed_password AS users_hashed_password, users.full_name AS users_full_name, users.is_active AS users_is_active, users.last_login_at AS users_last_login_at, users.role_id AS users_role_id, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.deleted_at AS users_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at 
+ems_backend  | FROM users LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users.role_id 
+ems_backend  | WHERE users.id = %(id_1)s::UUID 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:54:59,678 INFO sqlalchemy.engine.Engine [cached since 19.53s ago] {'id_1': UUID('3e2a83e3-6218-4fcb-8220-71c70cdddb54'), 'param_1': 1}
+ems_backend  | 2026-08-02 15:54:59,689 INFO sqlalchemy.engine.Engine SELECT cash_openings.opening_date AS cash_openings_opening_date, cash_openings.mmk_amount AS cash_openings_mmk_amount, cash_openings.thb_amount AS cash_openings_thb_amount, cash_openings.status AS cash_openings_status, cash_openings.notes AS cash_openings_notes, cash_openings.created_by AS cash_openings_created_by, cash_openings.id AS cash_openings_id, cash_openings.created_at AS cash_openings_created_at, cash_openings.updated_at AS cash_openings_updated_at, cash_openings.deleted_at AS cash_openings_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at, users_1.username AS users_1_username, users_1.email AS users_1_email, users_1.hashed_password AS users_1_hashed_password, users_1.full_name AS users_1_full_name, users_1.is_active AS users_1_is_active, users_1.last_login_at AS users_1_last_login_at, users_1.role_id AS users_1_role_id, users_1.id AS users_1_id, users_1.created_at AS users_1_created_at, users_1.updated_at AS users_1_updated_at, users_1.deleted_at AS users_1_deleted_at, roles_2.name AS roles_2_name, roles_2.description AS roles_2_description, roles_2.id AS roles_2_id, roles_2.created_at AS roles_2_created_at, roles_2.updated_at AS roles_2_updated_at, roles_2.deleted_at AS roles_2_deleted_at, users_2.username AS users_2_username, users_2.email AS users_2_email, users_2.hashed_password AS users_2_hashed_password, users_2.full_name AS users_2_full_name, users_2.is_active AS users_2_is_active, users_2.last_login_at AS users_2_last_login_at, users_2.role_id AS users_2_role_id, users_2.id AS users_2_id, users_2.created_at AS users_2_created_at, users_2.updated_at AS users_2_updated_at, users_2.deleted_at AS users_2_deleted_at, cash_closings_1.closing_date AS cash_closings_1_closing_date, cash_closings_1.mmk_amount AS cash_closings_1_mmk_amount, cash_closings_1.thb_amount AS cash_closings_1_thb_amount, cash_closings_1.expected_mmk_amount AS cash_closings_1_expected_mmk_amount, cash_closings_1.expected_thb_amount AS cash_closings_1_expected_thb_amount, cash_closings_1.mmk_discrepancy AS cash_closings_1_mmk_discrepancy, cash_closings_1.thb_discrepancy AS cash_closings_1_thb_discrepancy, cash_closings_1.notes AS cash_closings_1_notes, cash_closings_1.cash_opening_id AS cash_closings_1_cash_opening_id, cash_closings_1.created_by AS cash_closings_1_created_by, cash_closings_1.id AS cash_closings_1_id, cash_closings_1.created_at AS cash_closings_1_created_at, cash_closings_1.updated_at AS cash_closings_1_updated_at, cash_closings_1.deleted_at AS cash_closings_1_deleted_at 
+ems_backend  | FROM cash_openings LEFT OUTER JOIN users AS users_1 ON users_1.id = cash_openings.created_by LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users_1.role_id LEFT OUTER JOIN cash_closings AS cash_closings_1 ON cash_openings.id = cash_closings_1.cash_opening_id LEFT OUTER JOIN users AS users_2 ON users_2.id = cash_closings_1.created_by LEFT OUTER JOIN roles AS roles_2 ON roles_2.id = users_2.role_id 
+ems_backend  | WHERE cash_openings.opening_date = %(opening_date_1)s::DATE AND cash_openings.deleted_at IS NULL 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:54:59,689 INFO sqlalchemy.engine.Engine [generated in 0.00021s] {'opening_date_1': datetime.date(2026, 8, 2), 'param_1': 1}
+ems_backend  | 2026-08-02 15:54:59,703 INFO sqlalchemy.engine.Engine SELECT cash_closings.closing_date AS cash_closings_closing_date, cash_closings.mmk_amount AS cash_closings_mmk_amount, cash_closings.thb_amount AS cash_closings_thb_amount, cash_closings.expected_mmk_amount AS cash_closings_expected_mmk_amount, cash_closings.expected_thb_amount AS cash_closings_expected_thb_amount, cash_closings.mmk_discrepancy AS cash_closings_mmk_discrepancy, cash_closings.thb_discrepancy AS cash_closings_thb_discrepancy, cash_closings.notes AS cash_closings_notes, cash_closings.cash_opening_id AS cash_closings_cash_opening_id, cash_closings.created_by AS cash_closings_created_by, cash_closings.id AS cash_closings_id, cash_closings.created_at AS cash_closings_created_at, cash_closings.updated_at AS cash_closings_updated_at, cash_closings.deleted_at AS cash_closings_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at, users_1.username AS users_1_username, users_1.email AS users_1_email, users_1.hashed_password AS users_1_hashed_password, users_1.full_name AS users_1_full_name, users_1.is_active AS users_1_is_active, users_1.last_login_at AS users_1_last_login_at, users_1.role_id AS users_1_role_id, users_1.id AS users_1_id, users_1.created_at AS users_1_created_at, users_1.updated_at AS users_1_updated_at, users_1.deleted_at AS users_1_deleted_at, cash_openings_1.opening_date AS cash_openings_1_opening_date, cash_openings_1.mmk_amount AS cash_openings_1_mmk_amount, cash_openings_1.thb_amount AS cash_openings_1_thb_amount, cash_openings_1.status AS cash_openings_1_status, cash_openings_1.notes AS cash_openings_1_notes, cash_openings_1.created_by AS cash_openings_1_created_by, cash_openings_1.id AS cash_openings_1_id, cash_openings_1.created_at AS cash_openings_1_created_at, cash_openings_1.updated_at AS cash_openings_1_updated_at, cash_openings_1.deleted_at AS cash_openings_1_deleted_at, roles_2.name AS roles_2_name, roles_2.description AS roles_2_description, roles_2.id AS roles_2_id, roles_2.created_at AS roles_2_created_at, roles_2.updated_at AS roles_2_updated_at, roles_2.deleted_at AS roles_2_deleted_at, users_2.username AS users_2_username, users_2.email AS users_2_email, users_2.hashed_password AS users_2_hashed_password, users_2.full_name AS users_2_full_name, users_2.is_active AS users_2_is_active, users_2.last_login_at AS users_2_last_login_at, users_2.role_id AS users_2_role_id, users_2.id AS users_2_id, users_2.created_at AS users_2_created_at, users_2.updated_at AS users_2_updated_at, users_2.deleted_at AS users_2_deleted_at 
+ems_backend  | FROM cash_closings LEFT OUTER JOIN cash_openings AS cash_openings_1 ON cash_openings_1.id = cash_closings.cash_opening_id LEFT OUTER JOIN users AS users_1 ON users_1.id = cash_openings_1.created_by LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users_1.role_id LEFT OUTER JOIN users AS users_2 ON users_2.id = cash_closings.created_by LEFT OUTER JOIN roles AS roles_2 ON roles_2.id = users_2.role_id 
+ems_backend  | WHERE cash_closings.closing_date = %(closing_date_1)s::DATE AND cash_closings.deleted_at IS NULL 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:54:59,703 INFO sqlalchemy.engine.Engine [generated in 0.00014s] {'closing_date_1': datetime.date(2026, 8, 2), 'param_1': 1}
+ems_backend  | INFO:     172.19.0.4:38160 - "GET /api/v1/cash-management/status HTTP/1.1" 200 OK
+ems_backend  | 2026-08-02 15:54:59,706 INFO sqlalchemy.engine.Engine ROLLBACK
+ems_backend  | 2026-08-02 15:54:59,712 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+ems_backend  | 2026-08-02 15:54:59,712 INFO sqlalchemy.engine.Engine SELECT users.username AS users_username, users.email AS users_email, users.hashed_password AS users_hashed_password, users.full_name AS users_full_name, users.is_active AS users_is_active, users.last_login_at AS users_last_login_at, users.role_id AS users_role_id, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.deleted_at AS users_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at 
+ems_backend  | FROM users LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users.role_id 
+ems_backend  | WHERE users.id = %(id_1)s::UUID 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:54:59,712 INFO sqlalchemy.engine.Engine [cached since 19.57s ago] {'id_1': UUID('3e2a83e3-6218-4fcb-8220-71c70cdddb54'), 'param_1': 1}
+ems_backend  | 2026-08-02 15:54:59,714 INFO sqlalchemy.engine.Engine SELECT cash_openings.opening_date AS cash_openings_opening_date, cash_openings.mmk_amount AS cash_openings_mmk_amount, cash_openings.thb_amount AS cash_openings_thb_amount, cash_openings.status AS cash_openings_status, cash_openings.notes AS cash_openings_notes, cash_openings.created_by AS cash_openings_created_by, cash_openings.id AS cash_openings_id, cash_openings.created_at AS cash_openings_created_at, cash_openings.updated_at AS cash_openings_updated_at, cash_openings.deleted_at AS cash_openings_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at, users_1.username AS users_1_username, users_1.email AS users_1_email, users_1.hashed_password AS users_1_hashed_password, users_1.full_name AS users_1_full_name, users_1.is_active AS users_1_is_active, users_1.last_login_at AS users_1_last_login_at, users_1.role_id AS users_1_role_id, users_1.id AS users_1_id, users_1.created_at AS users_1_created_at, users_1.updated_at AS users_1_updated_at, users_1.deleted_at AS users_1_deleted_at, roles_2.name AS roles_2_name, roles_2.description AS roles_2_description, roles_2.id AS roles_2_id, roles_2.created_at AS roles_2_created_at, roles_2.updated_at AS roles_2_updated_at, roles_2.deleted_at AS roles_2_deleted_at, users_2.username AS users_2_username, users_2.email AS users_2_email, users_2.hashed_password AS users_2_hashed_password, users_2.full_name AS users_2_full_name, users_2.is_active AS users_2_is_active, users_2.last_login_at AS users_2_last_login_at, users_2.role_id AS users_2_role_id, users_2.id AS users_2_id, users_2.created_at AS users_2_created_at, users_2.updated_at AS users_2_updated_at, users_2.deleted_at AS users_2_deleted_at, cash_closings_1.closing_date AS cash_closings_1_closing_date, cash_closings_1.mmk_amount AS cash_closings_1_mmk_amount, cash_closings_1.thb_amount AS cash_closings_1_thb_amount, cash_closings_1.expected_mmk_amount AS cash_closings_1_expected_mmk_amount, cash_closings_1.expected_thb_amount AS cash_closings_1_expected_thb_amount, cash_closings_1.mmk_discrepancy AS cash_closings_1_mmk_discrepancy, cash_closings_1.thb_discrepancy AS cash_closings_1_thb_discrepancy, cash_closings_1.notes AS cash_closings_1_notes, cash_closings_1.cash_opening_id AS cash_closings_1_cash_opening_id, cash_closings_1.created_by AS cash_closings_1_created_by, cash_closings_1.id AS cash_closings_1_id, cash_closings_1.created_at AS cash_closings_1_created_at, cash_closings_1.updated_at AS cash_closings_1_updated_at, cash_closings_1.deleted_at AS cash_closings_1_deleted_at 
+ems_backend  | FROM cash_openings LEFT OUTER JOIN users AS users_1 ON users_1.id = cash_openings.created_by LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users_1.role_id LEFT OUTER JOIN cash_closings AS cash_closings_1 ON cash_openings.id = cash_closings_1.cash_opening_id LEFT OUTER JOIN users AS users_2 ON users_2.id = cash_closings_1.created_by LEFT OUTER JOIN roles AS roles_2 ON roles_2.id = users_2.role_id 
+ems_backend  | WHERE cash_openings.opening_date = %(opening_date_1)s::DATE AND cash_openings.deleted_at IS NULL 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:54:59,714 INFO sqlalchemy.engine.Engine [cached since 0.02442s ago] {'opening_date_1': datetime.date(2026, 8, 2), 'param_1': 1}
+ems_backend  | 2026-08-02 15:54:59,716 INFO sqlalchemy.engine.Engine SELECT cash_closings.closing_date AS cash_closings_closing_date, cash_closings.mmk_amount AS cash_closings_mmk_amount, cash_closings.thb_amount AS cash_closings_thb_amount, cash_closings.expected_mmk_amount AS cash_closings_expected_mmk_amount, cash_closings.expected_thb_amount AS cash_closings_expected_thb_amount, cash_closings.mmk_discrepancy AS cash_closings_mmk_discrepancy, cash_closings.thb_discrepancy AS cash_closings_thb_discrepancy, cash_closings.notes AS cash_closings_notes, cash_closings.cash_opening_id AS cash_closings_cash_opening_id, cash_closings.created_by AS cash_closings_created_by, cash_closings.id AS cash_closings_id, cash_closings.created_at AS cash_closings_created_at, cash_closings.updated_at AS cash_closings_updated_at, cash_closings.deleted_at AS cash_closings_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at, users_1.username AS users_1_username, users_1.email AS users_1_email, users_1.hashed_password AS users_1_hashed_password, users_1.full_name AS users_1_full_name, users_1.is_active AS users_1_is_active, users_1.last_login_at AS users_1_last_login_at, users_1.role_id AS users_1_role_id, users_1.id AS users_1_id, users_1.created_at AS users_1_created_at, users_1.updated_at AS users_1_updated_at, users_1.deleted_at AS users_1_deleted_at, cash_openings_1.opening_date AS cash_openings_1_opening_date, cash_openings_1.mmk_amount AS cash_openings_1_mmk_amount, cash_openings_1.thb_amount AS cash_openings_1_thb_amount, cash_openings_1.status AS cash_openings_1_status, cash_openings_1.notes AS cash_openings_1_notes, cash_openings_1.created_by AS cash_openings_1_created_by, cash_openings_1.id AS cash_openings_1_id, cash_openings_1.created_at AS cash_openings_1_created_at, cash_openings_1.updated_at AS cash_openings_1_updated_at, cash_openings_1.deleted_at AS cash_openings_1_deleted_at, roles_2.name AS roles_2_name, roles_2.description AS roles_2_description, roles_2.id AS roles_2_id, roles_2.created_at AS roles_2_created_at, roles_2.updated_at AS roles_2_updated_at, roles_2.deleted_at AS roles_2_deleted_at, users_2.username AS users_2_username, users_2.email AS users_2_email, users_2.hashed_password AS users_2_hashed_password, users_2.full_name AS users_2_full_name, users_2.is_active AS users_2_is_active, users_2.last_login_at AS users_2_last_login_at, users_2.role_id AS users_2_role_id, users_2.id AS users_2_id, users_2.created_at AS users_2_created_at, users_2.updated_at AS users_2_updated_at, users_2.deleted_at AS users_2_deleted_at 
+ems_backend  | FROM cash_closings LEFT OUTER JOIN cash_openings AS cash_openings_1 ON cash_openings_1.id = cash_closings.cash_opening_id LEFT OUTER JOIN users AS users_1 ON users_1.id = cash_openings_1.created_by LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users_1.role_id LEFT OUTER JOIN users AS users_2 ON users_2.id = cash_closings.created_by LEFT OUTER JOIN roles AS roles_2 ON roles_2.id = users_2.role_id 
+ems_backend  | WHERE cash_closings.closing_date = %(closing_date_1)s::DATE AND cash_closings.deleted_at IS NULL 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:54:59,716 INFO sqlalchemy.engine.Engine [cached since 0.01337s ago] {'closing_date_1': datetime.date(2026, 8, 2), 'param_1': 1}
+ems_backend  | INFO:     172.19.0.4:38164 - "GET /api/v1/cash-management/status HTTP/1.1" 200 OK
+ems_backend  | 2026-08-02 15:54:59,718 INFO sqlalchemy.engine.Engine ROLLBACK
+ems_backend  | 2026-08-02 15:55:01,850 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+ems_backend  | 2026-08-02 15:55:01,851 INFO sqlalchemy.engine.Engine SELECT users.username AS users_username, users.email AS users_email, users.hashed_password AS users_hashed_password, users.full_name AS users_full_name, users.is_active AS users_is_active, users.last_login_at AS users_last_login_at, users.role_id AS users_role_id, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.deleted_at AS users_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at 
+ems_backend  | FROM users LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users.role_id 
+ems_backend  | WHERE users.id = %(id_1)s::UUID 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:55:01,851 INFO sqlalchemy.engine.Engine [cached since 21.71s ago] {'id_1': UUID('3e2a83e3-6218-4fcb-8220-71c70cdddb54'), 'param_1': 1}
+ems_backend  | 2026-08-02 15:55:01,861 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+ems_backend  | FROM (SELECT audit_logs.action AS audit_logs_action, audit_logs.entity_type AS audit_logs_entity_type, audit_logs.entity_id AS audit_logs_entity_id, audit_logs.old_values AS audit_logs_old_values, audit_logs.new_values AS audit_logs_new_values, audit_logs.ip_address AS audit_logs_ip_address, audit_logs.created_at AS audit_logs_created_at, audit_logs.user_id AS audit_logs_user_id, audit_logs.id AS audit_logs_id 
+ems_backend  | FROM audit_logs) AS anon_1
+ems_backend  | 2026-08-02 15:55:01,861 INFO sqlalchemy.engine.Engine [generated in 0.00021s] {}
+ems_backend  | 2026-08-02 15:55:01,867 INFO sqlalchemy.engine.Engine SELECT audit_logs.action AS audit_logs_action, audit_logs.entity_type AS audit_logs_entity_type, audit_logs.entity_id AS audit_logs_entity_id, audit_logs.old_values AS audit_logs_old_values, audit_logs.new_values AS audit_logs_new_values, audit_logs.ip_address AS audit_logs_ip_address, audit_logs.created_at AS audit_logs_created_at, audit_logs.user_id AS audit_logs_user_id, audit_logs.id AS audit_logs_id, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at, users_1.username AS users_1_username, users_1.email AS users_1_email, users_1.hashed_password AS users_1_hashed_password, users_1.full_name AS users_1_full_name, users_1.is_active AS users_1_is_active, users_1.last_login_at AS users_1_last_login_at, users_1.role_id AS users_1_role_id, users_1.id AS users_1_id, users_1.created_at AS users_1_created_at, users_1.updated_at AS users_1_updated_at, users_1.deleted_at AS users_1_deleted_at 
+ems_backend  | FROM audit_logs LEFT OUTER JOIN users AS users_1 ON users_1.id = audit_logs.user_id LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users_1.role_id ORDER BY audit_logs.created_at DESC 
+ems_backend  |  LIMIT %(param_1)s::INTEGER OFFSET %(param_2)s::INTEGER
+ems_backend  | 2026-08-02 15:55:01,868 INFO sqlalchemy.engine.Engine [generated in 0.00021s] {'param_1': 20, 'param_2': 0}
+ems_backend  | INFO:     172.19.0.4:38180 - "GET /api/v1/audit-logs?skip=0&limit=20 HTTP/1.1" 200 OK
+ems_backend  | 2026-08-02 15:55:01,873 INFO sqlalchemy.engine.Engine ROLLBACK
+ems_backend  | 2026-08-02 15:55:02,931 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+ems_backend  | 2026-08-02 15:55:02,931 INFO sqlalchemy.engine.Engine SELECT users.username AS users_username, users.email AS users_email, users.hashed_password AS users_hashed_password, users.full_name AS users_full_name, users.is_active AS users_is_active, users.last_login_at AS users_last_login_at, users.role_id AS users_role_id, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.deleted_at AS users_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at 
+ems_backend  | FROM users LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users.role_id 
+ems_backend  | WHERE users.id = %(id_1)s::UUID 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:55:02,931 INFO sqlalchemy.engine.Engine [cached since 22.79s ago] {'id_1': UUID('3e2a83e3-6218-4fcb-8220-71c70cdddb54'), 'param_1': 1}
+ems_backend  | 2026-08-02 15:55:02,935 INFO sqlalchemy.engine.Engine SELECT system_settings.key AS system_settings_key, system_settings.value AS system_settings_value, system_settings.description AS system_settings_description, system_settings.created_at AS system_settings_created_at, system_settings.updated_at AS system_settings_updated_at, system_settings.id AS system_settings_id 
+ems_backend  | FROM system_settings
+ems_backend  | 2026-08-02 15:55:02,935 INFO sqlalchemy.engine.Engine [generated in 0.00022s] {}
+ems_backend  | INFO:     172.19.0.4:38194 - "GET /api/v1/settings HTTP/1.1" 200 OK
+ems_backend  | 2026-08-02 15:55:02,938 INFO sqlalchemy.engine.Engine ROLLBACK
+ems_backend  | 2026-08-02 15:55:02,945 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+ems_backend  | 2026-08-02 15:55:02,945 INFO sqlalchemy.engine.Engine SELECT users.username AS users_username, users.email AS users_email, users.hashed_password AS users_hashed_password, users.full_name AS users_full_name, users.is_active AS users_is_active, users.last_login_at AS users_last_login_at, users.role_id AS users_role_id, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.deleted_at AS users_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at 
+ems_backend  | FROM users LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users.role_id 
+ems_backend  | WHERE users.id = %(id_1)s::UUID 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:55:02,945 INFO sqlalchemy.engine.Engine [cached since 22.8s ago] {'id_1': UUID('3e2a83e3-6218-4fcb-8220-71c70cdddb54'), 'param_1': 1}
+ems_backend  | 2026-08-02 15:55:02,946 INFO sqlalchemy.engine.Engine SELECT system_settings.key AS system_settings_key, system_settings.value AS system_settings_value, system_settings.description AS system_settings_description, system_settings.created_at AS system_settings_created_at, system_settings.updated_at AS system_settings_updated_at, system_settings.id AS system_settings_id 
+ems_backend  | FROM system_settings
+ems_backend  | 2026-08-02 15:55:02,947 INFO sqlalchemy.engine.Engine [cached since 0.01132s ago] {}
+ems_backend  | INFO:     172.19.0.4:38206 - "GET /api/v1/settings HTTP/1.1" 200 OK
+ems_backend  | 2026-08-02 15:55:02,948 INFO sqlalchemy.engine.Engine ROLLBACK

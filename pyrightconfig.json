@@ -1,0 +1,17 @@
+{
+  "pythonVersion": "3.8",
+  "pythonPlatform": "Darwin",
+  "executionEnvironments": [
+    {
+      "root": "backend",
+      "extraPaths": ["backend"]
+    }
+  ],
+  "venvPath": "backend",
+  "venv": "venv",
+  "reportMissingImports": false,
+  "reportMissingModuleSource": false,
+  "reportGeneralTypeIssues": false,
+  "reportOptionalMemberAccess": false,
+  "typeCheckingMode": "off"
+}

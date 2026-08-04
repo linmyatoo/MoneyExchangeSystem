@@ -1,0 +1,300 @@
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 65, in run_sync
+ems_backend  |     return await get_async_backend().run_sync_in_worker_thread(
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2641, in run_sync_in_worker_thread
+ems_backend  |     return await future
+ems_backend  |            ^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1033, in run
+ems_backend  |     result = context.run(func, *args)
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/api/v1/currency_exchange.py", line 28, in get_inventory
+ems_backend  |     return service.get_inventory_summary()
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/services/currency_exchange_service.py", line 130, in get_inventory_summary
+ems_backend  |     return self.exchange_repo.get_thb_inventory_summary()
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/repositories/currency_exchange_repository.py", line 123, in get_thb_inventory_summary
+ems_backend  |     total_remaining = self.db.query(func.sum(WalletAccount.current_balance)).join(WalletType).filter(
+ems_backend  |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  | AttributeError: type object 'WalletAccount' has no attribute 'current_balance'
+ems_backend  | Unhandled exception: type object 'WalletAccount' has no attribute 'current_balance'
+ems_backend  | INFO:     172.19.0.4:43058 - "GET /api/v1/currency-exchange/inventory HTTP/1.1" 500 Internal Server Error
+ems_backend  | ERROR:    Exception in ASGI application
+ems_backend  | Traceback (most recent call last):
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+ems_backend  |     result = await app(  # type: ignore[func-returns-value]
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+ems_backend  |     return await self.app(scope, receive, send)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/applications.py", line 1163, in __call__
+ems_backend  |     await super().__call__(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/applications.py", line 90, in __call__
+ems_backend  |     await self.middleware_stack(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+ems_backend  |     await self.app(scope, receive, _send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+ems_backend  |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+ems_backend  |     await self.middleware_stack(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2734, in app
+ems_backend  |     await route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1780, in handle
+ems_backend  |     await self.original_router.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2789, in handle
+ems_backend  |     await included_router._handle_selected(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+ems_backend  |     await original_route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1279, in handle
+ems_backend  |     await app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 158, in app
+ems_backend  |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 144, in app
+ems_backend  |     response = await f(request)
+ems_backend  |                ^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 706, in app
+ems_backend  |     raw_response = await run_endpoint_function(
+ems_backend  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+ems_backend  |     return await run_in_threadpool(dependant.call, **values)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+ems_backend  |     return await anyio.to_thread.run_sync(func)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 65, in run_sync
+ems_backend  |     return await get_async_backend().run_sync_in_worker_thread(
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2641, in run_sync_in_worker_thread
+ems_backend  |     return await future
+ems_backend  |            ^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1033, in run
+ems_backend  |     result = context.run(func, *args)
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/api/v1/currency_exchange.py", line 28, in get_inventory
+ems_backend  |     return service.get_inventory_summary()
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/services/currency_exchange_service.py", line 130, in get_inventory_summary
+ems_backend  |     return self.exchange_repo.get_thb_inventory_summary()
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/repositories/currency_exchange_repository.py", line 123, in get_thb_inventory_summary
+ems_backend  |     total_remaining = self.db.query(func.sum(WalletAccount.current_balance)).join(WalletType).filter(
+ems_backend  |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  | AttributeError: type object 'WalletAccount' has no attribute 'current_balance'
+ems_backend  | 2026-08-02 15:47:28,963 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+ems_backend  | 2026-08-02 15:47:28,963 INFO sqlalchemy.engine.Engine SELECT users.username AS users_username, users.email AS users_email, users.hashed_password AS users_hashed_password, users.full_name AS users_full_name, users.is_active AS users_is_active, users.last_login_at AS users_last_login_at, users.role_id AS users_role_id, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.deleted_at AS users_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at 
+ems_backend  | FROM users LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users.role_id 
+ems_backend  | WHERE users.id = %(id_1)s::UUID 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:47:28,964 INFO sqlalchemy.engine.Engine [cached since 8.807s ago] {'id_1': UUID('3e2a83e3-6218-4fcb-8220-71c70cdddb54'), 'param_1': 1}
+ems_backend  | 2026-08-02 15:47:28,969 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+ems_backend  | FROM (SELECT anon_2.currency_buy_transactions_id AS anon_2_currency_buy_transactions_id, anon_2.currency_buy_transactions_transaction_number AS anon_2_currency_buy_transactions_transaction_number, anon_2.currency_buy_transactions_transaction_date AS anon_2_currency_buy_transactions_transaction_date, anon_2.currency_buy_transactions_customer_name AS anon_2_currency_buy_transactions_customer_name, anon_2.currency_buy_transactions_foreign_amount AS anon_2_currency_buy_transactions_foreign_amount, anon_2.currency_buy_transactions_rate_used AS anon_2_currency_buy_transactions_rate_used, anon_2.currency_buy_transactions_local_amount AS anon_2_currency_buy_transactions_local_amount, anon_2.currency_buy_transactions_profit AS anon_2_currency_buy_transactions_profit, anon_2.type AS anon_2_type 
+ems_backend  | FROM (SELECT anon_3.currency_buy_transactions_id AS currency_buy_transactions_id, anon_3.currency_buy_transactions_transaction_number AS currency_buy_transactions_transaction_number, anon_3.currency_buy_transactions_transaction_date AS currency_buy_transactions_transaction_date, anon_3.currency_buy_transactions_customer_name AS currency_buy_transactions_customer_name, anon_3.currency_buy_transactions_foreign_amount AS currency_buy_transactions_foreign_amount, anon_3.currency_buy_transactions_rate_used AS currency_buy_transactions_rate_used, anon_3.currency_buy_transactions_local_amount AS currency_buy_transactions_local_amount, anon_3.currency_buy_transactions_profit AS currency_buy_transactions_profit, anon_3.type AS type 
+ems_backend  | FROM (SELECT currency_buy_transactions.id AS currency_buy_transactions_id, currency_buy_transactions.transaction_number AS currency_buy_transactions_transaction_number, currency_buy_transactions.transaction_date AS currency_buy_transactions_transaction_date, currency_buy_transactions.customer_name AS currency_buy_transactions_customer_name, currency_buy_transactions.foreign_amount AS currency_buy_transactions_foreign_amount, currency_buy_transactions.rate_used AS currency_buy_transactions_rate_used, currency_buy_transactions.local_amount AS currency_buy_transactions_local_amount, currency_buy_transactions.profit AS currency_buy_transactions_profit, %(param_1)s::VARCHAR AS type 
+ems_backend  | FROM currency_buy_transactions UNION ALL SELECT currency_sell_transactions.id AS currency_sell_transactions_id, currency_sell_transactions.transaction_number AS currency_sell_transactions_transaction_number, currency_sell_transactions.transaction_date AS currency_sell_transactions_transaction_date, currency_sell_transactions.customer_name AS currency_sell_transactions_customer_name, currency_sell_transactions.foreign_amount AS currency_sell_transactions_foreign_amount, currency_sell_transactions.rate_used AS currency_sell_transactions_rate_used, currency_sell_transactions.local_amount AS currency_sell_transactions_local_amount, currency_sell_transactions.profit AS currency_sell_transactions_profit, %(param_2)s::VARCHAR AS type 
+ems_backend  | FROM currency_sell_transactions) AS anon_3) AS anon_2) AS anon_1
+ems_backend  | 2026-08-02 15:47:28,969 INFO sqlalchemy.engine.Engine [cached since 0.05706s ago] {'param_1': 'buy', 'param_2': 'sell'}
+ems_backend  | 2026-08-02 15:47:28,971 INFO sqlalchemy.engine.Engine ROLLBACK
+ems_backend  | Traceback (most recent call last):
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1724, in __getattr__
+ems_backend  |     return self._index[key][1]
+ems_backend  |            ~~~~~~~~~~~^^^^^
+ems_backend  | KeyError: 'transaction_date'
+ems_backend  | 
+ems_backend  | The above exception was the direct cause of the following exception:
+ems_backend  | 
+ems_backend  | Traceback (most recent call last):
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+ems_backend  |     await self.app(scope, receive, _send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+ems_backend  |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+ems_backend  |     await self.middleware_stack(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2734, in app
+ems_backend  |     await route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1780, in handle
+ems_backend  |     await self.original_router.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2789, in handle
+ems_backend  |     await included_router._handle_selected(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+ems_backend  |     await original_route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1279, in handle
+ems_backend  |     await app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 158, in app
+ems_backend  |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 144, in app
+ems_backend  |     response = await f(request)
+ems_backend  |                ^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 706, in app
+ems_backend  |     raw_response = await run_endpoint_function(
+ems_backend  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+ems_backend  |     return await run_in_threadpool(dependant.call, **values)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+ems_backend  |     return await anyio.to_thread.run_sync(func)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 65, in run_sync
+ems_backend  |     return await get_async_backend().run_sync_in_worker_thread(
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2641, in run_sync_in_worker_thread
+ems_backend  |     return await future
+ems_backend  |            ^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1033, in run
+ems_backend  |     result = context.run(func, *args)
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/api/v1/currency_exchange.py", line 43, in get_history
+ems_backend  |     items, total = service.get_history(skip=skip, limit=page_size, search=q, tx_type=tx_type)
+ems_backend  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/services/currency_exchange_service.py", line 125, in get_history
+ems_backend  |     return self.exchange_repo.get_paginated_history(
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/repositories/currency_exchange_repository.py", line 81, in get_paginated_history
+ems_backend  |     results = self.db.query(subq).order_by(subq.c.transaction_date.desc()).offset(skip).limit(limit).all()
+ems_backend  |                                            ^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1726, in __getattr__
+ems_backend  |     raise AttributeError(key) from err
+ems_backend  | AttributeError: transaction_date
+ems_backend  | Unhandled exception: transaction_date
+ems_backend  | INFO:     172.19.0.4:43064 - "GET /api/v1/currency-exchange/history?page=1&page_size=10&q= HTTP/1.1" 500 Internal Server Error
+ems_backend  | ERROR:    Exception in ASGI application
+ems_backend  | Traceback (most recent call last):
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1724, in __getattr__
+ems_backend  |     return self._index[key][1]
+ems_backend  |            ~~~~~~~~~~~^^^^^
+ems_backend  | KeyError: 'transaction_date'
+ems_backend  | 
+ems_backend  | The above exception was the direct cause of the following exception:
+ems_backend  | 
+ems_backend  | Traceback (most recent call last):
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+ems_backend  |     result = await app(  # type: ignore[func-returns-value]
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+ems_backend  |     return await self.app(scope, receive, send)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/applications.py", line 1163, in __call__
+ems_backend  |     await super().__call__(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/applications.py", line 90, in __call__
+ems_backend  |     await self.middleware_stack(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+ems_backend  |     await self.app(scope, receive, _send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+ems_backend  |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+ems_backend  |     await self.app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+ems_backend  |     await self.middleware_stack(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2734, in app
+ems_backend  |     await route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1780, in handle
+ems_backend  |     await self.original_router.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2789, in handle
+ems_backend  |     await included_router._handle_selected(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1800, in _handle_selected
+ems_backend  |     await original_route.handle(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1279, in handle
+ems_backend  |     await app(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 158, in app
+ems_backend  |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+ems_backend  |     raise exc
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+ems_backend  |     await app(scope, receive, sender)
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 144, in app
+ems_backend  |     response = await f(request)
+ems_backend  |                ^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 706, in app
+ems_backend  |     raw_response = await run_endpoint_function(
+ems_backend  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+ems_backend  |     return await run_in_threadpool(dependant.call, **values)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+ems_backend  |     return await anyio.to_thread.run_sync(func)
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 65, in run_sync
+ems_backend  |     return await get_async_backend().run_sync_in_worker_thread(
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2641, in run_sync_in_worker_thread
+ems_backend  |     return await future
+ems_backend  |            ^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1033, in run
+ems_backend  |     result = context.run(func, *args)
+ems_backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/api/v1/currency_exchange.py", line 43, in get_history
+ems_backend  |     items, total = service.get_history(skip=skip, limit=page_size, search=q, tx_type=tx_type)
+ems_backend  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/services/currency_exchange_service.py", line 125, in get_history
+ems_backend  |     return self.exchange_repo.get_paginated_history(
+ems_backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/app/app/repositories/currency_exchange_repository.py", line 81, in get_paginated_history
+ems_backend  |     results = self.db.query(subq).order_by(subq.c.transaction_date.desc()).offset(skip).limit(limit).all()
+ems_backend  |                                            ^^^^^^^^^^^^^^^^^^^^^^^
+ems_backend  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1726, in __getattr__
+ems_backend  |     raise AttributeError(key) from err
+ems_backend  | AttributeError: transaction_date
+ems_backend  | 2026-08-02 15:47:28,981 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+ems_backend  | 2026-08-02 15:47:28,981 INFO sqlalchemy.engine.Engine SELECT users.username AS users_username, users.email AS users_email, users.hashed_password AS users_hashed_password, users.full_name AS users_full_name, users.is_active AS users_is_active, users.last_login_at AS users_last_login_at, users.role_id AS users_role_id, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.deleted_at AS users_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at 
+ems_backend  | FROM users LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users.role_id 
+ems_backend  | WHERE users.id = %(id_1)s::UUID 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:47:28,981 INFO sqlalchemy.engine.Engine [cached since 8.824s ago] {'id_1': UUID('3e2a83e3-6218-4fcb-8220-71c70cdddb54'), 'param_1': 1}
+ems_backend  | 2026-08-02 15:47:28,982 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+ems_backend  | 2026-08-02 15:47:28,982 INFO sqlalchemy.engine.Engine SELECT users.username AS users_username, users.email AS users_email, users.hashed_password AS users_hashed_password, users.full_name AS users_full_name, users.is_active AS users_is_active, users.last_login_at AS users_last_login_at, users.role_id AS users_role_id, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.deleted_at AS users_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at 
+ems_backend  | FROM users LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users.role_id 
+ems_backend  | WHERE users.id = %(id_1)s::UUID 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:47:28,982 INFO sqlalchemy.engine.Engine [cached since 8.825s ago] {'id_1': UUID('3e2a83e3-6218-4fcb-8220-71c70cdddb54'), 'param_1': 1}
+ems_backend  | 2026-08-02 15:47:28,983 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+ems_backend  | FROM (SELECT wallet_accounts.account_name AS wallet_accounts_account_name, wallet_accounts.account_number AS wallet_accounts_account_number, wallet_accounts.opening_balance AS wallet_accounts_opening_balance, wallet_accounts.balance AS wallet_accounts_balance, wallet_accounts.is_active AS wallet_accounts_is_active, wallet_accounts.wallet_type_id AS wallet_accounts_wallet_type_id, wallet_accounts.id AS wallet_accounts_id, wallet_accounts.created_at AS wallet_accounts_created_at, wallet_accounts.updated_at AS wallet_accounts_updated_at, wallet_accounts.deleted_at AS wallet_accounts_deleted_at 
+ems_backend  | FROM wallet_accounts 
+ems_backend  | WHERE wallet_accounts.deleted_at IS NULL) AS anon_1
+ems_backend  | 2026-08-02 15:47:28,983 INFO sqlalchemy.engine.Engine [cached since 8.736s ago] {}
+ems_backend  | 2026-08-02 15:47:28,984 INFO sqlalchemy.engine.Engine SELECT wallet_accounts.account_name AS wallet_accounts_account_name, wallet_accounts.account_number AS wallet_accounts_account_number, wallet_accounts.opening_balance AS wallet_accounts_opening_balance, wallet_accounts.balance AS wallet_accounts_balance, wallet_accounts.is_active AS wallet_accounts_is_active, wallet_accounts.wallet_type_id AS wallet_accounts_wallet_type_id, wallet_accounts.id AS wallet_accounts_id, wallet_accounts.created_at AS wallet_accounts_created_at, wallet_accounts.updated_at AS wallet_accounts_updated_at, wallet_accounts.deleted_at AS wallet_accounts_deleted_at, wallet_types_1.name AS wallet_types_1_name, wallet_types_1.code AS wallet_types_1_code, wallet_types_1.is_active AS wallet_types_1_is_active, wallet_types_1.id AS wallet_types_1_id, wallet_types_1.created_at AS wallet_types_1_created_at, wallet_types_1.updated_at AS wallet_types_1_updated_at, wallet_types_1.deleted_at AS wallet_types_1_deleted_at 
+ems_backend  | FROM wallet_accounts LEFT OUTER JOIN wallet_types AS wallet_types_1 ON wallet_types_1.id = wallet_accounts.wallet_type_id 
+ems_backend  | WHERE wallet_accounts.deleted_at IS NULL ORDER BY wallet_accounts.created_at DESC 
+ems_backend  |  LIMIT %(param_1)s::INTEGER OFFSET %(param_2)s::INTEGER
+ems_backend  | 2026-08-02 15:47:28,984 INFO sqlalchemy.engine.Engine [cached since 8.73s ago] {'param_1': 100, 'param_2': 0}
+ems_backend  | 2026-08-02 15:47:28,985 INFO sqlalchemy.engine.Engine SELECT exchange_rates.currency_code AS exchange_rates_currency_code, exchange_rates.buy_rate AS exchange_rates_buy_rate, exchange_rates.sell_rate AS exchange_rates_sell_rate, exchange_rates.effective_date AS exchange_rates_effective_date, exchange_rates.is_active AS exchange_rates_is_active, exchange_rates.created_by AS exchange_rates_created_by, exchange_rates.id AS exchange_rates_id, exchange_rates.created_at AS exchange_rates_created_at, exchange_rates.updated_at AS exchange_rates_updated_at, exchange_rates.deleted_at AS exchange_rates_deleted_at, roles_1.name AS roles_1_name, roles_1.description AS roles_1_description, roles_1.id AS roles_1_id, roles_1.created_at AS roles_1_created_at, roles_1.updated_at AS roles_1_updated_at, roles_1.deleted_at AS roles_1_deleted_at, users_1.username AS users_1_username, users_1.email AS users_1_email, users_1.hashed_password AS users_1_hashed_password, users_1.full_name AS users_1_full_name, users_1.is_active AS users_1_is_active, users_1.last_login_at AS users_1_last_login_at, users_1.role_id AS users_1_role_id, users_1.id AS users_1_id, users_1.created_at AS users_1_created_at, users_1.updated_at AS users_1_updated_at, users_1.deleted_at AS users_1_deleted_at 
+ems_backend  | FROM exchange_rates LEFT OUTER JOIN users AS users_1 ON users_1.id = exchange_rates.created_by LEFT OUTER JOIN roles AS roles_1 ON roles_1.id = users_1.role_id 
+ems_backend  | WHERE exchange_rates.currency_code = %(currency_code_1)s::VARCHAR AND exchange_rates.is_active = true AND exchange_rates.deleted_at IS NULL 
+ems_backend  |  LIMIT %(param_1)s::INTEGER
+ems_backend  | 2026-08-02 15:47:28,985 INFO sqlalchemy.engine.Engine [cached since 6.661s ago] {'currency_code_1': 'THB', 'param_1': 1}
+ems_backend  | INFO:     172.19.0.4:43078 - "GET /api/v1/wallets/accounts?page_size=100 HTTP/1.1" 200 OK
+ems_backend  | 2026-08-02 15:47:28,985 INFO sqlalchemy.engine.Engine ROLLBACK
+ems_backend  | 2026-08-02 15:47:28,986 INFO sqlalchemy.engine.Engine ROLLBACK
+ems_backend  | INFO:     172.19.0.4:43076 - "GET /api/v1/exchange-rates/current?currency_code=THB HTTP/1.1" 404 Not Found
