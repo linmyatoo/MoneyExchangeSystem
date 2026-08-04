@@ -104,7 +104,8 @@ export function TransactionList({ data, onEdit, onDelete }: TransactionListProps
           currency: "MMK",
           minimumFractionDigits: 0,
         }).format(amount);
-        return <div className="font-medium">{formatted}</div>;
+        const isCredit = row.original.is_credit;
+        return <div className={`font-medium ${isCredit ? 'text-red-600' : ''}`}>{formatted}</div>;
       },
     },
     {
