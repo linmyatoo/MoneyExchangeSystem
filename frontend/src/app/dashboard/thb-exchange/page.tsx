@@ -131,8 +131,8 @@ export default function THBExchangePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">THB Exchange</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">THB Exchange</h1>
         <div className="space-x-2">
           <Button onClick={() => setIsBuyFormOpen(true)} className="bg-green-600 hover:bg-green-700">
             <ArrowDownLeft className="mr-2 h-4 w-4" /> Buy THB

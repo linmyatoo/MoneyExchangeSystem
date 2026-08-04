@@ -124,7 +124,7 @@ export function BuyForm({ open, onOpenChange, customers, mmkWallets, thbWallets,
             </div>
           )}
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Select Customer</Label>
               <Select 
@@ -170,7 +170,7 @@ export function BuyForm({ open, onOpenChange, customers, mmkWallets, thbWallets,
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Pay MMK From</Label>
               <Select 
