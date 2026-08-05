@@ -118,27 +118,30 @@ export default function WalletsPage() {
   const thaiWallets = wallets.filter(w => THB_WALLET_TYPES.includes(w.wallet_type.name));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Wallet Accounts</h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Wallet Accounts</h1>
+          <p className="text-muted-foreground text-xs mt-1">Manage your Myanmar and Thai bank accounts.</p>
+        </div>
         <div className="flex space-x-2">
-          <Button onClick={() => openCreateForm("myanmar")}>
+          <Button onClick={() => openCreateForm("myanmar")} className="shadow-sm transition-all rounded-md h-10 px-4 font-medium">
             <Plus className="mr-2 h-4 w-4" />
             Add Myanmar Wallet
           </Button>
-          <Button onClick={() => openCreateForm("thai")} className="bg-indigo-600 hover:bg-indigo-700">
+          <Button onClick={() => openCreateForm("thai")} className="bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-all rounded-md h-10 px-4 font-medium">
             <Plus className="mr-2 h-4 w-4" />
             Add Thai Wallet
           </Button>
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+      <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder="Search wallets..."
-            className="pl-8"
+            className="pl-9 h-10 border-slate-200 text-sm focus:ring-blue-500 transition-all placeholder:text-slate-400"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -151,33 +154,41 @@ export default function WalletsPage() {
         </div>
       ) : (
         <div className="space-y-12">
-          <div>
-            <h2 className="text-xl font-semibold mb-4 text-slate-800 flex items-center">
-              Myanmar Bank Accounts
-              <span className="ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-slate-100 text-slate-600">
-                {myanmarWallets.length}
-              </span>
-            </h2>
-            <WalletList
-              data={myanmarWallets}
-              onEdit={openEditForm}
-              onToggleStatus={handleToggleStatus}
-              currency="MMK"
-            />
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+              <h2 className="text-lg font-semibold text-slate-800 flex items-center">
+                Myanmar Bank Accounts
+                <span className="ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
+                  {myanmarWallets.length}
+                </span>
+              </h2>
+            </div>
+            <div className="p-0">
+              <WalletList
+                data={myanmarWallets}
+                onEdit={openEditForm}
+                onToggleStatus={handleToggleStatus}
+                currency="MMK"
+              />
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-semibold mb-4 text-slate-800 flex items-center">
-              Thai Bank Accounts
-              <span className="ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-slate-100 text-slate-600">
-                {thaiWallets.length}
-              </span>
-            </h2>
-            <WalletList
-              data={thaiWallets}
-              onEdit={openEditForm}
-              onToggleStatus={handleToggleStatus}
-              currency="THB"
-            />
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+              <h2 className="text-lg font-semibold text-slate-800 flex items-center">
+                Thai Bank Accounts
+                <span className="ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
+                  {thaiWallets.length}
+                </span>
+              </h2>
+            </div>
+            <div className="p-0">
+              <WalletList
+                data={thaiWallets}
+                onEdit={openEditForm}
+                onToggleStatus={handleToggleStatus}
+                currency="THB"
+              />
+            </div>
           </div>
         </div>
       )}

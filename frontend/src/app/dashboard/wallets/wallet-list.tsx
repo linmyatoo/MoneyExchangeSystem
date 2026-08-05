@@ -111,14 +111,14 @@ export function WalletList({ data, onEdit, onToggleStatus, currency = "MMK" }: W
   });
 
   return (
-    <div className="rounded-md border">
+    <div className="w-full">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-slate-50/80">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className="hover:bg-transparent border-slate-100 border-b">
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="h-10 font-semibold text-slate-500 uppercase text-[11px] tracking-wider">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -137,9 +137,10 @@ export function WalletList({ data, onEdit, onToggleStatus, currency = "MMK" }: W
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className="hover:bg-slate-50/50 transition-colors border-slate-100"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} className="py-3 text-sm text-slate-700">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -147,8 +148,10 @@ export function WalletList({ data, onEdit, onToggleStatus, currency = "MMK" }: W
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No wallet accounts found.
+              <TableCell colSpan={columns.length} className="h-24 text-center text-slate-500">
+                <div className="flex flex-col items-center justify-center">
+                  <span className="font-medium text-base">No wallet accounts found.</span>
+                </div>
               </TableCell>
             </TableRow>
           )}

@@ -145,7 +145,7 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
   const handleFormSubmit = async (data: TransactionFormValues) => {
     try {
       setIsSubmitting(true);
-      
+
       // Clean up payload based on type
       let payload = {
         customer_name: data.customer_name || null,
@@ -177,8 +177,8 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2 col-span-2 sm:col-span-1">
               <Label>Transaction Type</Label>
-              <Select 
-                value={transactionType} 
+              <Select
+                value={transactionType}
                 onValueChange={(val) => {
                   setValue("transaction_type", val as any, { shouldValidate: true });
                   setValue("from_wallet_account_id", "");
@@ -198,24 +198,24 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
 
             <div className="space-y-2 col-span-2 sm:col-span-1">
               <Label>Customer Name (Optional)</Label>
-              <Input 
-                {...register("customer_name")} 
-                placeholder="Enter customer name..." 
+              <Input
+                {...register("customer_name")}
+                placeholder="Enter customer name..."
               />
             </div>
 
             {transactionType !== "cash_to_wallet" && (
               <div className="space-y-2 col-span-2 sm:col-span-1">
                 <Label>Source Wallet</Label>
-                <Select 
-                  value={fromWalletId || ""} 
+                <Select
+                  value={fromWalletId || ""}
                   onValueChange={(val) => setValue("from_wallet_account_id", val, { shouldValidate: true })}
                 >
                   <SelectTrigger>
-                  <SelectValue placeholder="Select Source">
-                    {fromWalletId ? wallets.find(w => w.id === fromWalletId)?.account_name : "Select Source"}
-                  </SelectValue>
-                </SelectTrigger>
+                    <SelectValue placeholder="Select Source">
+                      {fromWalletId ? wallets.find(w => w.id === fromWalletId)?.account_name : "Select Source"}
+                    </SelectValue>
+                  </SelectTrigger>
                   <SelectContent>
                     {wallets.filter(w => w.is_active).map((w) => (
                       <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
@@ -229,15 +229,15 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
             {transactionType !== "wallet_to_cash" && (
               <div className="space-y-2 col-span-2 sm:col-span-1">
                 <Label>Destination Wallet</Label>
-                <Select 
-                  value={toWalletId || ""} 
+                <Select
+                  value={toWalletId || ""}
                   onValueChange={(val) => setValue("to_wallet_account_id", val, { shouldValidate: true })}
                 >
                   <SelectTrigger>
-                  <SelectValue placeholder="Select Destination">
-                    {toWalletId ? wallets.find(w => w.id === toWalletId)?.account_name : "Select Destination"}
-                  </SelectValue>
-                </SelectTrigger>
+                    <SelectValue placeholder="Select Destination">
+                      {toWalletId ? wallets.find(w => w.id === toWalletId)?.account_name : "Select Destination"}
+                    </SelectValue>
+                  </SelectTrigger>
                   <SelectContent>
                     {wallets.filter(w => w.is_active && w.id !== fromWalletId).map((w) => (
                       <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
@@ -247,7 +247,7 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
                 {errors.to_wallet_account_id && <p className="text-sm text-red-500">{errors.to_wallet_account_id.message}</p>}
               </div>
             )}
-            
+
             {errors.root && <p className="text-sm text-red-500 col-span-2">{errors.root.message}</p>}
 
             <div className="space-y-2 col-span-2 sm:col-span-1">
@@ -264,8 +264,8 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
 
             <div className="space-y-2 col-span-2 sm:col-span-1">
               <Label>Profit Store Wallet</Label>
-              <Select 
-                value={profitWalletId || ""} 
+              <Select
+                value={profitWalletId || ""}
                 onValueChange={(val) => setValue("profit_wallet_account_id", val === "none" ? "" : val, { shouldValidate: true })}
               >
                 <SelectTrigger>
@@ -285,8 +285,8 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
 
             <div className="space-y-2 col-span-2 sm:col-span-1">
               <Label>Credit Transaction</Label>
-              <RadioGroup 
-                value={isCredit ? "yes" : "no"} 
+              <RadioGroup
+                value={isCredit ? "yes" : "no"}
                 onValueChange={(val) => setValue("is_credit", val === "yes", { shouldValidate: true })}
                 className="flex items-center space-x-4 h-9"
               >

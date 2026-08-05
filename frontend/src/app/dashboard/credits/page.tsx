@@ -122,33 +122,39 @@ export default function CreditsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Credit Management</h1>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Credit Management</h1>
+        <p className="text-muted-foreground text-sm">Track and settle customer credits and outstanding balances.</p>
       </div>
       
       {/* Dashboard Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border bg-card text-card-foreground shadow">
-          <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">Total Outstanding Credit</h3>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+        <div className="relative overflow-hidden rounded-xl border border-red-100 bg-gradient-to-br from-red-50 to-white shadow-sm transition-all hover:shadow-md">
+          <div className="absolute right-0 top-0 opacity-5">
+            <DollarSign className="h-24 w-24 -mr-4 -mt-4 text-red-600" />
           </div>
-          <div className="p-6 pt-0">
-            <div className="text-2xl font-bold text-red-600">
+          <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <h3 className="tracking-tight text-sm font-semibold text-red-900/70 uppercase">Total Outstanding</h3>
+            <div className="p-1.5 bg-red-100 rounded-full">
+              <DollarSign className="h-4 w-4 text-red-600" />
+            </div>
+          </div>
+          <div className="p-5 pt-0 relative z-10">
+            <div className="text-2xl font-bold text-red-600 tracking-tight">
               {new Intl.NumberFormat("en-US", { style: "currency", currency: "MMK", minimumFractionDigits: 0 }).format(totalOutstanding)}
             </div>
-            <p className="text-xs text-muted-foreground">Owed by customers</p>
+            <p className="text-xs text-red-600/70 mt-1 font-medium">Currently owed by customers</p>
           </div>
         </div>
       </div>
 
       <div className="flex items-center space-x-2">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search customer name or receipt #..."
-            className="pl-8"
+            className="pl-9 h-10 rounded-lg bg-white shadow-sm border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-shadow"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

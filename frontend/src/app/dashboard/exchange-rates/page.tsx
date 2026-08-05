@@ -52,45 +52,58 @@ export default function ExchangeRatesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Exchange Rates</h1>
-        <Button onClick={() => setIsFormOpen(true)}>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Exchange Rates</h1>
+          <p className="text-muted-foreground text-xs mt-1">Manage and publish live currency exchange rates.</p>
+        </div>
+        <Button onClick={() => setIsFormOpen(true)} className="bg-blue-600 hover:bg-blue-700 shadow-sm transition-all rounded-md h-10 px-4 font-medium">
           <Plus className="mr-2 h-4 w-4" /> Publish New Rate
         </Button>
       </div>
       
       {/* Current Rate Highlights */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card text-card-foreground shadow border-blue-200">
-          <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">Active Buy Rate</h3>
-            <LineChart className="h-4 w-4 text-blue-500" />
+        <div className="relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white shadow-sm transition-all hover:shadow-md">
+          <div className="absolute right-0 top-0 opacity-5">
+            <LineChart className="h-20 w-20 -mr-4 -mt-4 text-blue-600" />
           </div>
-          <div className="p-6 pt-0">
-            <div className="text-3xl font-bold text-blue-600">
+          <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <h3 className="tracking-tight text-sm font-semibold text-blue-900/70 uppercase">Active Buy Rate</h3>
+            <div className="p-1.5 bg-blue-100 rounded-full">
+              <LineChart className="h-4 w-4 text-blue-600" />
+            </div>
+          </div>
+          <div className="p-5 pt-0 relative z-10">
+            <div className="text-2xl font-bold text-blue-600 tracking-tight">
               {currentRate ? currentRate.buy_rate : "Not Set"}
             </div>
-            <p className="text-xs text-muted-foreground">THB per 100,000 MMK</p>
+            <p className="text-xs text-blue-600/70 mt-1 font-medium">THB per 100,000 MMK</p>
           </div>
         </div>
         
-        <div className="rounded-xl border bg-card text-card-foreground shadow border-purple-200">
-          <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">Active Sell Rate</h3>
-            <LineChart className="h-4 w-4 text-purple-500" />
+        <div className="relative overflow-hidden rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-white shadow-sm transition-all hover:shadow-md">
+          <div className="absolute right-0 top-0 opacity-5">
+            <LineChart className="h-20 w-20 -mr-4 -mt-4 text-purple-600" />
           </div>
-          <div className="p-6 pt-0">
-            <div className="text-3xl font-bold text-purple-600">
+          <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <h3 className="tracking-tight text-sm font-semibold text-purple-900/70 uppercase">Active Sell Rate</h3>
+            <div className="p-1.5 bg-purple-100 rounded-full">
+              <LineChart className="h-4 w-4 text-purple-600" />
+            </div>
+          </div>
+          <div className="p-5 pt-0 relative z-10">
+            <div className="text-2xl font-bold text-purple-600 tracking-tight">
               {currentRate ? currentRate.sell_rate : "Not Set"}
             </div>
-            <p className="text-xs text-muted-foreground">THB per 100,000 MMK</p>
+            <p className="text-xs text-purple-600/70 mt-1 font-medium">THB per 100,000 MMK</p>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold tracking-tight">Rate History Log</h2>
+      <div className="flex items-center justify-between pt-4">
+        <h2 className="text-xl font-bold text-gray-900 tracking-tight">Rate History Log</h2>
       </div>
 
       {isLoading ? (

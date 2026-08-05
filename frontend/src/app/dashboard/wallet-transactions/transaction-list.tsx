@@ -44,7 +44,7 @@ export function TransactionList({ data, onEdit, onDelete }: TransactionListProps
         const tx = row.original;
         const from = tx.from_wallet_account?.account_name;
         const to = tx.to_wallet_account?.account_name;
-        
+
         if (from && to) return `${from} / ${to}`;
         if (from) return from;
         if (to) return to;
@@ -160,9 +160,9 @@ export function TransactionList({ data, onEdit, onDelete }: TransactionListProps
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 );
               })}

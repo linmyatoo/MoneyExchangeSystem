@@ -31,7 +31,7 @@ export default function WalletTransactionsPage() {
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [wallets, setWallets] = useState<WalletAccount[]>([]);
-  
+
   const [search, setSearch] = useState("");
   const [period, setPeriod] = useState<string>("today");
   const [isLoading, setIsLoading] = useState(true);
@@ -127,21 +127,24 @@ export default function WalletTransactionsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Wallet Transactions</h1>
-        <Button onClick={openCreateForm}>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Wallet Transactions</h1>
+          <p className="text-muted-foreground text-xs mt-1">Manage deposits, withdrawals, and transfers.</p>
+        </div>
+        <Button onClick={openCreateForm} className="bg-blue-600 hover:bg-blue-700 shadow-sm transition-all rounded-md h-10 px-4 font-medium">
           <Plus className="mr-2 h-4 w-4" />
           New Transaction
         </Button>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+      <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder="Search receipt # or notes..."
-            className="pl-8"
+            className="pl-9 h-10 border-slate-200 text-sm focus:ring-blue-500 transition-all placeholder:text-slate-400"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -151,7 +154,7 @@ export default function WalletTransactionsPage() {
         </div>
 
         <select
-          className="flex h-10 w-40 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-10 w-40 items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           value={period}
           onChange={(e) => {
             setPeriod(e.target.value);

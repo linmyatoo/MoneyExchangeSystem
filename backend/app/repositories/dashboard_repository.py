@@ -89,9 +89,9 @@ class DashboardRepository:
         return float(mmk_balance)
 
     def get_outstanding_credit(self) -> float:
-        outstanding = self.db.query(func.sum(Credit.remaining_amount)).filter(
-            Credit.remaining_amount > 0,
-            Credit.deleted_at.is_(None)
+        outstanding = self.db.query(func.sum(WalletTransaction.amount)).filter(
+            WalletTransaction.is_credit == True,
+            WalletTransaction.deleted_at.is_(None)
         ).scalar() or 0.0
         return float(outstanding)
 

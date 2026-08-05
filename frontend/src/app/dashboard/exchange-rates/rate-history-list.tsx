@@ -92,13 +92,13 @@ export function RateHistoryList({ data }: RateHistoryListProps) {
   });
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-slate-50/80">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className="hover:bg-transparent border-slate-200">
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
+                <TableHead key={header.id} className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -116,9 +116,10 @@ export function RateHistoryList({ data }: RateHistoryListProps) {
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className="hover:bg-slate-50/50 transition-colors border-slate-100"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} className="py-2 text-sm text-slate-700">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -126,8 +127,11 @@ export function RateHistoryList({ data }: RateHistoryListProps) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No rates found.
+              <TableCell colSpan={columns.length} className="h-32 text-center text-slate-500">
+                <div className="flex flex-col items-center justify-center">
+                  <span className="font-medium text-base">No rates found.</span>
+                  <span className="text-sm mt-1">Publish a new rate to see it here.</span>
+                </div>
               </TableCell>
             </TableRow>
           )}

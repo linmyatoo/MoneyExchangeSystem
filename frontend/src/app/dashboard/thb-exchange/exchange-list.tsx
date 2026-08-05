@@ -43,16 +43,16 @@ export function ExchangeList({ data }: ExchangeListProps) {
         const type = row.getValue("type") as string;
         if (type === "buy") {
           return (
-            <div className="flex items-center text-green-600 font-medium">
-              <ArrowDownLeft className="w-4 h-4 mr-1" />
-              BUY THB
+            <div className="flex items-center text-emerald-600 font-semibold text-xs">
+              <ArrowDownLeft className="w-3.5 h-3.5 mr-1" />
+              BUY
             </div>
           );
         }
         return (
-          <div className="flex items-center text-blue-600 font-medium">
-            <ArrowUpRight className="w-4 h-4 mr-1" />
-            SELL THB
+          <div className="flex items-center text-blue-600 font-semibold text-xs">
+            <ArrowUpRight className="w-3.5 h-3.5 mr-1" />
+            SELL
           </div>
         );
       },
@@ -99,7 +99,7 @@ export function ExchangeList({ data }: ExchangeListProps) {
         
         const profit = row.getValue("profit") as number;
         return (
-          <span className={`font-medium ${profit > 0 ? "text-green-600" : profit < 0 ? "text-red-600" : "text-gray-600"}`}>
+          <span className={`font-semibold ${profit > 0 ? "text-emerald-600" : profit < 0 ? "text-rose-600" : "text-slate-500"}`}>
             {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(profit)}
           </span>
         );
@@ -114,13 +114,13 @@ export function ExchangeList({ data }: ExchangeListProps) {
   });
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-slate-50/80">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className="hover:bg-transparent border-slate-200">
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
+                <TableHead key={header.id} className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -138,9 +138,10 @@ export function ExchangeList({ data }: ExchangeListProps) {
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className="hover:bg-slate-50/50 transition-colors border-slate-100"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} className="py-2.5 text-sm text-slate-700">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -148,8 +149,10 @@ export function ExchangeList({ data }: ExchangeListProps) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No transactions found.
+              <TableCell colSpan={columns.length} className="h-24 text-center text-slate-500">
+                <div className="flex flex-col items-center justify-center">
+                  <span className="font-medium text-base">No transactions found.</span>
+                </div>
               </TableCell>
             </TableRow>
           )}

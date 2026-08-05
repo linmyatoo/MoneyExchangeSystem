@@ -117,25 +117,27 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle className="font-bold">{wallet ? "Edit Wallet" : "Create New Wallet"}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="account_name">Wallet Name</Label>
-            <Input id="account_name" {...register("account_name")} placeholder="Enter wallet name..." />
+      <DialogContent className="sm:max-w-[425px] rounded-2xl p-0 border-none shadow-2xl overflow-hidden">
+        <div className="px-5 py-5 border-b border-slate-100 bg-slate-50/50">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold tracking-tight text-slate-800">{wallet ? "Edit Wallet" : "Create New Wallet"}</DialogTitle>
+          </DialogHeader>
+        </div>
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 px-5 py-5">
+          <div className="space-y-1.5">
+            <Label htmlFor="account_name" className="font-semibold text-slate-700">Wallet Name</Label>
+            <Input id="account_name" {...register("account_name")} placeholder="Enter wallet name..." className="h-10 border-slate-200 focus:ring-blue-500 transition-all" />
             {errors.account_name && <p className="text-sm text-red-500">{errors.account_name.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="wallet_type_id">Wallet Type</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="wallet_type_id" className="font-semibold text-slate-700">Wallet Type</Label>
             <Select 
               value={walletTypeId} 
               onValueChange={(val) => setValue("wallet_type_id", val as string, { shouldValidate: true })}
               disabled={!!wallet} // Disallow changing type after creation
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-10 border-slate-200">
                 <SelectValue placeholder="Select type">
                   {walletTypeId ? walletTypes.find(t => t.id === walletTypeId)?.name : "Select type"}
                 </SelectValue>
@@ -151,46 +153,48 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
             {errors.wallet_type_id && <p className="text-sm text-red-500">{errors.wallet_type_id.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="account_number">Account Number (Optional)</Label>
-            <Input id="account_number" {...register("account_number")} placeholder="e.g. 09123456789" />
+          <div className="space-y-1.5">
+            <Label htmlFor="account_number" className="font-semibold text-slate-700">Account Number (Optional)</Label>
+            <Input id="account_number" {...register("account_number")} placeholder="e.g. 09123456789" className="h-10 border-slate-200 focus:ring-blue-500 transition-all" />
             {errors.account_number && <p className="text-sm text-red-500">{errors.account_number.message}</p>}
           </div>
 
           {!wallet && (
-            <div className="space-y-2">
-              <Label htmlFor="opening_balance">Opening Balance</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="opening_balance" className="font-semibold text-slate-700">Opening Balance</Label>
               <Input 
                 id="opening_balance" 
                 type="number" 
                 step="0.01" 
                 {...register("opening_balance")} 
+                className="h-10 border-slate-200 focus:ring-blue-500 transition-all"
               />
               {errors.opening_balance && <p className="text-sm text-red-500">{errors.opening_balance.message}</p>}
             </div>
           )}
 
           {wallet && (
-            <div className="space-y-2">
-              <Label htmlFor="balance">Balance</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="balance" className="font-semibold text-slate-700">Balance</Label>
               <Input 
                 id="balance" 
                 type="number" 
                 step="0.01" 
                 {...register("balance")} 
+                className="h-10 border-slate-200 focus:ring-blue-500 transition-all"
               />
               {errors.balance && <p className="text-sm text-red-500">{errors.balance.message}</p>}
             </div>
           )}
 
           {wallet && (
-            <div className="space-y-2">
-              <Label htmlFor="is_active">Status</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="is_active" className="font-semibold text-slate-700">Status</Label>
               <Select 
                 value={isActive ? "active" : "inactive"} 
                 onValueChange={(val) => setValue("is_active", val === "active", { shouldValidate: true })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-10 border-slate-200">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -201,11 +205,11 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
             </div>
           )}
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+          <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100 mt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className="h-10 px-4 rounded-md text-slate-600 hover:text-slate-900 border-slate-200 transition-colors">
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} className="h-10 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm">
               {isSubmitting ? "Saving..." : "Save Wallet"}
             </Button>
           </div>

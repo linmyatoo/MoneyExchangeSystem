@@ -72,41 +72,43 @@ export function RateForm({ open, onOpenChange, onSubmit }: RateFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px]">
-        <DialogHeader>
-          <DialogTitle>Publish New Exchange Rate</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <DialogContent className="sm:max-w-[400px] rounded-xl overflow-hidden p-0 border-none shadow-xl">
+        <div className="px-5 py-5 border-b border-gray-100 bg-gray-50/50">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold tracking-tight text-gray-900">Publish New Exchange Rate</DialogTitle>
+          </DialogHeader>
+        </div>
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 px-5 py-5">
           
-          <div className="space-y-2">
-            <Label>Currency Code</Label>
-            <Input {...register("currency_code")} readOnly className="bg-gray-100" />
+          <div className="space-y-1.5">
+            <Label className="font-medium text-gray-700">Currency Code</Label>
+            <Input {...register("currency_code")} readOnly className="bg-gray-100 border-gray-200 text-gray-500 shadow-none h-10" />
             <p className="text-xs text-gray-500">Currently only THB is supported</p>
           </div>
 
-          <div className="space-y-2">
-            <Label>Buy Rate (THB per 100,000 MMK)</Label>
-            <Input type="number" step="0.0001" {...register("buy_rate")} />
-            {errors.buy_rate && <p className="text-sm text-red-500">{errors.buy_rate.message}</p>}
+          <div className="space-y-1.5">
+            <Label className="font-medium text-blue-700">Buy Rate (THB per 100,000 MMK)</Label>
+            <Input type="number" step="0.0001" {...register("buy_rate")} className="h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all font-medium text-base" />
+            {errors.buy_rate && <p className="text-sm text-red-500 font-medium">{errors.buy_rate.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label>Sell Rate (THB per 100,000 MMK)</Label>
-            <Input type="number" step="0.0001" {...register("sell_rate")} />
-            {errors.sell_rate && <p className="text-sm text-red-500">{errors.sell_rate.message}</p>}
+          <div className="space-y-1.5">
+            <Label className="font-medium text-purple-700">Sell Rate (THB per 100,000 MMK)</Label>
+            <Input type="number" step="0.0001" {...register("sell_rate")} className="h-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500 transition-all font-medium text-base" />
+            {errors.sell_rate && <p className="text-sm text-red-500 font-medium">{errors.sell_rate.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label>Effective Date</Label>
-            <Input type="date" {...register("effective_date")} />
-            {errors.effective_date && <p className="text-sm text-red-500">{errors.effective_date.message}</p>}
+          <div className="space-y-1.5">
+            <Label className="font-medium text-gray-700">Effective Date</Label>
+            <Input type="date" {...register("effective_date")} className="h-10 border-gray-200" />
+            {errors.effective_date && <p className="text-sm text-red-500 font-medium">{errors.effective_date.message}</p>}
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+          <div className="flex justify-end space-x-3 pt-3 border-t border-gray-100 mt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className="h-10 px-4 rounded-md text-gray-600 hover:text-gray-900 border-gray-200">
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} className="h-10 px-4 rounded-md bg-gray-900 text-white hover:bg-gray-800 transition-colors shadow-sm">
               {isSubmitting ? "Publishing..." : "Publish Rate"}
             </Button>
           </div>

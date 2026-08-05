@@ -111,43 +111,47 @@ export function SellForm({ open, onOpenChange, customers, mmkWallets, thbWallets
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
-        <DialogHeader>
-          <DialogTitle className="text-blue-600">Sell THB (Customer gives MMK)</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <DialogContent className="sm:max-w-[450px] rounded-2xl p-0 border-none shadow-2xl overflow-hidden">
+        <div className="px-5 py-5 border-b border-slate-100 bg-slate-50/50">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold tracking-tight text-blue-600 flex items-center gap-2">
+              Sell THB <span className="text-sm font-medium text-slate-500">(Customer gives MMK)</span>
+            </DialogTitle>
+          </DialogHeader>
+        </div>
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 px-5 py-5">
           
-          <div className="space-y-2">
-            <Label>Customer Name (Optional)</Label>
-            <Input {...register("customer_name")} placeholder="Enter customer name..." />
+          <div className="space-y-1.5">
+            <Label className="font-semibold text-slate-700">Customer Name (Optional)</Label>
+            <Input {...register("customer_name")} placeholder="Enter customer name..." className="h-10 border-slate-200 focus:ring-blue-500 transition-all" />
           </div>
 
-          <div className="space-y-2">
-            <Label>THB Amount (We Pay)</Label>
-            <Input type="number" step="0.01" {...register("foreign_amount")} />
+          <div className="space-y-1.5">
+            <Label className="font-semibold text-slate-700">THB Amount (We Pay)</Label>
+            <Input type="number" step="0.01" {...register("foreign_amount")} className="h-10 border-slate-200 focus:ring-blue-500 transition-all font-medium" />
             {errors.foreign_amount && <p className="text-sm text-red-500">{errors.foreign_amount.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label>Exchange Rate (THB per 100,000 MMK)</Label>
-            <Input type="number" step="0.0001" {...register("rate_used")} />
+          <div className="space-y-1.5">
+            <Label className="font-semibold text-slate-700">Exchange Rate (THB per 100,000 MMK)</Label>
+            <Input type="number" step="0.0001" {...register("rate_used")} className="h-10 border-slate-200 focus:ring-blue-500 transition-all font-medium" />
           </div>
 
-          <div className="p-3 bg-blue-50 rounded-md">
-            <Label className="text-blue-500">MMK Amount (We Receive)</Label>
-            <div className="text-2xl font-bold text-blue-900">
+          <div className="p-4 bg-blue-50/80 border border-blue-100 rounded-xl">
+            <Label className="text-blue-700 font-semibold text-xs uppercase tracking-wider">MMK Amount (We Receive)</Label>
+            <div className="text-2xl font-bold text-blue-900 mt-1">
               {new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(rateUsed ? (100000 / rateUsed) * foreignAmount : 0)} K
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Pay THB From</Label>
+            <div className="space-y-1.5">
+              <Label className="font-semibold text-slate-700">Pay THB From</Label>
               <Select 
                 value={thbWalletId || ""} 
                 onValueChange={(val) => setValue("thb_wallet_id", val || "", { shouldValidate: true })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-10 border-slate-200">
                   <SelectValue placeholder="THB Wallet">
                     {thbWalletId ? thbWallets.find(w => w.id === thbWalletId)?.account_name : "THB Wallet"}
                   </SelectValue>
@@ -161,13 +165,13 @@ export function SellForm({ open, onOpenChange, customers, mmkWallets, thbWallets
               {errors.thb_wallet_id && <p className="text-sm text-red-500">{errors.thb_wallet_id.message}</p>}
             </div>
 
-            <div className="space-y-2">
-              <Label>Receive MMK Into</Label>
+            <div className="space-y-1.5">
+              <Label className="font-semibold text-slate-700">Receive MMK Into</Label>
               <Select 
                 value={mmkWalletId || ""} 
                 onValueChange={(val) => setValue("mmk_wallet_id", val || "", { shouldValidate: true })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-10 border-slate-200">
                   <SelectValue placeholder="MMK Wallet">
                     {mmkWalletId ? mmkWallets.find(w => w.id === mmkWalletId)?.account_name : "MMK Wallet"}
                   </SelectValue>
@@ -182,16 +186,16 @@ export function SellForm({ open, onOpenChange, customers, mmkWallets, thbWallets
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Remark</Label>
-            <Textarea {...register("notes")} rows={2} />
+          <div className="space-y-1.5">
+            <Label className="font-semibold text-slate-700">Remark</Label>
+            <Textarea {...register("notes")} rows={2} className="border-slate-200 focus:ring-blue-500 transition-all resize-none" />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+          <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100 mt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className="h-10 px-4 rounded-md text-slate-600 hover:text-slate-900 border-slate-200 transition-colors">
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700">
+            <Button type="submit" disabled={isSubmitting} className="h-10 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm">
               {isSubmitting ? "Processing..." : "Confirm Sell"}
             </Button>
           </div>

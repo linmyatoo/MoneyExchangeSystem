@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, ChevronDown, ChevronRight, Clock } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronRight, UserCircle2 } from "lucide-react";
 import { WalletTransaction } from "@/lib/api/wallet-transactions";
 import { Button } from "@/components/ui/button";
 
@@ -53,67 +53,95 @@ export function CreditList({ data, onMarkSettled }: CreditListProps) {
         const isExpanded = expandedCustomers[customer];
         
         return (
-          <div key={customer} className="border rounded-md bg-card overflow-hidden">
+          <div key={customer} className="rounded-lg border bg-white shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:border-gray-300">
             <div 
-              className="p-4 flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors"
+              className="p-3 sm:px-4 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between cursor-pointer bg-gradient-to-r hover:from-slate-50 hover:to-white transition-all"
               onClick={() => toggleCustomer(customer)}
             >
-              <div className="flex items-center space-x-2">
-                {isExpanded ? <ChevronDown className="h-5 w-5 text-muted-foreground" /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />}
-                <h3 className="font-semibold text-lg">{customer}</h3>
-                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full ml-2">
-                  {group.transactions.length} txns
-                </span>
+              <div className="flex items-center space-x-3 mb-1 sm:mb-0">
+                <div className={`transition-transform duration-200 ${isExpanded ? 'text-blue-600 rotate-90' : 'text-slate-400'}`}>
+                  <ChevronRight className="h-5 w-5" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500">
+                    <UserCircle2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-base">{customer}</h3>
+                    <div className="flex items-center">
+                      <span className="text-[11px] font-medium text-slate-500">
+                        {group.transactions.length} active {group.transactions.length === 1 ? 'record' : 'records'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="text-xl font-bold text-red-600">
-                {formatCurrency(group.total)}
+              <div className="flex flex-col sm:items-end">
+                <div className="text-lg font-bold text-red-600 tracking-tight">
+                  {formatCurrency(group.total)}
+                </div>
               </div>
             </div>
             
-            {isExpanded && (
-              <div className="border-t bg-muted/20">
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-muted/50 text-muted-foreground">
-                    <tr>
-                      <th className="px-4 py-2 font-medium">Date</th>
-                      <th className="px-4 py-2 font-medium">Receipt #</th>
-                      <th className="px-4 py-2 font-medium">Flow</th>
-                      <th className="px-4 py-2 font-medium text-right">Amount</th>
-                      <th className="px-4 py-2 font-medium text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {group.transactions.map((tx) => (
-                      <tr key={tx.id} className="border-b last:border-0 hover:bg-muted/30">
-                        <td className="px-4 py-3">
-                          {new Date(tx.transaction_date).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-3 font-mono">{tx.transaction_number}</td>
-                        <td className="px-4 py-3">
-                          {tx.transaction_type === "deposit" ? "Deposit" : tx.transaction_type === "withdrawal" ? "Withdrawal" : "Transfer"}
-                        </td>
-                        <td className="px-4 py-3 text-right font-medium">
-                          {formatCurrency(parseFloat(tx.amount.toString()))}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onMarkSettled(tx);
-                            }}
-                          >
-                            <CheckCircle2 className="mr-1.5 h-4 w-4 text-green-600" />
-                            Mark Settled
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <div 
+              className={`grid transition-all duration-300 ease-in-out ${isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+            >
+              <div className="overflow-hidden">
+                <div className="border-t border-slate-100 bg-slate-50 p-2 sm:p-4">
+                  <div className="rounded border border-slate-200 bg-white overflow-hidden shadow-sm">
+                    <table className="w-full text-sm text-left">
+                      <thead className="bg-slate-50 text-slate-500 text-xs">
+                        <tr>
+                          <th className="px-4 py-2 font-medium">Date</th>
+                          <th className="px-4 py-2 font-medium">Receipt #</th>
+                          <th className="px-4 py-2 font-medium">Flow</th>
+                          <th className="px-4 py-2 font-medium text-right">Amount</th>
+                          <th className="px-4 py-2 font-medium text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {group.transactions.map((tx) => (
+                          <tr key={tx.id} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="px-4 py-2 whitespace-nowrap text-slate-600 text-xs">
+                              {new Date(tx.transaction_date).toLocaleDateString()}
+                            </td>
+                            <td className="px-4 py-2 whitespace-nowrap">
+                              <span className="font-mono text-xs font-medium text-slate-600">{tx.transaction_number}</span>
+                            </td>
+                            <td className="px-4 py-2 whitespace-nowrap text-xs">
+                              <span className={`${
+                                tx.transaction_type === 'deposit' ? 'text-emerald-600 font-medium' :
+                                tx.transaction_type === 'withdrawal' ? 'text-orange-600 font-medium' :
+                                'text-blue-600 font-medium'
+                              }`}>
+                                {tx.transaction_type === "deposit" ? "Deposit" : tx.transaction_type === "withdrawal" ? "Withdrawal" : "Transfer"}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2 whitespace-nowrap text-right font-medium text-slate-700">
+                              {formatCurrency(parseFloat(tx.amount.toString()))}
+                            </td>
+                            <td className="px-4 py-2 whitespace-nowrap text-right">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="h-7 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onMarkSettled(tx);
+                                }}
+                              >
+                                <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
+                                Settle
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         );
       })}

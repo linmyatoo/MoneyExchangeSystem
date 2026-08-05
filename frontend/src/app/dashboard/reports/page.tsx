@@ -121,30 +121,35 @@ export default function ReportsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">System Reports</h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">System Reports</h1>
+          <p className="text-muted-foreground text-xs mt-1">Export and analyze your financial data.</p>
+        </div>
       </div>
 
-      <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg border">
-        <div className="space-y-1">
-          <Label>Start Date</Label>
+      <div className="flex flex-wrap sm:flex-nowrap items-end gap-3 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+        <div className="space-y-1.5 flex-1 min-w-[150px]">
+          <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Start Date</Label>
           <Input 
             type="date" 
             value={startDate} 
             onChange={(e) => setStartDate(e.target.value)} 
+            className="h-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-sm"
           />
         </div>
-        <div className="space-y-1">
-          <Label>End Date</Label>
+        <div className="space-y-1.5 flex-1 min-w-[150px]">
+          <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">End Date</Label>
           <Input 
             type="date" 
             value={endDate} 
             onChange={(e) => setEndDate(e.target.value)} 
+            className="h-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-sm"
           />
         </div>
-        <div className="pt-5">
-          <Button onClick={fetchReports} disabled={isLoading}>
+        <div className="w-full sm:w-auto pt-2 sm:pt-0">
+          <Button onClick={fetchReports} disabled={isLoading} className="w-full sm:w-auto h-10 px-6 bg-slate-900 hover:bg-slate-800 text-white rounded-lg shadow-sm font-medium transition-colors">
             {isLoading ? "Generating..." : "Apply Filters"}
           </Button>
         </div>
@@ -159,40 +164,40 @@ export default function ReportsPage() {
 
         {/* Profit Report Tab */}
         <TabsContent value="profit" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Daily Profit Breakdown</h2>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Daily Profit Breakdown</h2>
             {renderExportButtons("profit")}
           </div>
-          <div className="rounded-md border">
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Exchange Profit</TableHead>
-                  <TableHead>Transaction Profit</TableHead>
-                  <TableHead className="text-right">Total Profit</TableHead>
+              <TableHeader className="bg-slate-50/80">
+                <TableRow className="hover:bg-transparent border-slate-200">
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Date</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Exchange Profit</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Transaction Profit</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider text-right">Total Profit</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {profitData?.items.map((row, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{row.date}</TableCell>
-                    <TableCell>{new Intl.NumberFormat("en-US").format(row.exchange_profit)}</TableCell>
-                    <TableCell>{new Intl.NumberFormat("en-US").format(row.transaction_profit)}</TableCell>
-                    <TableCell className="text-right font-medium text-green-600">
+                  <TableRow key={i} className="hover:bg-slate-50/50 transition-colors border-slate-100">
+                    <TableCell className="py-2.5 text-sm font-medium text-slate-700">{row.date}</TableCell>
+                    <TableCell className="py-2.5 text-sm text-slate-600">{new Intl.NumberFormat("en-US").format(row.exchange_profit)}</TableCell>
+                    <TableCell className="py-2.5 text-sm text-slate-600">{new Intl.NumberFormat("en-US").format(row.transaction_profit)}</TableCell>
+                    <TableCell className="py-2.5 text-right text-sm font-bold text-emerald-600">
                       {new Intl.NumberFormat("en-US").format(row.total_profit)} K
                     </TableCell>
                   </TableRow>
                 ))}
                 {profitData?.items.length === 0 && (
-                  <TableRow><TableCell colSpan={4} className="text-center">No data found</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={4} className="h-24 text-center text-slate-500 text-sm">No data found</TableCell></TableRow>
                 )}
                 {profitData && profitData.items.length > 0 && (
-                  <TableRow className="bg-gray-50 font-bold">
-                    <TableCell>TOTALS</TableCell>
-                    <TableCell>{new Intl.NumberFormat("en-US").format(profitData.total_exchange_profit)}</TableCell>
-                    <TableCell>{new Intl.NumberFormat("en-US").format(profitData.total_transaction_profit)}</TableCell>
-                    <TableCell className="text-right text-green-700">
+                  <TableRow className="bg-slate-50 border-t border-slate-200 hover:bg-slate-50">
+                    <TableCell className="py-3 font-extrabold text-slate-800 uppercase tracking-wider text-xs">TOTALS</TableCell>
+                    <TableCell className="py-3 font-bold text-slate-700">{new Intl.NumberFormat("en-US").format(profitData.total_exchange_profit)}</TableCell>
+                    <TableCell className="py-3 font-bold text-slate-700">{new Intl.NumberFormat("en-US").format(profitData.total_transaction_profit)}</TableCell>
+                    <TableCell className="py-3 text-right font-extrabold text-emerald-700 text-base">
                       {new Intl.NumberFormat("en-US").format(profitData.overall_profit)} K
                     </TableCell>
                   </TableRow>
@@ -204,40 +209,40 @@ export default function ReportsPage() {
 
         {/* Cash Flow Tab */}
         <TabsContent value="cashflow" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Daily Cash Flow</h2>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Daily Cash Flow</h2>
             {renderExportButtons("cashflow")}
           </div>
-          <div className="rounded-md border">
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-green-600">Inflow</TableHead>
-                  <TableHead className="text-red-600">Outflow</TableHead>
-                  <TableHead className="text-right">Net Flow</TableHead>
+              <TableHeader className="bg-slate-50/80">
+                <TableRow className="hover:bg-transparent border-slate-200">
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Date</TableHead>
+                  <TableHead className="h-10 font-semibold text-emerald-600 uppercase text-[11px] tracking-wider">Inflow</TableHead>
+                  <TableHead className="h-10 font-semibold text-orange-600 uppercase text-[11px] tracking-wider">Outflow</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider text-right">Net Flow</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {cashFlowData?.items.map((row, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{row.date}</TableCell>
-                    <TableCell className="text-green-600">{new Intl.NumberFormat("en-US").format(row.inflow)}</TableCell>
-                    <TableCell className="text-red-600">{new Intl.NumberFormat("en-US").format(row.outflow)}</TableCell>
-                    <TableCell className={`text-right font-medium ${row.net_flow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <TableRow key={i} className="hover:bg-slate-50/50 transition-colors border-slate-100">
+                    <TableCell className="py-2.5 text-sm font-medium text-slate-700">{row.date}</TableCell>
+                    <TableCell className="py-2.5 text-sm text-emerald-600 font-medium">{new Intl.NumberFormat("en-US").format(row.inflow)}</TableCell>
+                    <TableCell className="py-2.5 text-sm text-orange-600 font-medium">{new Intl.NumberFormat("en-US").format(row.outflow)}</TableCell>
+                    <TableCell className={`py-2.5 text-right text-sm font-bold ${row.net_flow >= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>
                       {new Intl.NumberFormat("en-US").format(row.net_flow)}
                     </TableCell>
                   </TableRow>
                 ))}
                 {cashFlowData?.items.length === 0 && (
-                  <TableRow><TableCell colSpan={4} className="text-center">No data found</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={4} className="h-24 text-center text-slate-500 text-sm">No data found</TableCell></TableRow>
                 )}
                 {cashFlowData && cashFlowData.items.length > 0 && (
-                  <TableRow className="bg-gray-50 font-bold">
-                    <TableCell>TOTALS</TableCell>
-                    <TableCell className="text-green-600">{new Intl.NumberFormat("en-US").format(cashFlowData.total_inflow)}</TableCell>
-                    <TableCell className="text-red-600">{new Intl.NumberFormat("en-US").format(cashFlowData.total_outflow)}</TableCell>
-                    <TableCell className={`text-right ${cashFlowData.overall_net >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                  <TableRow className="bg-slate-50 border-t border-slate-200 hover:bg-slate-50">
+                    <TableCell className="py-3 font-extrabold text-slate-800 uppercase tracking-wider text-xs">TOTALS</TableCell>
+                    <TableCell className="py-3 font-bold text-emerald-600">{new Intl.NumberFormat("en-US").format(cashFlowData.total_inflow)}</TableCell>
+                    <TableCell className="py-3 font-bold text-orange-600">{new Intl.NumberFormat("en-US").format(cashFlowData.total_outflow)}</TableCell>
+                    <TableCell className={`py-3 text-right font-extrabold text-base ${cashFlowData.overall_net >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
                       {new Intl.NumberFormat("en-US").format(cashFlowData.overall_net)}
                     </TableCell>
                   </TableRow>
@@ -249,29 +254,36 @@ export default function ReportsPage() {
 
         {/* Wallet Balances Tab */}
         <TabsContent value="wallets" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Current Wallet Snapshot</h2>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Current Wallet Snapshot</h2>
             {renderExportButtons("wallets")}
           </div>
-          <div className="rounded-md border">
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Wallet Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead className="text-right">Current Balance</TableHead>
+              <TableHeader className="bg-slate-50/80">
+                <TableRow className="hover:bg-transparent border-slate-200">
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Wallet Name</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Type</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider text-right">Current Balance</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {walletData?.items.map((row, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-medium">{row.wallet_name}</TableCell>
-                    <TableCell>{row.wallet_type}</TableCell>
-                    <TableCell className="text-right font-bold text-blue-600">
+                  <TableRow key={i} className="hover:bg-slate-50/50 transition-colors border-slate-100">
+                    <TableCell className="py-2.5 font-bold text-sm text-slate-800">{row.wallet_name}</TableCell>
+                    <TableCell className="py-2.5 text-sm text-slate-600">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-600">
+                        {row.wallet_type}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-2.5 text-right font-bold text-blue-600 text-sm">
                       {new Intl.NumberFormat("en-US").format(row.current_balance)}
                     </TableCell>
                   </TableRow>
                 ))}
+                {(!walletData || walletData.items.length === 0) && (
+                  <TableRow><TableCell colSpan={3} className="h-24 text-center text-slate-500 text-sm">No data found</TableCell></TableRow>
+                )}
               </TableBody>
             </Table>
           </div>

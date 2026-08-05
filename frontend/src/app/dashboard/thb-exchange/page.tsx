@@ -132,14 +132,17 @@ export default function THBExchangePage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">THB Exchange</h1>
-        <div className="space-x-2">
-          <Button onClick={() => setIsBuyFormOpen(true)} className="bg-green-600 hover:bg-green-700">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight bg-gradient-to-br from-slate-900 to-slate-600 bg-clip-text text-transparent">THB Exchange</h1>
+          <p className="text-slate-500 font-medium text-[13px] mt-1.5">Manage THB buy and sell transactions.</p>
+        </div>
+        <div className="flex gap-3">
+          <Button onClick={() => setIsBuyFormOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 shadow-sm hover:shadow-md transition-all rounded-xl h-11 px-5 font-semibold text-sm">
             <ArrowDownLeft className="mr-2 h-4 w-4" /> Buy THB
           </Button>
-          <Button onClick={() => setIsSellFormOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={() => setIsSellFormOpen(true)} className="bg-blue-600 hover:bg-blue-700 shadow-sm hover:shadow-md transition-all rounded-xl h-11 px-5 font-semibold text-sm">
             <ArrowUpRight className="mr-2 h-4 w-4" /> Sell THB
           </Button>
         </div>
@@ -147,69 +150,93 @@ export default function THBExchangePage() {
       
       {/* Dashboard Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border bg-card text-card-foreground shadow">
-          <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">THB Inventory</h3>
-            <Wallet className="h-4 w-4 text-purple-500" />
+        {/* THB Inventory */}
+        <div className="relative overflow-hidden rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-white shadow-sm transition-all hover:shadow-md">
+          <div className="absolute right-0 top-0 opacity-5">
+            <Wallet className="h-24 w-24 -mr-4 -mt-4 text-purple-600" />
           </div>
-          <div className="p-6 pt-0">
-            <div className="text-2xl font-bold text-purple-600 mb-2">
+          <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <h3 className="tracking-tight text-sm font-semibold text-purple-900/70 uppercase">THB Inventory</h3>
+            <div className="p-1.5 bg-purple-100 rounded-full">
+              <Wallet className="h-4 w-4 text-purple-600" />
+            </div>
+          </div>
+          <div className="p-5 pt-0 relative z-10">
+            <div className="text-2xl font-bold text-purple-600 tracking-tight">
               {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.total_remaining)} ฿
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Total across Thai Banks</p>
+            <p className="text-xs text-purple-600/70 mt-1 font-medium">Total across Thai Banks</p>
           </div>
         </div>
         
-        <div className="rounded-xl border bg-card text-card-foreground shadow">
-          <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">Today's Buy</h3>
-            <ArrowDownLeft className="h-4 w-4 text-green-500" />
+        {/* Today's Buy */}
+        <div className="relative overflow-hidden rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white shadow-sm transition-all hover:shadow-md">
+          <div className="absolute right-0 top-0 opacity-5">
+            <ArrowDownLeft className="h-24 w-24 -mr-4 -mt-4 text-emerald-600" />
           </div>
-          <div className="p-6 pt-0">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <h3 className="tracking-tight text-sm font-semibold text-emerald-900/70 uppercase">Today's Buy</h3>
+            <div className="p-1.5 bg-emerald-100 rounded-full">
+              <ArrowDownLeft className="h-4 w-4 text-emerald-600" />
+            </div>
+          </div>
+          <div className="p-5 pt-0 relative z-10">
+            <div className="text-2xl font-bold text-emerald-600 tracking-tight">
               {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_buy)} ฿
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm text-emerald-700/80 mt-1.5 font-semibold">
               {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_buy_mmk)} Ks
             </p>
           </div>
         </div>
         
-        <div className="rounded-xl border bg-card text-card-foreground shadow">
-          <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">Today's Sell</h3>
-            <ArrowUpRight className="h-4 w-4 text-blue-500" />
+        {/* Today's Sell */}
+        <div className="relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white shadow-sm transition-all hover:shadow-md">
+          <div className="absolute right-0 top-0 opacity-5">
+            <ArrowUpRight className="h-24 w-24 -mr-4 -mt-4 text-blue-600" />
           </div>
-          <div className="p-6 pt-0">
-            <div className="text-2xl font-bold text-blue-600">
+          <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <h3 className="tracking-tight text-sm font-semibold text-blue-900/70 uppercase">Today's Sell</h3>
+            <div className="p-1.5 bg-blue-100 rounded-full">
+              <ArrowUpRight className="h-4 w-4 text-blue-600" />
+            </div>
+          </div>
+          <div className="p-5 pt-0 relative z-10">
+            <div className="text-2xl font-bold text-blue-600 tracking-tight">
               {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_sell)} ฿
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm text-blue-700/80 mt-1.5 font-semibold">
               {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_sell_mmk)} Ks
             </p>
           </div>
         </div>
         
-        <div className="rounded-xl border bg-card text-card-foreground shadow">
-          <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">Today's Profit</h3>
-            <TrendingUp className="h-4 w-4 text-emerald-500" />
+        {/* Today's Profit */}
+        <div className="relative overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white shadow-sm transition-all hover:shadow-md">
+          <div className="absolute right-0 top-0 opacity-5">
+            <TrendingUp className="h-24 w-24 -mr-4 -mt-4 text-amber-600" />
           </div>
-          <div className="p-6 pt-0">
-            <div className="text-2xl font-bold text-emerald-600">
+          <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <h3 className="tracking-tight text-sm font-semibold text-amber-900/70 uppercase">Today's Profit</h3>
+            <div className="p-1.5 bg-amber-100 rounded-full">
+              <TrendingUp className="h-4 w-4 text-amber-600" />
+            </div>
+          </div>
+          <div className="p-5 pt-0 relative z-10">
+            <div className="text-2xl font-bold text-amber-600 tracking-tight">
               {new Intl.NumberFormat("en-US", { style: "currency", currency: "MMK", minimumFractionDigits: 0 }).format(summary.today_profit)}
             </div>
-            <p className="text-xs text-muted-foreground">Realized from sells</p>
+            <p className="text-xs text-amber-600/70 mt-1 font-medium">Realized from sells</p>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+      <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder="Search receipt or customer..."
-            className="pl-8"
+            className="pl-9 h-10 border-slate-200 text-sm focus:ring-blue-500 transition-all placeholder:text-slate-400"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -219,7 +246,7 @@ export default function THBExchangePage() {
         </div>
         
         <select
-          className="flex h-10 w-40 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-10 w-40 items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           value={period}
           onChange={(e) => {
             setPeriod(e.target.value);
@@ -233,7 +260,7 @@ export default function THBExchangePage() {
         </select>
         
         <select
-          className="flex h-10 w-40 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-10 w-40 items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           value={txType}
           onChange={(e) => {
             setTxType(e.target.value);
