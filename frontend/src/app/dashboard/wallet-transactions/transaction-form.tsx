@@ -25,6 +25,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Customer } from "@/lib/api/customers";
 import { WalletAccount } from "@/lib/api/wallets";
 
+const THB_WALLET_TYPES = [
+  "Thai Bank", "KBank", "BBL", "SCB", "KTB", "TTB", "CIMBT", "BAY", "LHBank", "KKP", "UOBT"
+];
+
 const emptyToNull = z.preprocess(
   (val) => (val === "" || val === undefined ? null : val),
   z.string().uuid("Invalid wallet").nullable()
@@ -142,6 +146,8 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
     }
   }, [open, transaction, reset]);
 
+  const myanmarWallets = wallets.filter(w => w.is_active && w.wallet_type && !THB_WALLET_TYPES.includes(w.wallet_type.name));
+
   const handleFormSubmit = async (data: TransactionFormValues) => {
     try {
       setIsSubmitting(true);
@@ -217,7 +223,7 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {wallets.filter(w => w.is_active).map((w) => (
+                    {myanmarWallets.map((w) => (
                       <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
                     ))}
                   </SelectContent>
@@ -239,7 +245,7 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {wallets.filter(w => w.is_active && w.id !== fromWalletId).map((w) => (
+                    {myanmarWallets.filter(w => w.id !== fromWalletId).map((w) => (
                       <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
                     ))}
                   </SelectContent>
@@ -275,7 +281,7 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">None</SelectItem>
-                  {wallets.filter(w => w.is_active).map((w) => (
+                  {myanmarWallets.map((w) => (
                     <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
                   ))}
                 </SelectContent>
