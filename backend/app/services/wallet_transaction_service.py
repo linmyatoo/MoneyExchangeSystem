@@ -84,16 +84,15 @@ class WalletTransactionService:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source wallet not found")
             
             # Check if source wallet has enough balance
-            if not obj_in.is_credit and from_wallet.balance < obj_in.amount:
+            if from_wallet.balance < obj_in.amount:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Insufficient balance in source wallet. Available: {from_wallet.balance}",
                 )
 
             # Deduct from source
-            if not obj_in.is_credit:
-                from_wallet.balance -= obj_in.amount
-                self.db.add(from_wallet)
+            from_wallet.balance -= obj_in.amount
+            self.db.add(from_wallet)
 
         if obj_in.to_wallet_account_id:
             to_wallet = self.wallet_repo.get_by_id(obj_in.to_wallet_account_id)
@@ -101,9 +100,8 @@ class WalletTransactionService:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Destination wallet not found")
             
             # Add to destination
-            if not obj_in.is_credit:
-                to_wallet.balance += obj_in.amount
-                self.db.add(to_wallet)
+            to_wallet.balance += obj_in.amount
+            self.db.add(to_wallet)
 
         # Deposit profit into the designated profit wallet if specified
         if obj_in.profit_wallet_account_id and obj_in.profit > 0:
@@ -113,9 +111,8 @@ class WalletTransactionService:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Profit store wallet not found"
                 )
-            if not obj_in.is_credit:
-                profit_wallet.balance += obj_in.profit
-                self.db.add(profit_wallet)
+            profit_wallet.balance += obj_in.profit
+            self.db.add(profit_wallet)
 
         # Generate transaction number
         now = datetime.utcnow()
@@ -143,9 +140,6 @@ class WalletTransactionService:
 
     def _reverse_balances(self, tx: WalletTransaction):
         """Reverse the balance changes from a transaction."""
-        if tx.is_credit:
-            return
-
         if tx.from_wallet_account_id:
             from_wallet = self.wallet_repo.get_by_id(tx.from_wallet_account_id)
             if from_wallet:
@@ -161,7 +155,33 @@ class WalletTransactionService:
     def update_transaction(self, id: uuid.UUID, obj_in: WalletTransactionCreate) -> WalletTransaction:
         tx = self.get_transaction(id)
 
-        # Reverse old balance changes
+        # Detect settlement: is_credit was True, now being set to False
+        # In this case, balances were already applied on creation, so just flip the flag.
+        is_settling = tx.is_credit and not obj_in.is_credit
+
+        if is_settling:
+            # Only update the is_credit flag and related metadata, don't touch balances
+            update_data = obj_in.model_dump(exclude={"customer_name", "profit_wallet_account_id"})
+            # Keep the original transaction_type
+            if obj_in.from_wallet_account_id and obj_in.to_wallet_account_id:
+                transaction_type = "transfer"
+            elif obj_in.to_wallet_account_id:
+                transaction_type = "deposit"
+            elif obj_in.from_wallet_account_id:
+                transaction_type = "withdrawal"
+            else:
+                transaction_type = tx.transaction_type
+            update_data["transaction_type"] = transaction_type
+
+            if obj_in.customer_name:
+                existing_notes = update_data.get("notes") or ""
+                update_data["notes"] = f"Customer: {obj_in.customer_name}" + (f" | {existing_notes}" if existing_notes else "")
+
+            updated_tx = self.transaction_repo.update(tx, update_data)
+            self.db.commit()
+            return updated_tx
+
+        # Regular update: reverse old balances and apply new ones
         self._reverse_balances(tx)
 
         # Determine new transaction type
@@ -183,24 +203,22 @@ class WalletTransactionService:
             if not from_wallet:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source wallet not found")
             
-            if not obj_in.is_credit and from_wallet.balance < obj_in.amount:
+            if from_wallet.balance < obj_in.amount:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Insufficient balance in source wallet. Available: {from_wallet.balance}",
                 )
                 
-            if not obj_in.is_credit:
-                from_wallet.balance -= obj_in.amount
-                self.db.add(from_wallet)
+            from_wallet.balance -= obj_in.amount
+            self.db.add(from_wallet)
 
         if obj_in.to_wallet_account_id:
             to_wallet = self.wallet_repo.get_by_id(obj_in.to_wallet_account_id)
             if not to_wallet:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Destination wallet not found")
             
-            if not obj_in.is_credit:
-                to_wallet.balance += obj_in.amount
-                self.db.add(to_wallet)
+            to_wallet.balance += obj_in.amount
+            self.db.add(to_wallet)
 
         # Handle profit wallet
         if obj_in.profit_wallet_account_id and obj_in.profit > 0:
@@ -208,9 +226,8 @@ class WalletTransactionService:
             if not profit_wallet:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profit store wallet not found")
             
-            if not obj_in.is_credit:
-                profit_wallet.balance += obj_in.profit
-                self.db.add(profit_wallet)
+            profit_wallet.balance += obj_in.profit
+            self.db.add(profit_wallet)
 
         # Update fields
         update_data = obj_in.model_dump(exclude={"customer_name", "profit_wallet_account_id"})

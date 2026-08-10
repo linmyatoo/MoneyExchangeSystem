@@ -45,15 +45,10 @@ const transactionSchema = z.object({
   notes: z.string().optional().nullable(),
   is_credit: z.boolean().default(false),
 }).refine(data => {
-  if (data.transaction_type === "cash_to_wallet") return !!data.to_wallet_account_id;
-  if (data.transaction_type === "wallet_to_cash") return !!data.from_wallet_account_id;
-  if (data.transaction_type === "wallet_to_wallet") {
-    return !!data.from_wallet_account_id && !!data.to_wallet_account_id && data.from_wallet_account_id !== data.to_wallet_account_id;
-  }
-  return false;
+  return !!data.from_wallet_account_id && !!data.to_wallet_account_id && data.from_wallet_account_id !== data.to_wallet_account_id;
 }, {
-  message: "Please select the required wallet(s) for this transaction type",
-  path: ["to_wallet_account_id"]
+  message: "Please select two different wallets",
+  path: ["from_wallet_account_id"]
 });
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
@@ -107,8 +102,10 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
       let txType: "cash_to_wallet" | "wallet_to_wallet" | "wallet_to_cash" = "cash_to_wallet";
       if (transaction.from_wallet_account_id && transaction.to_wallet_account_id) {
         txType = "wallet_to_wallet";
-      } else if (transaction.from_wallet_account_id) {
-        txType = "wallet_to_cash";
+      } else if (transaction.from_wallet_account_id && !transaction.to_wallet_account_id) {
+        // Could be cash_to_wallet (deposit) or wallet_to_cash (withdrawal)
+        // Use transaction_type from backend if available
+        txType = transaction.transaction_type === "withdrawal" ? "wallet_to_cash" : "cash_to_wallet";
       }
 
       // Extract customer name from notes if present
@@ -155,8 +152,8 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
       // Clean up payload based on type
       let payload = {
         customer_name: data.customer_name || null,
-        from_wallet_account_id: data.transaction_type !== "cash_to_wallet" ? data.from_wallet_account_id : null,
-        to_wallet_account_id: data.transaction_type !== "wallet_to_cash" ? data.to_wallet_account_id : null,
+        from_wallet_account_id: data.from_wallet_account_id || null,
+        to_wallet_account_id: data.to_wallet_account_id || null,
         amount: data.amount || 0,
         profit: data.profit || 0,
         profit_wallet_account_id: data.profit_wallet_account_id || null,
@@ -210,49 +207,45 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
               />
             </div>
 
-            {transactionType !== "cash_to_wallet" && (
-              <div className="space-y-2 col-span-2 sm:col-span-1">
-                <Label>Source Wallet</Label>
-                <Select
-                  value={fromWalletId || ""}
-                  onValueChange={(val) => setValue("from_wallet_account_id", val, { shouldValidate: true })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Source">
-                      {fromWalletId ? wallets.find(w => w.id === fromWalletId)?.account_name : "Select Source"}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {myanmarWallets.map((w) => (
-                      <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.from_wallet_account_id && <p className="text-sm text-red-500">{errors.from_wallet_account_id.message}</p>}
-              </div>
-            )}
+            <div className="space-y-2 col-span-2 sm:col-span-1">
+              <Label>{transactionType === "cash_to_wallet" ? "Transfer From Wallet" : transactionType === "wallet_to_cash" ? "Take Cash From Wallet" : "Source Wallet"}</Label>
+              <Select
+                value={fromWalletId || ""}
+                onValueChange={(val) => setValue("from_wallet_account_id", val, { shouldValidate: true })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Wallet">
+                    {fromWalletId ? wallets.find(w => w.id === fromWalletId)?.account_name : "Select Wallet"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {myanmarWallets.map((w) => (
+                    <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.from_wallet_account_id && <p className="text-sm text-red-500">{errors.from_wallet_account_id.message}</p>}
+            </div>
 
-            {transactionType !== "wallet_to_cash" && (
-              <div className="space-y-2 col-span-2 sm:col-span-1">
-                <Label>Destination Wallet</Label>
-                <Select
-                  value={toWalletId || ""}
-                  onValueChange={(val) => setValue("to_wallet_account_id", val, { shouldValidate: true })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Destination">
-                      {toWalletId ? wallets.find(w => w.id === toWalletId)?.account_name : "Select Destination"}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {myanmarWallets.filter(w => w.id !== fromWalletId).map((w) => (
-                      <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.to_wallet_account_id && <p className="text-sm text-red-500">{errors.to_wallet_account_id.message}</p>}
-              </div>
-            )}
+            <div className="space-y-2 col-span-2 sm:col-span-1">
+              <Label>{transactionType === "cash_to_wallet" ? "Cash Goes To Wallet" : transactionType === "wallet_to_cash" ? "Receive Payment Into Wallet" : "Destination Wallet"}</Label>
+              <Select
+                value={toWalletId || ""}
+                onValueChange={(val) => setValue("to_wallet_account_id", val, { shouldValidate: true })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Wallet">
+                    {toWalletId ? wallets.find(w => w.id === toWalletId)?.account_name : "Select Wallet"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {myanmarWallets.filter(w => w.id !== fromWalletId).map((w) => (
+                    <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.to_wallet_account_id && <p className="text-sm text-red-500">{errors.to_wallet_account_id.message}</p>}
+            </div>
 
             {errors.root && <p className="text-sm text-red-500 col-span-2">{errors.root.message}</p>}
 
