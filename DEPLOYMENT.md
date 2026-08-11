@@ -170,6 +170,79 @@ and `up -d`. Note that a rollback does **not** revert database migrations.
 - Certificates live under `nginx/certs/` on the host (gitignored) — back
   this directory up along with the database if you migrate servers.
 
+### Connecting a SQL client (DBeaver, pgAdmin, psql)
+
+**The database is not exposed to the internet, by design.** The `db` service
+binds `127.0.0.1:5432` on the droplet only, and `deploy.sh` never opens 5432 in
+ufw. Pointing DBeaver straight at `yourdomain.com:5432` will always time out —
+that is the firewall and the port binding doing their job, not a fault.
+
+Reach it through an **SSH tunnel** instead. In DBeaver:
+
+*Main* tab — this describes the far end of the tunnel, so it stays `localhost`:
+
+| Field    | Value                                   |
+| -------- | --------------------------------------- |
+| Host     | `localhost`                             |
+| Port     | `5432`                                  |
+| Database | `POSTGRES_DB` from the droplet's `.env`   |
+| Username | `POSTGRES_USER` from the droplet's `.env` |
+| Password | `POSTGRES_PASSWORD` from the droplet's `.env` |
+
+*SSH* tab — tick **Use SSH Tunnel**:
+
+| Field         | Value                                |
+| ------------- | ------------------------------------ |
+| Host/IP       | the droplet's public IP or `DOMAIN`  |
+| Port          | `22`                                 |
+| User Name     | `root` (or your sudo user)           |
+| Authentication| Public Key + your private key, or Password |
+
+Then **Test Connection**. DBeaver opens the SSH session first and forwards
+`localhost:5432` through it, so Postgres sees a connection arriving on loopback.
+
+The equivalent from a terminal:
+```bash
+ssh -L 5432:localhost:5432 root@<droplet-ip>
+# leave that running, then in another shell:
+psql -h localhost -p 5432 -U <POSTGRES_USER> -d <POSTGRES_DB>
+```
+
+If your Mac already runs a local Postgres on 5432, forward to a spare local
+port instead (`ssh -L 5433:localhost:5432 ...`) and set DBeaver's port to 5433.
+
+**If you get `Connection to <droplet-ip>:5432 refused`,** the Main tab still has
+the droplet's IP in it. With the tunnel enabled DBeaver resolves the Main tab
+host *from the droplet*, so it ends up asking the droplet to connect to its own
+public IP — where nothing listens, because Postgres is bound to loopback. Set
+Main → Host to `localhost`. The IP belongs only in the SSH tab.
+
+The two failure modes are worth telling apart:
+
+| Error | Meaning |
+| ----- | ------- |
+| `timeout` | No tunnel. ufw is dropping the packet; nothing reached Postgres. |
+| `refused` | Tunnel works, wrong Main host. The droplet got an RST from itself. |
+
+Read the credentials off the server rather than guessing:
+```bash
+ssh root@<droplet-ip> 'grep -E "^POSTGRES_(USER|DB)=" /opt/ems/.env'
+```
+
+> **Never** publish the port as `"5432:5432"` or run `ufw allow 5432`. The short
+> port form binds `0.0.0.0`, which puts your customer database on the public
+> internet behind nothing but a password.
+
+Applying this needs the `db` container recreated once, which is safe — the data
+lives in the `postgres_data_prod` named volume, not the container:
+```bash
+cd /opt/ems && git pull && docker compose -f docker-compose.prod.yml up -d db
+```
+Confirm it is listening on loopback and nowhere else:
+```bash
+ss -tlnp | grep 5432     # expect 127.0.0.1:5432, NOT 0.0.0.0:5432
+```
+
 ## 4. Automated Database Backups
 
 A backup script is provided at `scripts/backup_db.sh`. It reads the database

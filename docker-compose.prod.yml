@@ -6,6 +6,13 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-ems_db}
+    # Bound to the loopback interface ONLY, so Postgres stays unreachable from
+    # the internet — ufw never opens 5432 either. This exists purely so an SSH
+    # tunnel (see DEPLOYMENT.md, "Connecting a SQL client") has something to
+    # forward to. Never change this to "5432:5432": the short form binds
+    # 0.0.0.0 and would publish the database to the world.
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
     healthcheck:
