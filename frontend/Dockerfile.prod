@@ -19,8 +19,10 @@ COPY . .
 # Next.js telemetry can be disabled during the build
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Provide dummy API URL for build time if necessary, will be overridden at runtime
-ENV NEXT_PUBLIC_API_URL=http://localhost:8000
+# NEXT_PUBLIC_* values are inlined into the client bundle at build time and
+# CANNOT be overridden at runtime. Leaving it unset makes src/lib/axios.ts fall
+# back to the relative '/api/v1', so the browser calls the API same-origin
+# through nginx instead of a hardcoded host.
 RUN npm run build
 
 # Production image, copy all the files and run next

@@ -8,21 +8,46 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-ems_db}
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-ems_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     networks:
       - ems_network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.prod
+    # Built on a workstation and pushed to the registry by
+    # scripts/build_and_push.sh — the droplet only ever pulls it. There is
+    # deliberately no `build:` key here so a stale local checkout on the server
+    # can never silently produce a different image than the one you tested.
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE must be set in .env (see .env.example)}
     restart: always
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-ems_db}
+      # NOTE: the +psycopg driver is required — only psycopg 3 is installed,
+      # a bare postgresql:// URL resolves to psycopg2 and fails to start.
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-ems_db}
       - SECRET_KEY=${SECRET_KEY}
       - ALGORITHM=${ALGORITHM:-HS256}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      # Pinned here so a stale .env baked into an image can never turn on
+      # SQL echo (which logs customer data) or expose /docs in production.
+      - ENVIRONMENT=production
+      - DEBUG=False
+      - SEED_ADMIN_USERNAME=${SEED_ADMIN_USERNAME:-admin}
+      - SEED_ADMIN_EMAIL=${SEED_ADMIN_EMAIL:-admin@ems.local}
+      - SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     networks:
       - ems_network
 
@@ -32,6 +57,9 @@ services:
       dockerfile: Dockerfile.prod
     restart: always
     environment:
+      # Server-side only. The browser bundle has this value inlined at build
+      # time (see frontend/Dockerfile.prod), where it is deliberately left
+      # unset so axios falls back to the same-origin '/api/v1'.
       - NEXT_PUBLIC_API_URL=/api/v1
     depends_on:
       - backend

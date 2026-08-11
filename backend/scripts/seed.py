@@ -8,14 +8,14 @@ import os
 # Add parent directory to path so we can import app modules
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from passlib.context import CryptContext
-
+from app.core.config import get_settings
 from app.core.database import SessionLocal
+from app.core.security import get_password_hash
 from app.models.role import Role
 from app.models.user import User
 from app.models.wallet_type import WalletType
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+settings = get_settings()
 
 
 def seed_roles(db):
@@ -38,27 +38,40 @@ def seed_roles(db):
 
 
 def seed_admin_user(db):
-    """Seed default Admin user."""
+    """Seed the initial Admin user from SEED_ADMIN_* settings."""
     admin_role = db.query(Role).filter(Role.name == "admin").first()
     if not admin_role:
         print("  ✗ Admin role not found. Run seed_roles first.")
         return
 
-    existing = db.query(User).filter(User.username == "admin").first()
-    if not existing:
-        admin_user = User(
-            username="admin",
-            email="admin@ems.local",
-            hashed_password=pwd_context.hash("admin123"),
-            full_name="System Administrator",
-            role_id=admin_role.id,
-            is_active=True,
-        )
-        db.add(admin_user)
-        db.commit()
-        print("  ✓ Created admin user (username: admin, password: admin123)")
-    else:
-        print("  • Admin user already exists")
+    username = settings.SEED_ADMIN_USERNAME
+    existing = db.query(User).filter(User.username == username).first()
+    if existing:
+        print(f"  • Admin user already exists: {username}")
+        return
+
+    password = settings.SEED_ADMIN_PASSWORD
+    if not password:
+        if settings.is_production:
+            raise RuntimeError(
+                "SEED_ADMIN_PASSWORD is not set. Refusing to create the initial "
+                "admin account with a default password in production. Set it in "
+                ".env and restart the backend."
+            )
+        password = "admin123"
+        print("  ! No SEED_ADMIN_PASSWORD set — using the dev default 'admin123'")
+
+    admin_user = User(
+        username=username,
+        email=settings.SEED_ADMIN_EMAIL,
+        hashed_password=get_password_hash(password),
+        full_name="System Administrator",
+        role_id=admin_role.id,
+        is_active=True,
+    )
+    db.add(admin_user)
+    db.commit()
+    print(f"  ✓ Created admin user: {username}")
 
 
 def seed_wallet_types(db):

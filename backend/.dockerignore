@@ -1,0 +1,25 @@
+# Never bake local secrets or dev config into the image — production values
+# are supplied as environment variables by docker-compose.prod.yml.
+.env
+.env.*
+
+# Local virtualenv (~100MB of host-linked binaries, useless in the image)
+venv/
+.venv/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Tests and tooling
+tests/
+.pytest_cache/
+pytest.ini
+.mypy_cache/
+.ruff_cache/
+
+# Docker
+Dockerfile
+Dockerfile.prod
+.dockerignore

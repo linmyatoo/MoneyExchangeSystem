@@ -3,9 +3,22 @@ from fastapi.responses import JSONResponse
 # pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
 import traceback
+from app.core.config import get_settings
 from app.api.v1 import auth, health, roles, users, wallets, customers, wallet_transactions, currency_exchange, exchange_rates, reports, dashboard, cash_management, audit_logs
 
-app = FastAPI(title="Exchange Management System API", version="1.0.0")
+settings = get_settings()
+
+# The interactive docs publish the full API surface, so they are disabled in
+# production. Set ENVIRONMENT to anything else to get them back locally.
+_docs_enabled = not settings.is_production
+
+app = FastAPI(
+    title="Exchange Management System API",
+    version="1.0.0",
+    docs_url="/docs" if _docs_enabled else None,
+    redoc_url="/redoc" if _docs_enabled else None,
+    openapi_url="/openapi.json" if _docs_enabled else None,
+)
 
 # Setup CORS
 app.add_middleware(

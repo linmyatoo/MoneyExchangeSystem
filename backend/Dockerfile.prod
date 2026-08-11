@@ -2,11 +2,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+# No gcc/libpq-dev: every dependency ships a manylinux wheel (psycopg[binary]
+# bundles its own libpq), so nothing is compiled here. Keeping a toolchain out
+# of the image cuts ~250MB off every push and pull, and off the attack surface.
+# If you add a dependency with no wheel, install build deps in a separate
+# builder stage rather than shipping them in the runtime image.
 
 # Copy requirements
 COPY requirements.txt .
@@ -17,5 +17,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Run migrations and start the server
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4"]
+# Migrate, seed baseline data (roles, admin user, wallet types — idempotent),
+# then start the server.
+CMD ["sh", "-c", "alembic upgrade head && python -m scripts.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4"]

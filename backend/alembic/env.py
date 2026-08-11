@@ -13,9 +13,11 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Set the database URL from our app settings
+# Set the database URL from our app settings.
+# '%' must be escaped: set_main_option writes into a ConfigParser, which would
+# otherwise treat it as interpolation syntax and blow up on '%' in a password.
 settings = get_settings()
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("%", "%%"))
 
 # Target metadata for autogenerate
 target_metadata = Base.metadata

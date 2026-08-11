@@ -31,5 +31,8 @@ postgres_data/
 nginx/certs/
 nginx/certbot-www/
 
+# Database dumps from scripts/backup_db.sh
+backups/
+
 # Logs
 *.log
