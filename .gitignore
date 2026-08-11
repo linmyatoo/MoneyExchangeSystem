@@ -27,5 +27,9 @@ Thumbs.db
 # Docker
 postgres_data/
 
+# Certbot (generated at deploy time, must not be committed)
+nginx/certs/
+nginx/certbot-www/
+
 # Logs
 *.log
