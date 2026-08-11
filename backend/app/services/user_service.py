@@ -5,7 +5,7 @@ from typing import Optional, Tuple, List
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.core.security import get_password_hash, verify_password
+from app.core.security import get_password_hash
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.repositories.role_repository import RoleRepository

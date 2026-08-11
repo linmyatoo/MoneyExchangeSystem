@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime, date, time, timedelta
 import calendar
 from decimal import Decimal

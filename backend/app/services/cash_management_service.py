@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 from sqlalchemy.orm import Session
 from fastapi import HTTPException

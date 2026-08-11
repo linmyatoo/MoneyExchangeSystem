@@ -68,7 +68,3 @@ class WalletService:
         wallet = self.wallet_account_repo.update(db_obj=wallet, obj_in={"is_active": is_active})
         return wallet
 
-    def delete_wallet_account(self, id: uuid.UUID) -> WalletAccount:
-        wallet = self.get_wallet_account(id)
-        wallet = self.wallet_account_repo.soft_delete(wallet)
-        return wallet

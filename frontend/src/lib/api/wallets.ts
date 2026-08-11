@@ -80,7 +80,3 @@ export const deactivateWalletAccount = async (id: string): Promise<WalletAccount
   const response = await apiClient.post(`/wallets/accounts/${id}/deactivate`);
   return response.data;
 };
-
-export const deleteWalletAccount = async (id: string): Promise<void> => {
-  await apiClient.delete(`/wallets/accounts/${id}`);
-};

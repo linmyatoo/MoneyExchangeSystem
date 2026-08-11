@@ -9,7 +9,6 @@ import {
   getWalletTransactions,
   updateWalletTransaction,
 } from "@/lib/api/wallet-transactions";
-import { WalletAccount, getWalletAccounts } from "@/lib/api/wallets";
 import {
   Dialog,
   DialogContent,
@@ -18,14 +17,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 export default function CreditsPage() {
@@ -37,32 +28,10 @@ export default function CreditsPage() {
   const [totalOutstanding, setTotalOutstanding] = useState(0);
 
   const [settleTarget, setSettleTarget] = useState<WalletTransaction | null>(null);
-  const [wallets, setWallets] = useState<WalletAccount[]>([]);
-  const [selectedWalletId, setSelectedWalletId] = useState<string>("");
 
   useEffect(() => {
     fetchCredits();
   }, [search]); // Removed pagination to load all outstanding credits for grouping
-
-  useEffect(() => {
-    const fetchWallets = async () => {
-      try {
-        const response = await getWalletAccounts({ page_size: 100 });
-        setWallets(response.items);
-      } catch (error) {
-        console.error("Failed to fetch wallets:", error);
-      }
-    };
-    fetchWallets();
-  }, []);
-
-  useEffect(() => {
-    if (settleTarget) {
-      setSelectedWalletId(settleTarget.to_wallet_account_id || "");
-    } else {
-      setSelectedWalletId("");
-    }
-  }, [settleTarget]);
 
   const fetchCredits = async () => {
     setIsLoading(true);
@@ -104,7 +73,7 @@ export default function CreditsPage() {
         // If the API allows passing customer_name directly, it should be mapped from notes if present.
         customer_name: settleTarget.customer?.name || (settleTarget.notes?.startsWith("Customer: ") ? settleTarget.notes.split(" | ")[0].replace("Customer: ", "") : null),
         from_wallet_account_id: settleTarget.from_wallet_account_id,
-        to_wallet_account_id: selectedWalletId || null,
+        to_wallet_account_id: settleTarget.to_wallet_account_id,
         profit_wallet_account_id: null, // As requested, do not deposit profit during settlement
         notes: settleTarget.notes,
       };
@@ -192,36 +161,14 @@ export default function CreditsPage() {
                   )}
                 </span>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="wallet">Destination Wallet</Label>
-                <Select value={selectedWalletId} onValueChange={(val) => setSelectedWalletId(val || "")}>
-                  <SelectTrigger id="wallet" className="w-full">
-                    <SelectValue placeholder="Select a wallet to receive funds">
-                      {selectedWalletId ? wallets.find(w => w.id === selectedWalletId)?.account_name : "Select a wallet to receive funds"}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {wallets.map((wallet) => (
-                      <SelectItem key={wallet.id} value={wallet.id}>
-                        {wallet.account_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground mt-1">
-                  The collected amount will be deposited into this wallet.
-                </p>
-              </div>
             </div>
           )}
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setSettleTarget(null)}>Cancel</Button>
-            <Button 
-              onClick={handleSettle} 
+            <Button
+              onClick={handleSettle}
               className="bg-green-600 hover:bg-green-700"
-              disabled={!selectedWalletId}
             >
               Confirm Settlement
             </Button>

@@ -2,7 +2,7 @@
 import uuid
 from typing import List, Optional, Tuple
 
-from sqlalchemy import func, or_
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.models.user import User

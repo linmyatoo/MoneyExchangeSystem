@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 # pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
 import traceback
-from app.api.v1 import auth, health, roles, users, wallets, customers, wallet_transactions, credits, currency_exchange, exchange_rates, reports, dashboard, cash_management, audit_logs, settings
+from app.api.v1 import auth, health, roles, users, wallets, customers, wallet_transactions, currency_exchange, exchange_rates, reports, dashboard, cash_management, audit_logs
 
 app = FastAPI(title="Exchange Management System API", version="1.0.0")
 
@@ -24,14 +24,12 @@ app.include_router(roles.router, prefix="/api/v1/roles", tags=["roles"])
 app.include_router(wallets.router, prefix="/api/v1/wallets", tags=["wallets"])
 app.include_router(customers.router, prefix="/api/v1/customers", tags=["customers"])
 app.include_router(wallet_transactions.router, prefix="/api/v1/wallet-transactions", tags=["wallet-transactions"])
-app.include_router(credits.router, prefix="/api/v1/credits", tags=["credits"])
 app.include_router(currency_exchange.router, prefix="/api/v1/currency-exchange", tags=["currency-exchange"])
 app.include_router(exchange_rates.router, prefix="/api/v1/exchange-rates", tags=["exchange-rates"])
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["reports"])
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["dashboard"])
 app.include_router(cash_management.router, prefix="/api/v1/cash-management", tags=["cash-management"])
 app.include_router(audit_logs.router, prefix="/api/v1/audit-logs", tags=["audit-logs"])
-app.include_router(settings.router, prefix="/api/v1/settings", tags=["settings"])
 
 @app.get("/")
 async def root():

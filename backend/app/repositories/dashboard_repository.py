@@ -9,7 +9,6 @@ from app.models.wallet_type import WalletType
 from app.models.wallet_transaction import WalletTransaction
 from app.models.currency_buy_transaction import CurrencyBuyTransaction
 from app.models.currency_sell_transaction import CurrencySellTransaction
-from app.models.credit import Credit
 from app.models.exchange_rate import ExchangeRate
 
 

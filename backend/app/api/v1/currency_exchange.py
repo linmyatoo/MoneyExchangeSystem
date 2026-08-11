@@ -11,7 +11,6 @@ from app.schemas.currency_exchange import (
     CurrencyExchangeResponse,
     THBInventorySummaryResponse,
 )
-from app.schemas.user import PaginatedResponse
 from app.services.currency_exchange_service import CurrencyExchangeService
 
 router = APIRouter()

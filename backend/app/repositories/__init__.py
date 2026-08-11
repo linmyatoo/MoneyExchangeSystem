@@ -1,6 +1,4 @@
 from app.repositories.base import BaseRepository
-from app.repositories.credit_repository import CreditRepository
-from app.repositories.credit_payment_repository import CreditPaymentRepository
 from app.repositories.exchange_rate_repository import ExchangeRateRepository
 from app.repositories.customer_repository import CustomerRepository
 from app.repositories.role_repository import RoleRepository
@@ -17,7 +15,5 @@ __all__ = [
     "WalletTypeRepository",
     "WalletTransactionRepository",
     "CustomerRepository",
-    "CreditRepository",
-    "CreditPaymentRepository",
     "ExchangeRateRepository",
 ]

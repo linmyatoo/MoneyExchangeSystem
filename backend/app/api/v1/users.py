@@ -4,7 +4,7 @@ import uuid
 from typing import Any, Optional
 
 # pyrefly: ignore [missing-import]
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
@@ -48,17 +48,6 @@ def list_users(
         "page_size": page_size,
         "total_pages": math.ceil(total / page_size) if total > 0 else 0,
     }
-
-
-@router.get("/{user_id}", response_model=UserResponse)
-def get_user(
-    user_id: uuid.UUID,
-    db: Session = Depends(get_db),
-    _: User = Depends(admin_only),
-) -> Any:
-    """Get a specific user by ID (Admin only)."""
-    service = UserService(db)
-    return service.get_user(user_id)
 
 
 @router.post("", response_model=UserResponse, status_code=201)

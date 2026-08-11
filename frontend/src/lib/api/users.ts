@@ -39,8 +39,6 @@ export const userApi = {
     page_size?: number;
   }) => apiClient.get<PaginatedResponse<User>>('/users', { params }),
 
-  get: (id: string) => apiClient.get<User>(`/users/${id}`),
-
   create: (data: UserCreatePayload) => apiClient.post<User>('/users', data),
 
   update: (id: string, data: UserUpdatePayload) =>
@@ -58,10 +56,4 @@ export const userApi = {
 
 export const roleApi = {
   list: () => apiClient.get<Role[]>('/roles'),
-  get: (id: string) => apiClient.get<Role>(`/roles/${id}`),
-  create: (data: { name: string; description?: string }) =>
-    apiClient.post<Role>('/roles', data),
-  update: (id: string, data: { name?: string; description?: string }) =>
-    apiClient.put<Role>(`/roles/${id}`, data),
-  delete: (id: string) => apiClient.delete<Role>(`/roles/${id}`),
 };

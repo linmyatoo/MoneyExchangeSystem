@@ -3,7 +3,7 @@ from decimal import Decimal
 from datetime import datetime, date
 from typing import List, Tuple
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.repositories.currency_exchange_repository import CurrencyExchangeRepository
@@ -22,15 +22,23 @@ class CurrencyExchangeService:
         short_uuid = uuid.uuid4().hex[:6].upper()
         return f"{prefix}-{today}-{short_uuid}"
 
-    def buy_thb(self, obj_in: CurrencyBuyCreate, created_by: uuid.UUID) -> dict:
-        mmk_wallet = self.wallet_repo.get_by_id(obj_in.mmk_wallet_id)
-        thb_wallet = self.wallet_repo.get_by_id(obj_in.thb_wallet_id)
+    def _load_wallet_pair(self, mmk_wallet_id: uuid.UUID, thb_wallet_id: uuid.UUID):
+        mmk_wallet = self.wallet_repo.get_by_id(mmk_wallet_id)
+        thb_wallet = self.wallet_repo.get_by_id(thb_wallet_id)
 
         if not mmk_wallet or not thb_wallet:
             raise HTTPException(status_code=404, detail="Wallet not found")
 
-        local_amount = (Decimal('100000') / obj_in.rate_used) * obj_in.foreign_amount
-        local_amount = local_amount.quantize(Decimal('0.01'))
+        return mmk_wallet, thb_wallet
+
+    def _calc_local_amount(self, rate_used: Decimal, foreign_amount: Decimal) -> Decimal:
+        local_amount = (Decimal('100000') / rate_used) * foreign_amount
+        return local_amount.quantize(Decimal('0.01'))
+
+    def buy_thb(self, obj_in: CurrencyBuyCreate, created_by: uuid.UUID) -> dict:
+        mmk_wallet, thb_wallet = self._load_wallet_pair(obj_in.mmk_wallet_id, obj_in.thb_wallet_id)
+
+        local_amount = self._calc_local_amount(obj_in.rate_used, obj_in.foreign_amount)
 
         if mmk_wallet.balance < local_amount:
             raise HTTPException(
@@ -60,14 +68,9 @@ class CurrencyExchangeService:
         return tx
 
     def sell_thb(self, obj_in: CurrencySellCreate, created_by: uuid.UUID) -> dict:
-        mmk_wallet = self.wallet_repo.get_by_id(obj_in.mmk_wallet_id)
-        thb_wallet = self.wallet_repo.get_by_id(obj_in.thb_wallet_id)
+        mmk_wallet, thb_wallet = self._load_wallet_pair(obj_in.mmk_wallet_id, obj_in.thb_wallet_id)
 
-        if not mmk_wallet or not thb_wallet:
-            raise HTTPException(status_code=404, detail="Wallet not found")
-
-        local_amount = (Decimal('100000') / obj_in.rate_used) * obj_in.foreign_amount
-        local_amount = local_amount.quantize(Decimal('0.01'))
+        local_amount = self._calc_local_amount(obj_in.rate_used, obj_in.foreign_amount)
 
         if thb_wallet.balance < obj_in.foreign_amount:
             raise HTTPException(

@@ -101,24 +101,6 @@ def update_wallet_account(
     )
     return wallet
 
-@router.delete("/accounts/{account_id}", response_model=WalletAccountResponse)
-def delete_wallet_account(
-    request: Request,
-    account_id: uuid.UUID,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
-    _: User = Depends(admin_only),
-) -> Any:
-    """Soft delete a wallet account."""
-    wallet_service = WalletService(db)
-    wallet = wallet_service.delete_wallet_account(id=account_id)
-    
-    AuditLogService.log(
-        db=db, action="DELETE", entity_type="WALLET", entity_id=str(wallet.id),
-        user_id=current_user.id, request=request
-    )
-    return wallet
-
 @router.post("/accounts/{account_id}/activate", response_model=WalletAccountResponse)
 def activate_wallet_account(
     account_id: uuid.UUID,

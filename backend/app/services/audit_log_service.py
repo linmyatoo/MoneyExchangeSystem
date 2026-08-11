@@ -7,7 +7,6 @@ from fastapi.encoders import jsonable_encoder
 
 from app.repositories.audit_log_repository import AuditLogRepository
 from app.models.audit_log import AuditLog
-from app.models.base import BaseModel
 
 
 class AuditLogService:

@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/providers/AuthProvider';
 import {
-  Loader2, LayoutDashboard, Users, LogOut, Settings, Wallet, ArrowLeftRight, CreditCard, DollarSign, LineChart, FileText, Lock, ShieldAlert, Menu
+  Loader2, LayoutDashboard, Users, LogOut, Wallet, ArrowLeftRight, CreditCard, DollarSign, LineChart, FileText, Lock, ShieldAlert, Menu
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,6 @@ const NAV_ITEMS = [
   { label: 'Reports', href: '/dashboard/reports', icon: FileText, roles: ['admin'] },
   { label: 'Cash Register', href: '/dashboard/cash-register', icon: Lock, roles: ['admin'] },
   { label: 'Audit Log', href: '/dashboard/audit-logs', icon: ShieldAlert, roles: ['admin'] },
-  { label: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['admin'] },
 ];
 
 export default function ProtectedLayout({

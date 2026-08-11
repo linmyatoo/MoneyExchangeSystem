@@ -50,17 +50,6 @@ def list_wallet_transactions(
     }
 
 
-@router.get("/{transaction_id}", response_model=WalletTransactionResponse)
-def get_wallet_transaction(
-    transaction_id: uuid.UUID,
-    db: Session = Depends(get_db),
-    _: User = Depends(admin_staff_roles),
-) -> Any:
-    """Get a specific wallet transaction by ID."""
-    tx_service = WalletTransactionService(db)
-    return tx_service.get_transaction(id=transaction_id)
-
-
 @router.post("", response_model=WalletTransactionResponse)
 def create_wallet_transaction(
     transaction_in: WalletTransactionCreate,

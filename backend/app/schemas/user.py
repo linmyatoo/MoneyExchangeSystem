@@ -12,16 +12,6 @@ class RoleResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class RoleCreate(BaseModel):
-    name: str = Field(..., min_length=2, max_length=50)
-    description: Optional[str] = Field(None, max_length=255)
-
-
-class RoleUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=2, max_length=50)
-    description: Optional[str] = Field(None, max_length=255)
-
-
 class UserResponse(BaseModel):
     id: uuid.UUID
     username: str

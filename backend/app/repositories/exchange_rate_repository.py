@@ -1,4 +1,3 @@
-import uuid
 from typing import List, Tuple, Optional
 
 from sqlalchemy.orm import Session

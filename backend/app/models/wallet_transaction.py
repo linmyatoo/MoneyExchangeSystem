@@ -54,10 +54,6 @@ class WalletTransaction(BaseModel):
         "WalletAccount", foreign_keys=[to_wallet_account_id], lazy="joined"
     )
     creator = relationship("User", foreign_keys=[created_by], lazy="joined")
-    items = relationship(
-        "WalletTransactionItem", back_populates="transaction", lazy="select",
-        cascade="all, delete-orphan"
-    )
 
     def __repr__(self) -> str:
         return f"<WalletTransaction(number={self.transaction_number}, type={self.transaction_type})>"

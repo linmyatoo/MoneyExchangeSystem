@@ -15,7 +15,6 @@ class Customer(BaseModel):
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Relationships
-    credits = relationship("Credit", back_populates="customer", lazy="select")
     currency_buy_transactions = relationship(
         "CurrencyBuyTransaction", back_populates="customer", lazy="select"
     )

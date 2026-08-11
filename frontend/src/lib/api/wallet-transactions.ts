@@ -32,10 +32,12 @@ export interface WalletTransactionsResponse {
 
 export interface CreateWalletTransactionData {
   customer_id?: string | null;
+  customer_name?: string | null;
   from_wallet_account_id?: string | null;
   to_wallet_account_id?: string | null;
   amount: number;
   profit?: number;
+  profit_wallet_account_id?: string | null;
   notes?: string | null;
   is_credit?: boolean;
 }
@@ -50,11 +52,6 @@ export const getWalletTransactions = async (params?: {
   page_size?: number;
 }): Promise<WalletTransactionsResponse> => {
   const response = await apiClient.get("/wallet-transactions", { params });
-  return response.data;
-};
-
-export const getWalletTransaction = async (id: string): Promise<WalletTransaction> => {
-  const response = await apiClient.get(`/wallet-transactions/${id}`);
   return response.data;
 };
 
