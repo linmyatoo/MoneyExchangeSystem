@@ -149,12 +149,19 @@ if [ "$IMAGE_ARCH" != "unknown" ] && [ "$IMAGE_ARCH" != "$HOST_ARCH" ]; then
 fi
 echo "### Backend image architecture: ${IMAGE_ARCH} (matches this server)"
 
-# --- 5. Frontend image: still built here --------------------------------------
-echo "### Building frontend image ..."
-docker compose -f "$COMPOSE_FILE" build frontend
+# --- 5. Start the database and backend ----------------------------------------
+# This server is API-only — the frontend is hosted elsewhere and is not built,
+# started, or proxied here.
+if [ -z "${CORS_ORIGINS:-}" ]; then
+  echo "ERROR: CORS_ORIGINS is not set in .env." >&2
+  echo "       The frontend runs on a different origin now, so its URL must be" >&2
+  echo "       listed or the browser will block every API call, e.g." >&2
+  echo "         CORS_ORIGINS=https://app.example.com" >&2
+  exit 1
+fi
 
-echo "### Starting database, backend, frontend ..."
-docker compose -f "$COMPOSE_FILE" up -d db backend frontend
+echo "### Starting database and backend ..."
+docker compose -f "$COMPOSE_FILE" up -d db backend
 
 # --- 6. Nginx + Certbot -------------------------------------------------------
 if [ ! -d "./nginx/certs/live/${DOMAIN}" ]; then

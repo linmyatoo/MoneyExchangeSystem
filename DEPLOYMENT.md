@@ -4,17 +4,25 @@ This guide explains how to deploy the Exchange Management System (EMS) to a
 production DigitalOcean Droplet (or any Ubuntu server) using Docker Compose,
 Nginx, and Certbot for HTTPS.
 
+**This droplet serves the API only.** The frontend is deployed separately (e.g.
+Vercel/Netlify or another host) and is not part of `docker-compose.prod.yml`.
+
 **The backend image is built on your workstation and pulled by the droplet.**
-The server never compiles the backend: you build it locally, push it to Docker
-Hub, and `deploy.sh` pulls exactly that image. The frontend is still built on
-the droplet from source.
+The server never compiles anything: you build locally, push to Docker Hub, and
+`deploy.sh` pulls exactly that image.
 
 ```
   your Mac                    Docker Hub                  droplet
   ────────                    ──────────                  ───────
   build_and_push.sh  ──push──▶  ems-backend:<sha>  ──pull──▶  deploy.sh
-                                                             + frontend build
+                                                          db + backend + nginx
+
+  frontend ──── deployed separately, calls https://<domain>/api/v1 ────▶
 ```
+
+Because the frontend is on a different origin, its URL **must** be listed in
+`CORS_ORIGINS` or the browser blocks every API call. Point the frontend's own
+build at `https://<your-domain>/api/v1`.
 
 ## Prerequisites
 
@@ -54,13 +62,13 @@ cd /opt/ems
 ```
 
 The repo is still needed on the droplet — it provides the compose file, the
-nginx config, the frontend source, and the deploy/backup scripts.
+nginx config, and the deploy/backup scripts.
 
 ## 3. Run the Deploy Script
 
 `scripts/deploy.sh` bootstraps a fresh droplet end to end: installs Docker,
 opens the firewall (ports 22/80/443), creates `.env`, pulls the backend image,
-builds the frontend, starts everything, and issues the first Let's Encrypt
+starts the database/backend/nginx, and issues the first Let's Encrypt
 certificate.
 
 ```bash
@@ -78,6 +86,10 @@ CERTBOT_EMAIL=you@example.com
 # The tag printed by build_and_push.sh in step 1. Pin the commit SHA rather
 # than :latest so you always know which build is running.
 BACKEND_IMAGE=docker.io/<your-dockerhub-user>/ems-backend:<sha>
+
+# Where the separately-hosted frontend is served from, comma-separated.
+# Required — without it the browser blocks every request from the frontend.
+CORS_ORIGINS=https://app.yourdomain.com
 ```
 
 If the Docker Hub repository is **private**, also set credentials so the server
@@ -102,10 +114,10 @@ SEED_ADMIN_USERNAME=admin
 > — `@ : / ? # %` and spaces break the connection string, and `deploy.sh`
 > rejects them.
 
-Then re-run `sudo ./scripts/deploy.sh`. It will pull the backend image, build
-the frontend, start the database/backend/frontend, request the HTTPS
-certificate via `nginx/init-letsencrypt.sh`, bring up nginx, and schedule
-twice-daily certificate renewal via cron (`scripts/renew_cert.sh`).
+Then re-run `sudo ./scripts/deploy.sh`. It will pull the backend image, start
+the database and backend, request the HTTPS certificate via
+`nginx/init-letsencrypt.sh`, bring up nginx, and schedule twice-daily
+certificate renewal via cron (`scripts/renew_cert.sh`).
 
 On first start the backend applies migrations (`alembic upgrade head`) and then
 seeds baseline data — the `admin`/`staff` roles, the wallet types, and the
@@ -129,7 +141,7 @@ git commit -am "..." && git push
 ./scripts/build_and_push.sh          # prints the new tag
 
 # on the droplet
-git pull                             # only needed for compose/nginx/frontend changes
+git pull                             # only needed for compose/nginx/script changes
 sed -i 's|^BACKEND_IMAGE=.*|BACKEND_IMAGE=docker.io/<user>/ems-backend:<new-sha>|' .env
 docker compose -f docker-compose.prod.yml pull backend
 docker compose -f docker-compose.prod.yml up -d backend
@@ -195,7 +207,16 @@ docker compose -f docker-compose.prod.yml exec -T db \
 ## 5. Health Checks
 
 - Check the API: `https://yourdomain.com/api/v1/health` → `{"status":"ok",…}`
-- Check frontend: `https://yourdomain.com/`
+- Check the root: `https://yourdomain.com/` → a small JSON banner. Nothing is
+  served here; the frontend lives on its own host.
+- Check CORS from the frontend's origin:
+  ```bash
+  curl -sI -X OPTIONS https://yourdomain.com/api/v1/auth/login \
+    -H "Origin: https://app.yourdomain.com" \
+    -H "Access-Control-Request-Method: POST" | grep -i access-control-allow-origin
+  ```
+  An empty result means the origin is missing from `CORS_ORIGINS` and the
+  frontend will not be able to talk to the API.
 
 The interactive API docs (`/docs`, `/redoc`, `/openapi.json`) are **disabled in
 production** so the API surface isn't published publicly — they return 404 when

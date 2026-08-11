@@ -36,6 +36,9 @@ services:
       # SQL echo (which logs customer data) or expose /docs in production.
       - ENVIRONMENT=production
       - DEBUG=False
+      # Where the separately-hosted frontend is served from. Requests from any
+      # origin not listed here are rejected by the browser.
+      - CORS_ORIGINS=${CORS_ORIGINS:?CORS_ORIGINS must list the frontend origin, e.g. https://app.example.com}
       - SEED_ADMIN_USERNAME=${SEED_ADMIN_USERNAME:-admin}
       - SEED_ADMIN_EMAIL=${SEED_ADMIN_EMAIL:-admin@ems.local}
       - SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD}
@@ -51,20 +54,10 @@ services:
     networks:
       - ems_network
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
-    restart: always
-    environment:
-      # Server-side only. The browser bundle has this value inlined at build
-      # time (see frontend/Dockerfile.prod), where it is deliberately left
-      # unset so axios falls back to the same-origin '/api/v1'.
-      - NEXT_PUBLIC_API_URL=/api/v1
-    depends_on:
-      - backend
-    networks:
-      - ems_network
+  # NOTE: there is no frontend service here. This droplet serves the API only;
+  # the frontend is hosted separately. Because the frontend is therefore on a
+  # different origin, it must be listed in CORS_ORIGINS (see .env) or the
+  # browser will block its API calls.
 
   nginx:
     image: nginx:alpine
@@ -80,7 +73,6 @@ services:
       - ./nginx/certs:/etc/letsencrypt:ro
       - ./nginx/certbot-www:/var/www/certbot:ro
     depends_on:
-      - frontend
       - backend
     networks:
       - ems_network

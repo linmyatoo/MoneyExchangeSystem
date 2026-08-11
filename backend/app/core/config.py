@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+from typing import List
 
 
 class Settings(BaseSettings):
@@ -11,6 +12,12 @@ class Settings(BaseSettings):
     # and its parameters (customer names, amounts). Opt in explicitly in dev.
     DEBUG: bool = False
     API_V1_STR: str = "/api/v1"
+
+    # Comma-separated origins allowed to call this API from a browser. The
+    # frontend is deployed separately from this server, so its public URL must
+    # be listed here or every request from it is blocked by CORS. Note that "*"
+    # is not usable: credentials are enabled, and the spec forbids the pair.
+    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost,http://127.0.0.1"
 
     # Database
     DATABASE_URL: str = "postgresql+psycopg://postgres:postgres@localhost:5432/ems_db"
@@ -30,6 +37,10 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.ENVIRONMENT.lower() == "production"
+
+    @property
+    def cors_origins(self) -> List[str]:
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
     model_config = {
         "env_file": ".env",

@@ -24,10 +24,9 @@ http {
         server backend:8000;
     }
 
-    # Frontend upstream
-    upstream frontend_app {
-        server frontend:3000;
-    }
+    # No frontend upstream: this server is API-only. nginx resolves upstream
+    # hostnames at startup, so pointing one at a container that isn't in
+    # docker-compose.prod.yml would stop nginx (and the API) from booting.
 
     # Plain HTTP: serve ACME challenges, redirect everything else to HTTPS
     server {
@@ -88,19 +87,11 @@ http {
             proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-        # Proxy frontend requests to Next.js
-        location / {
-            proxy_pass http://frontend_app;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-
-            # Next.js hot reloading / WebSockets
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-            proxy_cache_bypass $http_upgrade;
+        # API-only server: nothing is served at the site root. The frontend is
+        # hosted elsewhere and calls this host cross-origin.
+        location = / {
+            default_type application/json;
+            return 200 '{"service":"EMS API","docs":"disabled in production","health":"/api/v1/health"}';
         }
     }
 }
