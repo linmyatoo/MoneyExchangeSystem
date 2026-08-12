@@ -1,0 +1,7 @@
+# Test-only dependencies. Install alongside requirements.txt:
+#   pip install -r requirements.txt -r requirements-dev.txt
+#
+# NOTE: the app uses PEP 585 builtin generics (e.g. tuple[datetime, datetime]),
+# so it needs Python 3.9+. The production image is 3.11.
+pytest>=8.0.0
+httpx>=0.27.0

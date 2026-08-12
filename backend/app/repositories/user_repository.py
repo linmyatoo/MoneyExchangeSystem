@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
+from app.models.role import Role
 from app.models.user import User
 from app.repositories.base import BaseRepository
 
@@ -26,6 +27,26 @@ class UserRepository(BaseRepository[User]):
             .filter(User.email == email, User.deleted_at == None)
             .first()
         )
+
+    def count_active_admins(self, exclude_user_id: Optional[uuid.UUID] = None) -> int:
+        """Count users who can still sign in and administer the system.
+
+        Used to keep the last admin from being locked out — see UserService.
+        """
+        query = (
+            self.db.query(User)
+            .join(Role, User.role_id == Role.id)
+            .filter(
+                Role.name == "admin",
+                User.is_active == True,
+                User.deleted_at == None,
+            )
+        )
+
+        if exclude_user_id is not None:
+            query = query.filter(User.id != exclude_user_id)
+
+        return query.count()
 
     def search(
         self,

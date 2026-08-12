@@ -75,11 +75,12 @@ def update_user(
     user_id: uuid.UUID,
     user_in: UserUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
     _: User = Depends(admin_only),
 ) -> Any:
     """Update a user (Admin only)."""
     service = UserService(db)
-    return service.update_user(user_id, user_in)
+    return service.update_user(user_id, user_in, acting_user_id=current_user.id)
 
 
 @router.delete("/{user_id}", response_model=UserResponse)
@@ -92,7 +93,7 @@ def delete_user(
 ) -> Any:
     """Deactivate user (soft delete)."""
     service = UserService(db)
-    user = service.delete_user(user_id)
+    user = service.delete_user(user_id, acting_user_id=current_user.id)
     
     AuditLogService.log(
         db=db, action="DELETE", entity_type="USER", entity_id=str(user.id),
@@ -128,8 +129,9 @@ def activate_user(
 def deactivate_user(
     user_id: uuid.UUID,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
     _: User = Depends(admin_only),
 ) -> Any:
     """Deactivate a user (Admin only)."""
     service = UserService(db)
-    return service.deactivate_user(user_id)
+    return service.deactivate_user(user_id, acting_user_id=current_user.id)
