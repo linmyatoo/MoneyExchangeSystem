@@ -77,6 +77,7 @@ def seed_admin_user(db):
 def seed_wallet_types(db):
     """Seed default wallet types."""
     wallet_types_data = [
+        # Myanmar (MMK)
         {"name": "Cash", "code": "CASH"},
         {"name": "KPay", "code": "KPAY"},
         {"name": "WavePay", "code": "WAVE"},
@@ -87,6 +88,20 @@ def seed_wallet_types(db):
         {"name": "YOMA Bank", "code": "YOMABANK"},
         {"name": "CB Bank", "code": "CBBANK"},
         {"name": "MAB Bank", "code": "MABBANK"},
+        # Thai (THB) — names must match the thai_bank_types lists in the
+        # repositories and THB_WALLET_TYPES in the frontend, which both
+        # classify a wallet as THB by its wallet type name.
+        {"name": "Thai Bank", "code": "THAIBANK"},
+        {"name": "KBank", "code": "KBANK"},
+        {"name": "BBL", "code": "BBL"},
+        {"name": "SCB", "code": "SCB"},
+        {"name": "KTB", "code": "KTB"},
+        {"name": "TTB", "code": "TTB"},
+        {"name": "CIMBT", "code": "CIMBT"},
+        {"name": "BAY", "code": "BAY"},
+        {"name": "LHBank", "code": "LHBANK"},
+        {"name": "KKP", "code": "KKP"},
+        {"name": "UOBT", "code": "UOBT"},
     ]
 
     for wt_data in wallet_types_data:

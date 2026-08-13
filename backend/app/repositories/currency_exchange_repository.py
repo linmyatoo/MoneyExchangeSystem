@@ -159,7 +159,7 @@ class CurrencyExchangeRepository:
         ).scalar() or Decimal('0.00')
         
         # Total Remaining (sum of all wallets of Thai Bank types)
-        thai_bank_types = ['KBank', 'BBL', 'SCB', 'KTB', 'TTB', 'CIMBT', 'BAY', 'LHBank', 'KKP', 'UOBT']
+        thai_bank_types = ['Thai Bank', 'KBank', 'BBL', 'SCB', 'KTB', 'TTB', 'CIMBT', 'BAY', 'LHBank', 'KKP', 'UOBT']
         
         wallets_q = self.db.query(WalletAccount).join(WalletType).filter(
             WalletType.name.in_(thai_bank_types),
