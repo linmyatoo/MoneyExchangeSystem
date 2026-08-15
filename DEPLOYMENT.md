@@ -128,6 +128,18 @@ when it finishes; **change that password after the first login.**
 Re-running `scripts/deploy.sh` later (e.g. after `git pull`) is safe — it
 skips steps that are already done and just re-pulls/restarts the stack.
 
+For a routine backend-only release, use the smaller deployment script on the
+droplet:
+```bash
+sudo ./scripts/deploy_backend.sh
+```
+It fast-forward pulls the repository, pulls `BACKEND_IMAGE:latest`, recreates
+only the backend API container, waits for `/api/v1/health`, and prints recent
+logs if the health check fails. To deploy a specific image tag instead:
+```bash
+sudo ./scripts/deploy_backend.sh <sha>
+```
+
 To view logs and confirm everything is running:
 ```bash
 docker compose -f docker-compose.prod.yml logs -f
@@ -140,11 +152,11 @@ docker compose -f docker-compose.prod.yml logs -f
 git commit -am "..." && git push
 ./scripts/build_and_push.sh          # prints the new tag
 
-# on the droplet
-git pull                             # only needed for compose/nginx/script changes
-sed -i 's|^BACKEND_IMAGE=.*|BACKEND_IMAGE=docker.io/<user>/ems-backend:<new-sha>|' .env
-docker compose -f docker-compose.prod.yml pull backend
-docker compose -f docker-compose.prod.yml up -d backend
+# on the droplet: deploy the image published as :latest
+sudo ./scripts/deploy_backend.sh
+
+# or deploy the exact commit tag printed by build_and_push.sh
+sudo ./scripts/deploy_backend.sh <new-sha>
 ```
 
 Because the backend service has no `build:` key, the droplet **cannot**
