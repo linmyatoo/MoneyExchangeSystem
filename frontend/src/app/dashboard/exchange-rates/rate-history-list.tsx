@@ -17,42 +17,45 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ExchangeRate } from "@/lib/api/exchange-rates";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 interface RateHistoryListProps {
   data: ExchangeRate[];
 }
 
 export function RateHistoryList({ data }: RateHistoryListProps) {
+  const { t } = useLanguage();
+
   const columns: ColumnDef<ExchangeRate>[] = [
     {
       accessorKey: "status",
-      header: "Status",
+      header: t('common.status'),
       cell: ({ row }) => {
         const isActive = row.original.is_active;
         if (isActive) {
           return (
             <div className="flex items-center text-green-600 font-medium">
               <CheckCircle2 className="w-4 h-4 mr-1" />
-              Active
+              {t('common.active')}
             </div>
           );
         }
         return (
           <div className="flex items-center text-gray-500 font-medium">
             <Clock className="w-4 h-4 mr-1" />
-            Historical
+            {t('common.inactive')}
           </div>
         );
       },
     },
     {
       accessorKey: "currency_code",
-      header: "Currency",
+      header: t('common.currency'),
       cell: ({ row }) => row.getValue("currency_code"),
     },
     {
       accessorKey: "buy_rate",
-      header: "Buy Rate",
+      header: t('exchange_rates.buy_rate'),
       cell: ({ row }) => (
         <span className="font-medium text-blue-600">
           {row.getValue("buy_rate")}
@@ -61,7 +64,7 @@ export function RateHistoryList({ data }: RateHistoryListProps) {
     },
     {
       accessorKey: "sell_rate",
-      header: "Sell Rate",
+      header: t('exchange_rates.sell_rate'),
       cell: ({ row }) => (
         <span className="font-medium text-purple-600">
           {row.getValue("sell_rate")}
@@ -70,18 +73,18 @@ export function RateHistoryList({ data }: RateHistoryListProps) {
     },
     {
       accessorKey: "effective_date",
-      header: "Effective Date",
+      header: t('exchange_rates.effective_date'),
       cell: ({ row }) => row.getValue("effective_date"),
     },
     {
       accessorKey: "created_at",
-      header: "Published On",
+      header: t('common.created_at'),
       cell: ({ row }) => new Date(row.original.created_at).toLocaleString(),
     },
     {
       accessorKey: "creator",
-      header: "Published By",
-      cell: ({ row }) => row.original.creator?.full_name || row.original.creator?.username || "Unknown",
+      header: t('audit_logs.user'),
+      cell: ({ row }) => row.original.creator?.full_name || row.original.creator?.username || "-",
     }
   ];
 
@@ -129,8 +132,7 @@ export function RateHistoryList({ data }: RateHistoryListProps) {
             <TableRow>
               <TableCell colSpan={columns.length} className="h-32 text-center text-slate-500">
                 <div className="flex flex-col items-center justify-center">
-                  <span className="font-medium text-base">No rates found.</span>
-                  <span className="text-sm mt-1">Publish a new rate to see it here.</span>
+                  <span className="font-medium text-base">{t('dashboard.no_data')}</span>
                 </div>
               </TableCell>
             </TableRow>

@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WalletAccount, WalletType } from "@/lib/api/wallets";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const walletSchema = z.object({
   account_name: z.string().min(2, "Name must be at least 2 characters").max(255),
@@ -42,6 +43,7 @@ interface WalletFormProps {
 }
 
 export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }: WalletFormProps) {
+  const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -120,26 +122,26 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
       <DialogContent className="sm:max-w-[425px] rounded-2xl p-0 border-none shadow-2xl overflow-hidden">
         <div className="px-5 py-5 border-b border-slate-100 bg-slate-50/50">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold tracking-tight text-slate-800">{wallet ? "Edit Wallet" : "Create New Wallet"}</DialogTitle>
+            <DialogTitle className="text-lg font-bold tracking-tight text-slate-800">{wallet ? t('wallets.edit_wallet') : t('wallets.add_wallet')}</DialogTitle>
           </DialogHeader>
         </div>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 px-5 py-5">
           <div className="space-y-1.5">
-            <Label htmlFor="account_name" className="font-semibold text-slate-700">Wallet Name</Label>
-            <Input id="account_name" {...register("account_name")} placeholder="Enter wallet name..." className="h-10 border-slate-200 focus:ring-blue-500 transition-all" />
+            <Label htmlFor="account_name" className="font-semibold text-slate-700">{t('wallets.wallet_name')}</Label>
+            <Input id="account_name" {...register("account_name")} placeholder={t('wallets.wallet_name')} className="h-10 border-slate-200 focus:ring-blue-500 transition-all" />
             {errors.account_name && <p className="text-sm text-red-500">{errors.account_name.message}</p>}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="wallet_type_id" className="font-semibold text-slate-700">Wallet Type</Label>
+            <Label htmlFor="wallet_type_id" className="font-semibold text-slate-700">{t('wallets.type')}</Label>
             <Select 
               value={walletTypeId} 
               onValueChange={(val) => setValue("wallet_type_id", val as string, { shouldValidate: true })}
               disabled={!!wallet} // Disallow changing type after creation
             >
               <SelectTrigger className="h-10 border-slate-200">
-                <SelectValue placeholder="Select type">
-                  {walletTypeId ? walletTypes.find(t => t.id === walletTypeId)?.name : "Select type"}
+                <SelectValue placeholder={t('transactions.select_type')}>
+                  {walletTypeId ? walletTypes.find(t => t.id === walletTypeId)?.name : t('transactions.select_type')}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -154,14 +156,14 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="account_number" className="font-semibold text-slate-700">Account Number (Optional)</Label>
+            <Label htmlFor="account_number" className="font-semibold text-slate-700">{t('wallets.account_number')}</Label>
             <Input id="account_number" {...register("account_number")} placeholder="e.g. 09123456789" className="h-10 border-slate-200 focus:ring-blue-500 transition-all" />
             {errors.account_number && <p className="text-sm text-red-500">{errors.account_number.message}</p>}
           </div>
 
           {!wallet && (
             <div className="space-y-1.5">
-              <Label htmlFor="opening_balance" className="font-semibold text-slate-700">Opening Balance</Label>
+              <Label htmlFor="opening_balance" className="font-semibold text-slate-700">{t('cash_register.opening_balance')}</Label>
               <Input 
                 id="opening_balance" 
                 type="number" 
@@ -175,7 +177,7 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
 
           {wallet && (
             <div className="space-y-1.5">
-              <Label htmlFor="balance" className="font-semibold text-slate-700">Balance</Label>
+              <Label htmlFor="balance" className="font-semibold text-slate-700">{t('wallets.balance')}</Label>
               <Input 
                 id="balance" 
                 type="number" 
@@ -189,7 +191,7 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
 
           {wallet && (
             <div className="space-y-1.5">
-              <Label htmlFor="is_active" className="font-semibold text-slate-700">Status</Label>
+              <Label htmlFor="is_active" className="font-semibold text-slate-700">{t('common.status')}</Label>
               <Select 
                 value={isActive ? "active" : "inactive"} 
                 onValueChange={(val) => setValue("is_active", val === "active", { shouldValidate: true })}
@@ -198,8 +200,8 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="active">{t('common.active')}</SelectItem>
+                  <SelectItem value="inactive">{t('common.inactive')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -207,10 +209,10 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
 
           <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100 mt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className="h-10 px-4 rounded-md text-slate-600 hover:text-slate-900 border-slate-200 transition-colors">
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting} className="h-10 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm">
-              {isSubmitting ? "Saving..." : "Save Wallet"}
+              {isSubmitting ? t('common.loading') : t('common.save')}
             </Button>
           </div>
         </form>

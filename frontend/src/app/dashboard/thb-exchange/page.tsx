@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Search, ArrowDownLeft, ArrowUpRight, Wallet, TrendingUp } from "lucide-react";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ import { WalletAccount, getWalletAccounts } from "@/lib/api/wallets";
 import { ExchangeRate, getCurrentRate } from "@/lib/api/exchange-rates";
 
 export default function THBExchangePage() {
+  const { t } = useLanguage();
   const [history, setHistory] = useState<CurrencyExchange[]>([]);
   const [summary, setSummary] = useState<THBInventorySummary>({
     total_remaining: 0,
@@ -110,40 +112,38 @@ export default function THBExchangePage() {
   };
 
   const handleBuy = async (data: any) => {
-    // If walkin, set customer_id to null
     if (data.customer_id === "walkin") {
       data.customer_id = null;
     }
     await buyTHB(data);
     fetchHistory();
     fetchSummary();
-    fetchPrerequisites(); // Refresh wallet balances
+    fetchPrerequisites();
   };
 
   const handleSell = async (data: any) => {
-    // If walkin, set customer_id to null
     if (data.customer_id === "walkin") {
       data.customer_id = null;
     }
     await sellTHB(data);
     fetchHistory();
     fetchSummary();
-    fetchPrerequisites(); // Refresh wallet balances
+    fetchPrerequisites();
   };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight bg-gradient-to-br from-slate-900 to-slate-600 bg-clip-text text-transparent">THB Exchange</h1>
-          <p className="text-slate-500 font-medium text-[13px] mt-1.5">Manage THB buy and sell transactions.</p>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">{t('thb_exchange.title')}</h1>
+          <p className="text-slate-500 font-medium text-[13px] mt-1.5">{t('thb_exchange.desc')}</p>
         </div>
         <div className="flex gap-3">
           <Button onClick={() => setIsBuyFormOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 shadow-sm hover:shadow-md transition-all rounded-xl h-11 px-5 font-semibold text-sm">
-            <ArrowDownLeft className="mr-2 h-4 w-4" /> Buy THB
+            <ArrowDownLeft className="mr-2 h-4 w-4" /> {t('thb_exchange.buy_thb')}
           </Button>
           <Button onClick={() => setIsSellFormOpen(true)} className="bg-blue-600 hover:bg-blue-700 shadow-sm hover:shadow-md transition-all rounded-xl h-11 px-5 font-semibold text-sm">
-            <ArrowUpRight className="mr-2 h-4 w-4" /> Sell THB
+            <ArrowUpRight className="mr-2 h-4 w-4" /> {t('thb_exchange.sell_thb')}
           </Button>
         </div>
       </div>
@@ -152,11 +152,8 @@ export default function THBExchangePage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {/* THB Inventory */}
         <div className="relative overflow-hidden rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-white shadow-sm transition-all hover:shadow-md">
-          <div className="absolute right-0 top-0 opacity-5">
-            <Wallet className="h-24 w-24 -mr-4 -mt-4 text-purple-600" />
-          </div>
           <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <h3 className="tracking-tight text-sm font-semibold text-purple-900/70 uppercase">THB Inventory</h3>
+            <h3 className="tracking-tight text-sm font-semibold text-purple-900/70 uppercase">{t('dashboard.thb_inventory')}</h3>
             <div className="p-1.5 bg-purple-100 rounded-full">
               <Wallet className="h-4 w-4 text-purple-600" />
             </div>
@@ -165,17 +162,13 @@ export default function THBExchangePage() {
             <div className="text-2xl font-bold text-purple-600 tracking-tight">
               {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.total_remaining)} ฿
             </div>
-            <p className="text-xs text-purple-600/70 mt-1 font-medium">Total across Thai Banks</p>
           </div>
         </div>
         
         {/* Today's Buy */}
         <div className="relative overflow-hidden rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white shadow-sm transition-all hover:shadow-md">
-          <div className="absolute right-0 top-0 opacity-5">
-            <ArrowDownLeft className="h-24 w-24 -mr-4 -mt-4 text-emerald-600" />
-          </div>
           <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <h3 className="tracking-tight text-sm font-semibold text-emerald-900/70 uppercase">Today's Buy</h3>
+            <h3 className="tracking-tight text-sm font-semibold text-emerald-900/70 uppercase">{t('dashboard.buy_volume')}</h3>
             <div className="p-1.5 bg-emerald-100 rounded-full">
               <ArrowDownLeft className="h-4 w-4 text-emerald-600" />
             </div>
@@ -184,19 +177,13 @@ export default function THBExchangePage() {
             <div className="text-2xl font-bold text-emerald-600 tracking-tight">
               {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_buy)} ฿
             </div>
-            <p className="text-sm text-emerald-700/80 mt-1.5 font-semibold">
-              {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_buy_mmk)} Ks
-            </p>
           </div>
         </div>
         
         {/* Today's Sell */}
         <div className="relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white shadow-sm transition-all hover:shadow-md">
-          <div className="absolute right-0 top-0 opacity-5">
-            <ArrowUpRight className="h-24 w-24 -mr-4 -mt-4 text-blue-600" />
-          </div>
           <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <h3 className="tracking-tight text-sm font-semibold text-blue-900/70 uppercase">Today's Sell</h3>
+            <h3 className="tracking-tight text-sm font-semibold text-blue-900/70 uppercase">{t('dashboard.sell_volume')}</h3>
             <div className="p-1.5 bg-blue-100 rounded-full">
               <ArrowUpRight className="h-4 w-4 text-blue-600" />
             </div>
@@ -205,19 +192,13 @@ export default function THBExchangePage() {
             <div className="text-2xl font-bold text-blue-600 tracking-tight">
               {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_sell)} ฿
             </div>
-            <p className="text-sm text-blue-700/80 mt-1.5 font-semibold">
-              {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_sell_mmk)} Ks
-            </p>
           </div>
         </div>
         
         {/* Today's Profit */}
         <div className="relative overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white shadow-sm transition-all hover:shadow-md">
-          <div className="absolute right-0 top-0 opacity-5">
-            <TrendingUp className="h-24 w-24 -mr-4 -mt-4 text-amber-600" />
-          </div>
           <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <h3 className="tracking-tight text-sm font-semibold text-amber-900/70 uppercase">Today's Profit</h3>
+            <h3 className="tracking-tight text-sm font-semibold text-amber-900/70 uppercase">{t('dashboard.today_profit')}</h3>
             <div className="p-1.5 bg-amber-100 rounded-full">
               <TrendingUp className="h-4 w-4 text-amber-600" />
             </div>
@@ -226,7 +207,6 @@ export default function THBExchangePage() {
             <div className="text-2xl font-bold text-amber-600 tracking-tight">
               {new Intl.NumberFormat("en-US", { style: "currency", currency: "MMK", minimumFractionDigits: 0 }).format(summary.today_profit)}
             </div>
-            <p className="text-xs text-amber-600/70 mt-1 font-medium">Realized from sells</p>
           </div>
         </div>
       </div>
@@ -235,7 +215,7 @@ export default function THBExchangePage() {
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search receipt or customer..."
+            placeholder={t('thb_exchange.search_placeholder')}
             className="pl-9 h-10 border-slate-200 text-sm focus:ring-blue-500 transition-all placeholder:text-slate-400"
             value={search}
             onChange={(e) => {
@@ -253,10 +233,9 @@ export default function THBExchangePage() {
             setPage(1);
           }}
         >
-          <option value="">All Time</option>
-          <option value="today">Today</option>
-          <option value="yesterday">Yesterday</option>
-          <option value="this_month">This Month</option>
+          <option value="">{t('common.all')}</option>
+          <option value="today">{t('dashboard.daily')}</option>
+          <option value="this_month">{t('dashboard.monthly')}</option>
         </select>
         
         <select
@@ -267,9 +246,9 @@ export default function THBExchangePage() {
             setPage(1);
           }}
         >
-          <option value="">All Types</option>
-          <option value="buy">Buys Only</option>
-          <option value="sell">Sells Only</option>
+          <option value="">{t('transactions.filter_type')}</option>
+          <option value="buy">{t('thb_exchange.buy')}</option>
+          <option value="sell">{t('thb_exchange.sell')}</option>
         </select>
       </div>
 
@@ -289,17 +268,17 @@ export default function THBExchangePage() {
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
           >
-            Previous
+            {t('common.previous')}
           </Button>
           <div className="flex items-center px-4 font-medium">
-            Page {page} of {totalPages}
+            {t('common.page_of', { page, total: totalPages })}
           </div>
           <Button
             variant="outline"
             disabled={page === totalPages}
             onClick={() => setPage(page + 1)}
           >
-            Next
+            {t('common.next')}
           </Button>
         </div>
       )}

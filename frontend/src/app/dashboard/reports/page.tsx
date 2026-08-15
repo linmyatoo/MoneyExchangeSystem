@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { format, subDays } from "date-fns";
 import { Download, FileText, Table as TableIcon, FileSpreadsheet } from "lucide-react";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ import {
 import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/export-utils";
 
 export default function ReportsPage() {
+  const { t } = useLanguage();
   const [startDate, setStartDate] = useState(format(subDays(new Date(), 30), "yyyy-MM-dd"));
   const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
   
@@ -124,14 +126,14 @@ export default function ReportsPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">System Reports</h1>
-          <p className="text-muted-foreground text-xs mt-1">Export and analyze your financial data.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t('reports.title')}</h1>
+          <p className="text-muted-foreground text-xs mt-1">{t('reports.desc')}</p>
         </div>
       </div>
 
       <div className="flex flex-wrap sm:flex-nowrap items-end gap-3 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
         <div className="space-y-1.5 flex-1 min-w-[150px]">
-          <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Start Date</Label>
+          <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">{t('reports.start_date')}</Label>
           <Input 
             type="date" 
             value={startDate} 
@@ -140,7 +142,7 @@ export default function ReportsPage() {
           />
         </div>
         <div className="space-y-1.5 flex-1 min-w-[150px]">
-          <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">End Date</Label>
+          <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">{t('reports.end_date')}</Label>
           <Input 
             type="date" 
             value={endDate} 
@@ -149,33 +151,33 @@ export default function ReportsPage() {
           />
         </div>
         <div className="w-full sm:w-auto pt-2 sm:pt-0">
-          <Button onClick={fetchReports} disabled={isLoading} className="w-full sm:w-auto h-10 px-6 bg-slate-900 hover:bg-slate-800 text-white rounded-lg shadow-sm font-medium transition-colors">
-            {isLoading ? "Generating..." : "Apply Filters"}
+          <Button onClick={fetchReports} disabled={isLoading} className="w-full sm:w-auto h-10 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm font-medium transition-colors">
+            {isLoading ? t('common.loading') : t('common.filter')}
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="profit" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="profit">Profit Report</TabsTrigger>
-          <TabsTrigger value="cashflow">Cash Flow</TabsTrigger>
-          <TabsTrigger value="wallets">Wallet Balances</TabsTrigger>
+          <TabsTrigger value="profit">{t('dashboard.today_profit')}</TabsTrigger>
+          <TabsTrigger value="cashflow">{t('nav.transactions')}</TabsTrigger>
+          <TabsTrigger value="wallets">{t('wallets.title')}</TabsTrigger>
         </TabsList>
 
         {/* Profit Report Tab */}
         <TabsContent value="profit" className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Daily Profit Breakdown</h2>
+            <h2 className="text-lg font-bold text-slate-800 tracking-tight">{t('reports.summary')}</h2>
             {renderExportButtons("profit")}
           </div>
           <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table>
               <TableHeader className="bg-slate-50/80">
                 <TableRow className="hover:bg-transparent border-slate-200">
-                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Date</TableHead>
-                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Exchange Profit</TableHead>
-                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Transaction Profit</TableHead>
-                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider text-right">Total Profit</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">{t('common.date')}</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">{t('dashboard.exchange_profit')}</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">{t('dashboard.transactions_profit')}</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider text-right">{t('reports.total_profit')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -190,11 +192,11 @@ export default function ReportsPage() {
                   </TableRow>
                 ))}
                 {profitData?.items.length === 0 && (
-                  <TableRow><TableCell colSpan={4} className="h-24 text-center text-slate-500 text-sm">No data found</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={4} className="h-24 text-center text-slate-500 text-sm">{t('dashboard.no_data')}</TableCell></TableRow>
                 )}
                 {profitData && profitData.items.length > 0 && (
                   <TableRow className="bg-slate-50 border-t border-slate-200 hover:bg-slate-50">
-                    <TableCell className="py-3 font-extrabold text-slate-800 uppercase tracking-wider text-xs">TOTALS</TableCell>
+                    <TableCell className="py-3 font-extrabold text-slate-800 uppercase tracking-wider text-xs">{t('common.total')}</TableCell>
                     <TableCell className="py-3 font-bold text-slate-700">{new Intl.NumberFormat("en-US").format(profitData.total_exchange_profit)}</TableCell>
                     <TableCell className="py-3 font-bold text-slate-700">{new Intl.NumberFormat("en-US").format(profitData.total_transaction_profit)}</TableCell>
                     <TableCell className="py-3 text-right font-extrabold text-emerald-700 text-base">
@@ -210,17 +212,17 @@ export default function ReportsPage() {
         {/* Cash Flow Tab */}
         <TabsContent value="cashflow" className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Daily Cash Flow</h2>
+            <h2 className="text-lg font-bold text-slate-800 tracking-tight">{t('nav.transactions')}</h2>
             {renderExportButtons("cashflow")}
           </div>
           <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table>
               <TableHeader className="bg-slate-50/80">
                 <TableRow className="hover:bg-transparent border-slate-200">
-                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Date</TableHead>
-                  <TableHead className="h-10 font-semibold text-emerald-600 uppercase text-[11px] tracking-wider">Inflow</TableHead>
-                  <TableHead className="h-10 font-semibold text-orange-600 uppercase text-[11px] tracking-wider">Outflow</TableHead>
-                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider text-right">Net Flow</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">{t('common.date')}</TableHead>
+                  <TableHead className="h-10 font-semibold text-emerald-600 uppercase text-[11px] tracking-wider">{t('transactions.deposit')}</TableHead>
+                  <TableHead className="h-10 font-semibold text-orange-600 uppercase text-[11px] tracking-wider">{t('transactions.withdraw')}</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider text-right">{t('common.total')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -235,11 +237,11 @@ export default function ReportsPage() {
                   </TableRow>
                 ))}
                 {cashFlowData?.items.length === 0 && (
-                  <TableRow><TableCell colSpan={4} className="h-24 text-center text-slate-500 text-sm">No data found</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={4} className="h-24 text-center text-slate-500 text-sm">{t('dashboard.no_data')}</TableCell></TableRow>
                 )}
                 {cashFlowData && cashFlowData.items.length > 0 && (
                   <TableRow className="bg-slate-50 border-t border-slate-200 hover:bg-slate-50">
-                    <TableCell className="py-3 font-extrabold text-slate-800 uppercase tracking-wider text-xs">TOTALS</TableCell>
+                    <TableCell className="py-3 font-extrabold text-slate-800 uppercase tracking-wider text-xs">{t('common.total')}</TableCell>
                     <TableCell className="py-3 font-bold text-emerald-600">{new Intl.NumberFormat("en-US").format(cashFlowData.total_inflow)}</TableCell>
                     <TableCell className="py-3 font-bold text-orange-600">{new Intl.NumberFormat("en-US").format(cashFlowData.total_outflow)}</TableCell>
                     <TableCell className={`py-3 text-right font-extrabold text-base ${cashFlowData.overall_net >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
@@ -255,16 +257,16 @@ export default function ReportsPage() {
         {/* Wallet Balances Tab */}
         <TabsContent value="wallets" className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Current Wallet Snapshot</h2>
+            <h2 className="text-lg font-bold text-slate-800 tracking-tight">{t('wallets.title')}</h2>
             {renderExportButtons("wallets")}
           </div>
           <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <Table>
               <TableHeader className="bg-slate-50/80">
                 <TableRow className="hover:bg-transparent border-slate-200">
-                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Wallet Name</TableHead>
-                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">Type</TableHead>
-                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider text-right">Current Balance</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">{t('wallets.wallet_name')}</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider">{t('wallets.type')}</TableHead>
+                  <TableHead className="h-10 font-semibold text-slate-600 uppercase text-[11px] tracking-wider text-right">{t('wallets.current_balance')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -282,7 +284,7 @@ export default function ReportsPage() {
                   </TableRow>
                 ))}
                 {(!walletData || walletData.items.length === 0) && (
-                  <TableRow><TableCell colSpan={3} className="h-24 text-center text-slate-500 text-sm">No data found</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={3} className="h-24 text-center text-slate-500 text-sm">{t('dashboard.no_data')}</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-// ProtectedLayout removed since layout.tsx handles it
 import { useAuth } from '@/providers/AuthProvider';
-import { userApi, roleApi, Role, PaginatedResponse, UserCreatePayload } from '@/lib/api/users';
+import { useLanguage } from '@/i18n/LanguageContext';
+import { userApi, roleApi, Role, UserCreatePayload } from '@/lib/api/users';
 import { User } from '@/types/auth';
 import {
   Search, Plus, Edit2, Trash2, RotateCcw, UserCheck, UserX,
@@ -12,6 +12,7 @@ import {
 
 export default function UsersPage() {
   const { user: currentUser } = useAuth();
+  const { t } = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [total, setTotal] = useState(0);
@@ -172,14 +173,14 @@ export default function UsersPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">User Management</h1>
-            <p className="text-muted-foreground text-xs mt-1">{total} total users</p>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t('users.title')}</h1>
+            <p className="text-muted-foreground text-xs mt-1">{t('users.desc')}</p>
           </div>
           <button
             onClick={openCreateModal}
             className="inline-flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 px-4 h-10 text-sm font-medium text-white shadow-sm transition-all"
           >
-            <Plus className="mr-2 h-4 w-4" /> New User
+            <Plus className="mr-2 h-4 w-4" /> {t('users.add_user')}
           </button>
         </div>
 
@@ -191,7 +192,7 @@ export default function UsersPage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search by name, username, or email..."
+                  placeholder={t('credits.search_placeholder')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full pl-9 pr-4 h-10 border border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400"
@@ -203,7 +204,7 @@ export default function UsersPage() {
               onChange={(e) => setFilterRole(e.target.value)}
               className="h-10 border border-slate-200 rounded-lg px-3 text-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
             >
-              <option value="">All Roles</option>
+              <option value="">{t('users.role')}</option>
               {roles.map((r) => (
                 <option key={r.id} value={r.id}>{r.name}</option>
               ))}
@@ -213,9 +214,9 @@ export default function UsersPage() {
               onChange={(e) => setFilterActive(e.target.value)}
               className="h-10 border border-slate-200 rounded-lg px-3 text-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
             >
-              <option value="">All Status</option>
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
+              <option value="">{t('common.status')}</option>
+              <option value="true">{t('common.active')}</option>
+              <option value="false">{t('common.inactive')}</option>
             </select>
           </div>
         </div>
@@ -233,11 +234,11 @@ export default function UsersPage() {
               <table className="min-w-full divide-y divide-slate-200">
                 <thead className="bg-slate-50/80">
                   <tr>
-                    <th className="px-6 h-10 text-left text-[11px] font-semibold text-slate-600 uppercase tracking-wider">User</th>
-                    <th className="px-6 h-10 text-left text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Role</th>
-                    <th className="px-6 h-10 text-left text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Status</th>
-                    <th className="px-6 h-10 text-left text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Created</th>
-                    <th className="px-6 h-10 text-right text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 h-10 text-left text-[11px] font-semibold text-slate-600 uppercase tracking-wider">{t('users.full_name')}</th>
+                    <th className="px-6 h-10 text-left text-[11px] font-semibold text-slate-600 uppercase tracking-wider">{t('users.role')}</th>
+                    <th className="px-6 h-10 text-left text-[11px] font-semibold text-slate-600 uppercase tracking-wider">{t('common.status')}</th>
+                    <th className="px-6 h-10 text-left text-[11px] font-semibold text-slate-600 uppercase tracking-wider">{t('common.created_at')}</th>
+                    <th className="pl-6 pr-8 h-10 text-right text-[11px] font-semibold text-slate-600 uppercase tracking-wider">{t('common.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-100">
@@ -272,13 +273,13 @@ export default function UsersPage() {
                             ? 'bg-emerald-100 text-emerald-700'
                             : 'bg-rose-100 text-rose-700'
                         }`}>
-                          {user.is_active ? 'Active' : 'Inactive'}
+                          {user.is_active ? t('common.active') : t('common.inactive')}
                         </span>
                       </td>
                       <td className="px-6 py-3 whitespace-nowrap text-sm text-slate-600">
                         {new Date(user.last_login_at || '').toLocaleDateString() || '—'}
                       </td>
-                      <td className="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="pl-6 pr-8 py-3 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
                           <button onClick={() => openEditModal(user)} title="Edit"
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
@@ -309,7 +310,7 @@ export default function UsersPage() {
                     <tr>
                       <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                         <div className="flex flex-col items-center justify-center">
-                          <span className="font-medium text-base">No users found.</span>
+                          <span className="font-medium text-base">{t('dashboard.no_data')}</span>
                         </div>
                       </td>
                     </tr>
@@ -323,9 +324,7 @@ export default function UsersPage() {
           {totalPages > 1 && (
             <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
               <div className="text-sm text-gray-700">
-                Showing <span className="font-medium">{(page - 1) * pageSize + 1}</span> to{' '}
-                <span className="font-medium">{Math.min(page * pageSize, total)}</span> of{' '}
-                <span className="font-medium">{total}</span> results
+                {t('common.page_of', { page, total: totalPages })}
               </div>
               <div className="flex gap-2">
                 <button
@@ -335,9 +334,6 @@ export default function UsersPage() {
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                <span className="inline-flex items-center px-3 py-1.5 text-sm text-gray-700">
-                  {page} / {totalPages}
-                </span>
                 <button
                   onClick={() => setPage(Math.min(totalPages, page + 1))}
                   disabled={page === totalPages}
@@ -357,7 +353,7 @@ export default function UsersPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50/50">
               <h3 className="text-lg font-bold tracking-tight text-slate-900">
-                {editingUser ? 'Edit User' : 'Create New User'}
+                {editingUser ? t('users.edit_user') : t('users.add_user')}
               </h3>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                 <X className="h-5 w-5" />
@@ -369,7 +365,7 @@ export default function UsersPage() {
               )}
               {!editingUser && (
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-semibold text-slate-700">Username</label>
+                  <label className="block text-sm font-semibold text-slate-700">{t('users.username')}</label>
                   <input type="text" required minLength={3}
                     placeholder="Enter username"
                     value={formData.username}
@@ -379,7 +375,7 @@ export default function UsersPage() {
                 </div>
               )}
               <div className="space-y-1.5">
-                <label className="block text-sm font-semibold text-slate-700">Full Name</label>
+                <label className="block text-sm font-semibold text-slate-700">{t('users.full_name')}</label>
                 <input type="text" required
                   placeholder="Enter full name"
                   value={formData.full_name}
@@ -388,7 +384,7 @@ export default function UsersPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-sm font-semibold text-slate-700">Email</label>
+                <label className="block text-sm font-semibold text-slate-700">{t('users.email')}</label>
                 <input type="email"
                   placeholder="Enter email address"
                   value={formData.email}
@@ -398,7 +394,7 @@ export default function UsersPage() {
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-semibold text-slate-700">
-                  Password <span className="font-normal text-slate-400">{editingUser && '(leave blank to keep current)'}</span>
+                  {t('users.password')}
                 </label>
                 <input type="password" minLength={6}
                   required={!editingUser}
@@ -410,7 +406,7 @@ export default function UsersPage() {
               </div>
               {!editingUser && (
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-semibold text-slate-700">Role</label>
+                  <label className="block text-sm font-semibold text-slate-700">{t('users.role')}</label>
                   <select required
                     value={formData.role_id}
                     onChange={(e) => setFormData({ ...formData, role_id: e.target.value })}
@@ -426,11 +422,11 @@ export default function UsersPage() {
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-2">
                 <button type="button" onClick={() => setShowModal(false)}
                   className="px-4 h-10 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button type="submit" disabled={formLoading}
-                  className="px-4 h-10 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-70 transition-colors shadow-sm">
-                  {formLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : (editingUser ? 'Update' : 'Create')}
+                  className="px-4 h-10 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-70 transition-colors shadow-sm">
+                  {formLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : (editingUser ? t('common.edit') : t('common.confirm'))}
                 </button>
               </div>
             </form>
@@ -443,14 +439,14 @@ export default function UsersPage() {
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
             <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50/50">
-              <h3 className="text-lg font-bold tracking-tight text-slate-900">Reset Password</h3>
+              <h3 className="text-lg font-bold tracking-tight text-slate-900">{t('users.password')}</h3>
               <button onClick={() => setShowResetModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="p-5 space-y-4">
               <div className="space-y-1.5">
-                <label className="block text-sm font-semibold text-slate-700">New Password</label>
+                <label className="block text-sm font-semibold text-slate-700">{t('users.password')}</label>
                 <input type="password" required minLength={6}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
@@ -460,11 +456,11 @@ export default function UsersPage() {
               <div className="flex justify-end gap-3 pt-2">
                 <button onClick={() => setShowResetModal(false)}
                   className="px-4 h-10 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button onClick={handleResetPassword}
                   className="px-4 h-10 bg-yellow-600 text-white rounded-lg text-sm font-medium hover:bg-yellow-500 shadow-sm transition-colors">
-                  Reset
+                  {t('common.confirm')}
                 </button>
               </div>
             </div>

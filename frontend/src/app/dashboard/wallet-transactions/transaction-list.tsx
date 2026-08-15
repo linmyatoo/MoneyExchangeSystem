@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { WalletTransaction } from "@/lib/api/wallet-transactions";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 interface TransactionListProps {
   data: WalletTransaction[];
@@ -26,20 +27,22 @@ interface TransactionListProps {
 }
 
 export function TransactionList({ data, onEdit, onDelete }: TransactionListProps) {
+  const { t } = useLanguage();
+
   const columns: ColumnDef<WalletTransaction>[] = [
     {
       accessorKey: "transaction_number",
-      header: "Receipt #",
+      header: t('transactions.reference_no'),
       cell: ({ row }) => <span className="font-mono text-sm">{row.original.transaction_number}</span>
     },
     {
       accessorKey: "transaction_date",
-      header: "Date",
+      header: t('common.date'),
       cell: ({ row }) => new Date(row.original.transaction_date).toLocaleString(),
     },
     {
       id: "wallet_name",
-      header: "Wallet",
+      header: t('wallets.title'),
       cell: ({ row }) => {
         const tx = row.original;
         const from = tx.from_wallet_account?.account_name;
@@ -53,28 +56,28 @@ export function TransactionList({ data, onEdit, onDelete }: TransactionListProps
     },
     {
       id: "type_flow",
-      header: "Flow",
+      header: t('common.type'),
       cell: ({ row }) => {
         const tx = row.original;
         if (tx.transaction_type === "deposit") {
           return (
             <div className="flex items-center text-green-600">
               <ArrowDownRight className="w-4 h-4 mr-1" />
-              <span>Deposit</span>
+              <span>{t('transactions.deposit')}</span>
             </div>
           );
         } else if (tx.transaction_type === "withdrawal") {
           return (
             <div className="flex items-center text-red-600">
               <ArrowUpRight className="w-4 h-4 mr-1" />
-              <span>Withdrawal</span>
+              <span>{t('transactions.withdraw')}</span>
             </div>
           );
         } else {
           return (
             <div className="flex items-center text-blue-600">
               <ArrowRight className="w-4 h-4 mr-1" />
-              <span>Transfer</span>
+              <span>{t('transactions.transfer')}</span>
             </div>
           );
         }
@@ -82,11 +85,10 @@ export function TransactionList({ data, onEdit, onDelete }: TransactionListProps
     },
     {
       accessorKey: "customer.name",
-      header: "Customer",
+      header: t('common.customer'),
       cell: ({ row }) => {
         const tx = row.original;
         if (tx.customer?.name) return tx.customer.name;
-        // Extract from notes if stored as "Customer: Name | ..."
         if (tx.notes?.startsWith("Customer: ")) {
           const name = tx.notes.split(" | ")[0].replace("Customer: ", "");
           return name;
@@ -96,7 +98,7 @@ export function TransactionList({ data, onEdit, onDelete }: TransactionListProps
     },
     {
       accessorKey: "amount",
-      header: "Amount",
+      header: t('common.amount'),
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue("amount"));
         const formatted = new Intl.NumberFormat("en-US", {
@@ -110,7 +112,7 @@ export function TransactionList({ data, onEdit, onDelete }: TransactionListProps
     },
     {
       accessorKey: "profit",
-      header: "Profit",
+      header: t('thb_exchange.profit'),
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue("profit"));
         if (amount === 0) return "-";
@@ -119,22 +121,22 @@ export function TransactionList({ data, onEdit, onDelete }: TransactionListProps
     },
     {
       accessorKey: "is_credit",
-      header: "Credit",
+      header: t('nav.credits'),
       cell: ({ row }) => (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.original.is_credit ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"}`}>
-          {row.original.is_credit ? "Yes" : "No"}
+          {row.original.is_credit ? t('common.yes') : t('common.no')}
         </span>
       ),
     },
     {
       id: "actions",
-      header: "Actions",
+      header: t('common.actions'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-1">
-          <Button variant="ghost" size="icon" onClick={() => onEdit?.(row.original)} title="Edit">
+          <Button variant="ghost" size="icon" onClick={() => onEdit?.(row.original)} title={t('common.edit')}>
             <Pencil className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => onDelete?.(row.original)} title="Delete" className="text-red-500 hover:text-red-700">
+          <Button variant="ghost" size="icon" onClick={() => onDelete?.(row.original)} title={t('common.delete')} className="text-red-500 hover:text-red-700">
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -186,7 +188,7 @@ export function TransactionList({ data, onEdit, onDelete }: TransactionListProps
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No transactions found.
+                {t('transactions.no_transactions')}
               </TableCell>
             </TableRow>
           )}

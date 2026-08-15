@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckCircle2, ChevronDown, ChevronRight, UserCircle2 } from "lucide-react";
 import { WalletTransaction } from "@/lib/api/wallet-transactions";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 interface CreditListProps {
   data: WalletTransaction[];
@@ -11,13 +12,13 @@ interface CreditListProps {
 }
 
 export function CreditList({ data, onMarkSettled }: CreditListProps) {
+  const { t } = useLanguage();
   const [expandedCustomers, setExpandedCustomers] = useState<Record<string, boolean>>({});
 
   // Group transactions by customer
   const groupedCredits: Record<string, { total: number; transactions: WalletTransaction[] }> = {};
   
   data.forEach(tx => {
-    // Determine customer name: either from relationship, or from notes "Customer: Name | ..."
     let customerName = tx.customer?.name;
     if (!customerName && tx.notes?.startsWith("Customer: ")) {
       customerName = tx.notes.split(" | ")[0].replace("Customer: ", "");
@@ -42,7 +43,7 @@ export function CreditList({ data, onMarkSettled }: CreditListProps) {
   if (Object.keys(groupedCredits).length === 0) {
     return (
       <div className="rounded-md border p-8 text-center text-muted-foreground">
-        No active credits found.
+        {t('credits.no_credits')}
       </div>
     );
   }
@@ -70,7 +71,7 @@ export function CreditList({ data, onMarkSettled }: CreditListProps) {
                     <h3 className="font-semibold text-gray-900 text-base">{customer}</h3>
                     <div className="flex items-center">
                       <span className="text-[11px] font-medium text-slate-500">
-                        {group.transactions.length} active {group.transactions.length === 1 ? 'record' : 'records'}
+                        {group.transactions.length} {t('common.active')}
                       </span>
                     </div>
                   </div>
@@ -92,17 +93,17 @@ export function CreditList({ data, onMarkSettled }: CreditListProps) {
                     <table className="w-full text-sm text-left">
                       <thead className="bg-slate-50 text-slate-500 text-xs">
                         <tr>
-                          <th className="px-4 py-2 font-medium">Date</th>
-                          <th className="px-4 py-2 font-medium">Receipt #</th>
-                          <th className="px-4 py-2 font-medium">Flow</th>
-                          <th className="px-4 py-2 font-medium text-right">Amount</th>
-                          <th className="px-4 py-2 font-medium text-right">Action</th>
+                          <th className="pl-6 pr-4 py-2 font-medium">{t('common.date')}</th>
+                          <th className="px-4 py-2 font-medium">{t('transactions.reference_no')}</th>
+                          <th className="px-4 py-2 font-medium">{t('common.type')}</th>
+                          <th className="px-4 py-2 font-medium text-right">{t('common.amount')}</th>
+                          <th className="pl-4 pr-6 py-2 font-medium text-right">{t('common.actions')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {group.transactions.map((tx) => (
                           <tr key={tx.id} className="hover:bg-slate-50/80 transition-colors">
-                            <td className="px-4 py-2 whitespace-nowrap text-slate-600 text-xs">
+                            <td className="pl-6 pr-4 py-2 whitespace-nowrap text-slate-600 text-xs">
                               {new Date(tx.transaction_date).toLocaleDateString()}
                             </td>
                             <td className="px-4 py-2 whitespace-nowrap">
@@ -114,13 +115,13 @@ export function CreditList({ data, onMarkSettled }: CreditListProps) {
                                 tx.transaction_type === 'withdrawal' ? 'text-orange-600 font-medium' :
                                 'text-blue-600 font-medium'
                               }`}>
-                                {tx.transaction_type === "deposit" ? "Deposit" : tx.transaction_type === "withdrawal" ? "Withdrawal" : "Transfer"}
+                                {tx.transaction_type === "deposit" ? t('transactions.deposit') : tx.transaction_type === "withdrawal" ? t('transactions.withdraw') : t('transactions.transfer')}
                               </span>
                             </td>
                             <td className="px-4 py-2 whitespace-nowrap text-right font-medium text-slate-700">
                               {formatCurrency(parseFloat(tx.amount.toString()))}
                             </td>
-                            <td className="px-4 py-2 whitespace-nowrap text-right">
+                            <td className="pl-4 pr-6 py-2 whitespace-nowrap text-right">
                               <Button 
                                 variant="outline" 
                                 size="sm"
@@ -131,7 +132,7 @@ export function CreditList({ data, onMarkSettled }: CreditListProps) {
                                 }}
                               >
                                 <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
-                                Settle
+                                {t('credits.repay')}
                               </Button>
                             </td>
                           </tr>

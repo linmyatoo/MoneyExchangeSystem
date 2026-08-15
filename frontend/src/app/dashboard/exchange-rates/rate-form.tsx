@@ -108,7 +108,7 @@ export function RateForm({ open, onOpenChange, onSubmit }: RateFormProps) {
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className="h-10 px-4 rounded-md text-gray-600 hover:text-gray-900 border-gray-200">
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="h-10 px-4 rounded-md bg-gray-900 text-white hover:bg-gray-800 transition-colors shadow-sm">
+            <Button type="submit" disabled={isSubmitting} className="h-10 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm">
               {isSubmitting ? "Publishing..." : "Publish Rate"}
             </Button>
           </div>

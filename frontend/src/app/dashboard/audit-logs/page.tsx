@@ -8,6 +8,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Search } from "lucide-react";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import {
 import { getAuditLogs, AuditLogResponse, AuditLogListResponse } from "@/lib/api/audit-logs";
 
 export default function AuditLogsPage() {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [selectedLog, setSelectedLog] = useState<AuditLogResponse | null>(null);
@@ -50,7 +52,6 @@ export default function AuditLogsPage() {
       }
     };
     
-    // Add a slight debounce for search
     const timer = setTimeout(() => {
       fetchLogs();
     }, 300);
@@ -61,12 +62,12 @@ export default function AuditLogsPage() {
   const columns: ColumnDef<AuditLogResponse>[] = [
     {
       accessorKey: "created_at",
-      header: "Timestamp",
+      header: t('common.created_at'),
       cell: ({ row }) => new Date(row.getValue("created_at")).toLocaleString(),
     },
     {
       accessorKey: "action",
-      header: "Action",
+      header: t('audit_logs.action'),
       cell: ({ row }) => (
         <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
           {row.getValue("action")}
@@ -75,12 +76,12 @@ export default function AuditLogsPage() {
     },
     {
       accessorKey: "entity_type",
-      header: "Entity",
+      header: t('audit_logs.entity'),
       cell: ({ row }) => row.getValue("entity_type"),
     },
     {
       accessorKey: "user",
-      header: "User",
+      header: t('audit_logs.user'),
       cell: ({ row }) => {
         const user = row.getValue("user") as any;
         return user ? user.full_name : "System";
@@ -88,15 +89,15 @@ export default function AuditLogsPage() {
     },
     {
       accessorKey: "ip_address",
-      header: "IP Address",
+      header: t('audit_logs.ip_address'),
       cell: ({ row }) => row.getValue("ip_address") || "N/A",
     },
     {
       id: "actions",
-      header: "Details",
+      header: t('common.actions'),
       cell: ({ row }) => (
         <Button variant="outline" size="sm" onClick={() => setSelectedLog(row.original)}>
-          View Diff
+          {t('common.details')}
         </Button>
       ),
     },
@@ -111,19 +112,19 @@ export default function AuditLogsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Audit Log</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('audit_logs.title')}</h1>
       </div>
 
       <div className="flex items-center space-x-2">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search action, entity, user..."
+            placeholder={t('credits.search_placeholder')}
             className="pl-8"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
-              setPage(1); // reset to page 1 on search
+              setPage(1);
             }}
           />
         </div>
@@ -151,7 +152,7 @@ export default function AuditLogsPage() {
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Loading audit trail...
+                  {t('common.loading')}
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
@@ -167,7 +168,7 @@ export default function AuditLogsPage() {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No records found.
+                  {t('dashboard.no_data')}
                 </TableCell>
               </TableRow>
             )}
@@ -177,7 +178,7 @@ export default function AuditLogsPage() {
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Total {data?.total || 0} records
+          {data?.total || 0}
         </p>
         <div className="flex space-x-2">
           <Button
@@ -186,7 +187,7 @@ export default function AuditLogsPage() {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
-            Previous
+            {t('common.previous')}
           </Button>
           <Button
             variant="outline"
@@ -194,7 +195,7 @@ export default function AuditLogsPage() {
             onClick={() => setPage((p) => p + 1)}
             disabled={!data || data.items.length < pageSize}
           >
-            Next
+            {t('common.next')}
           </Button>
         </div>
       </div>
@@ -202,41 +203,41 @@ export default function AuditLogsPage() {
       <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Audit Record Details</DialogTitle>
+            <DialogTitle>{t('audit_logs.details')}</DialogTitle>
           </DialogHeader>
           
           {selectedLog && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm border-b pb-4">
                 <div>
-                  <span className="font-semibold text-gray-500 block">Action</span>
+                  <span className="font-semibold text-gray-500 block">{t('audit_logs.action')}</span>
                   <span>{selectedLog.action}</span>
                 </div>
                 <div>
-                  <span className="font-semibold text-gray-500 block">Entity</span>
+                  <span className="font-semibold text-gray-500 block">{t('audit_logs.entity')}</span>
                   <span>{selectedLog.entity_type} ({selectedLog.entity_id})</span>
                 </div>
                 <div>
-                  <span className="font-semibold text-gray-500 block">User</span>
+                  <span className="font-semibold text-gray-500 block">{t('audit_logs.user')}</span>
                   <span>{selectedLog.user?.full_name || 'System'}</span>
                 </div>
                 <div>
-                  <span className="font-semibold text-gray-500 block">Timestamp</span>
+                  <span className="font-semibold text-gray-500 block">{t('common.created_at')}</span>
                   <span>{new Date(selectedLog.created_at).toLocaleString()}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="border rounded-md p-4 bg-red-50">
-                  <h4 className="font-semibold text-red-800 mb-2">Old Values</h4>
+                  <h4 className="font-semibold text-red-800 mb-2">{t('audit_logs.old_values')}</h4>
                   <pre className="text-xs overflow-x-auto text-red-900">
-                    {selectedLog.old_values ? JSON.stringify(selectedLog.old_values, null, 2) : "None (Creation/No Data)"}
+                    {selectedLog.old_values ? JSON.stringify(selectedLog.old_values, null, 2) : "None"}
                   </pre>
                 </div>
                 <div className="border rounded-md p-4 bg-green-50">
-                  <h4 className="font-semibold text-green-800 mb-2">New Values</h4>
+                  <h4 className="font-semibold text-green-800 mb-2">{t('audit_logs.new_values')}</h4>
                   <pre className="text-xs overflow-x-auto text-green-900">
-                    {selectedLog.new_values ? JSON.stringify(selectedLog.new_values, null, 2) : "None (Deletion/No Data)"}
+                    {selectedLog.new_values ? JSON.stringify(selectedLog.new_values, null, 2) : "None"}
                   </pre>
                 </div>
               </div>

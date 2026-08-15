@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
+import { useLanguage } from '@/i18n/LanguageContext';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { apiClient } from '@/lib/axios';
 import { Loader2 } from 'lucide-react';
 
@@ -11,6 +13,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +21,6 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // OAuth2PasswordRequestForm expects x-www-form-urlencoded
       const formData = new URLSearchParams();
       formData.append('username', username);
       formData.append('password', password);
@@ -33,7 +35,7 @@ export default function LoginPage() {
       login(access_token, refresh_token, user);
     } catch (err: any) {
       setError(
-        err.response?.data?.detail || 'An error occurred during login. Please try again.'
+        err.response?.data?.detail || t('auth.invalid_credentials')
       );
     } finally {
       setLoading(false);
@@ -41,13 +43,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50">
+    <div className="flex min-h-screen flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50 relative">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-          Exchange Management System
+          {t('auth.login_subtitle')}
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Sign in to your account
+          {t('auth.login_title')}
         </p>
       </div>
 
@@ -69,7 +75,7 @@ export default function LoginPage() {
                 htmlFor="username"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Username
+                {t('auth.username')}
               </label>
               <div className="mt-2">
                 <input
@@ -90,7 +96,7 @@ export default function LoginPage() {
                 htmlFor="password"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Password
+                {t('auth.password')}
               </label>
               <div className="mt-2">
                 <input
@@ -115,10 +121,10 @@ export default function LoginPage() {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
+                    {t('auth.signing_in')}
                   </>
                 ) : (
-                  'Sign in'
+                  t('auth.sign_in')
                 )}
               </button>
             </div>

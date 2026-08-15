@@ -1,39 +1,40 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const inter = Inter({
+	variable: "--font-inter",
+	subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+	variable: "--font-geist-mono",
+	subsets: ["latin"],
 });
 
-import { AuthProvider } from '@/providers/AuthProvider';
+import { AuthProvider } from "@/providers/AuthProvider";
+import { LanguageProvider } from "@/i18n/LanguageContext";
 
 export const metadata: Metadata = {
-  title: "Exchange Management System",
-  description: "EMS Dashboard",
+	title: "Exchange Management System",
+	description: "EMS Dashboard",
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </body>
-    </html>
-  );
+	return (
+		<html
+			lang="en"
+			className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
+		>
+			<body className="min-h-full flex flex-col">
+				<LanguageProvider>
+					<AuthProvider>{children}</AuthProvider>
+				</LanguageProvider>
+			</body>
+		</html>
+	);
 }

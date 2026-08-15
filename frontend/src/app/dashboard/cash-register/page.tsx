@@ -3,10 +3,25 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
-import { useForm } from "react-hook-form";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { AlertCircle, CheckCircle2, Lock, Unlock, Banknote, FileText } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Lock,
+  Unlock,
+  Banknote,
+  FileText,
+  Clock,
+  Coins,
+  ShieldCheck,
+  RefreshCw,
+  Edit3,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +33,8 @@ import {
   getDailyStatus,
   openRegister,
   closeRegister,
+  updateOpening,
+  updateClosing,
   DailyStatusResponse,
 } from "@/lib/api/cash-management";
 
@@ -35,6 +52,7 @@ const closeSchema = z.object({
 
 export default function CashRegisterPage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const [status, setStatus] = useState<DailyStatusResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,7 +61,7 @@ export default function CashRegisterPage() {
   const [isEditingClosing, setIsEditingClosing] = useState(false);
 
   useEffect(() => {
-    if (user?.role.name === "staff") {
+    if (user?.role?.name === "staff") {
       router.push("/dashboard/wallet-transactions");
       return;
     }
@@ -54,8 +72,7 @@ export default function CashRegisterPage() {
     try {
       const data = await getDailyStatus();
       setStatus(data);
-      
-      // Pre-fill edit forms with current data
+
       if (data.opening) {
         openForm.reset({
           mmk_amount: data.opening.mmk_amount,
@@ -99,11 +116,18 @@ export default function CashRegisterPage() {
     },
   });
 
+  const watchedCloseMMK = useWatch({ control: closeForm.control, name: "mmk_amount" }) || 0;
+  const watchedCloseTHB = useWatch({ control: closeForm.control, name: "thb_amount" }) || 0;
+
+  const expectedMMK = status?.expected_mmk_now ?? status?.closing?.expected_mmk_amount ?? 0;
+  const expectedTHB = status?.expected_thb_now ?? status?.closing?.expected_thb_amount ?? 0;
+
+  const mmkDiff = (Number(watchedCloseMMK) || 0) - expectedMMK;
+  const thbDiff = (Number(watchedCloseTHB) || 0) - expectedTHB;
+
   const onOpenSubmit = async (data: any) => {
     try {
       if (isEditingOpening && status?.opening) {
-        // Use the updateOpening API (requires importing updateOpening)
-        const { updateOpening } = await import("@/lib/api/cash-management");
         await updateOpening(status.opening.id, data);
         setIsEditingOpening(false);
       } else {
@@ -118,7 +142,6 @@ export default function CashRegisterPage() {
   const onCloseSubmit = async (data: any) => {
     try {
       if (isEditingClosing && status?.closing) {
-        const { updateClosing } = await import("@/lib/api/cash-management");
         await updateClosing(status.closing.id, data);
         setIsEditingClosing(false);
       } else {
@@ -132,161 +155,122 @@ export default function CashRegisterPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <div className="flex flex-col justify-center items-center py-20 space-y-4">
+        <div className="relative flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin"></div>
+          <Coins className="w-5 h-5 text-indigo-600 absolute" />
+        </div>
+        <p className="text-sm font-medium text-slate-500 animate-pulse">{t('common.loading')}</p>
       </div>
     );
   }
 
-  if (!status) return <div>Failed to load cash register status.</div>;
+  if (!status) {
+    return (
+      <div className="p-8 text-center bg-rose-50 border border-rose-200 rounded-2xl max-w-md mx-auto space-y-4">
+        <AlertCircle className="w-10 h-10 text-rose-500 mx-auto" />
+        <h3 className="text-lg font-bold text-rose-900">{t('common.error')}</h3>
+        <Button onClick={fetchStatus} size="sm" variant="outline" className="border-rose-300 text-rose-800 hover:bg-rose-100">
+          <RefreshCw className="w-4 h-4 mr-2" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between bg-gradient-to-r from-slate-900 to-slate-800 p-6 rounded-2xl text-white shadow-lg">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Daily Cash Register</h1>
-          <p className="text-slate-300 mt-1 text-sm">Manage your shift's physical cash drawer and inventory</p>
+    <div className="max-w-5xl mx-auto space-y-8">
+      {/* Header Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 text-white shadow-xl border border-slate-800">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center space-x-3">
+              <div className="p-2.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 shadow-inner">
+                <Banknote className="w-6 h-6 text-indigo-300" />
+              </div>
+            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-white">{t('cash_register.title')}</h1>
+            <p className="text-slate-300 text-sm max-w-lg">
+              {t('cash_register.desc')}
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-3 shrink-0">
+            <Link href="/dashboard/cash-register/history">
+              <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border border-white/10 backdrop-blur-md transition-all shadow-sm">
+                <FileText className="w-4 h-4 mr-2 text-indigo-300" /> {t('cash_register.history')}
+              </Button>
+            </Link>
+            <Button onClick={fetchStatus} size="icon" variant="ghost" className="text-slate-300 hover:text-white hover:bg-white/10 rounded-xl">
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
-        <Link href="/dashboard/cash-register/history">
-          <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-0 transition-colors">
-            <FileText className="w-4 h-4 mr-2" /> Shift History
-          </Button>
-        </Link>
       </div>
 
+      {/* STATE 1: REGISTER NOT OPENED */}
       {status.status === "NOT_OPENED" && (
-        <div className="rounded-2xl border-0 bg-gradient-to-b from-orange-50 to-white text-card-foreground shadow-xl p-8 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-amber-500"></div>
-          <div className="flex flex-col items-center justify-center mb-8 text-orange-600">
-            <div className="bg-orange-100 p-4 rounded-full mb-4 shadow-inner animate-pulse">
-              <Lock className="w-10 h-10 text-orange-500" />
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-8 py-4 text-white flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Lock className="w-5 h-5 text-amber-100" />
+              <span className="font-bold text-sm tracking-wide uppercase">{t('cash_register.status_closed')}</span>
             </div>
-            <h2 className="text-3xl font-bold text-slate-800">Register is Closed</h2>
-          </div>
-          <p className="text-center text-slate-600 mb-10 max-w-md mx-auto leading-relaxed">
-            Please count the physical cash currently in the drawer and open the register to begin today's shift.
-          </p>
-
-          <form onSubmit={openForm.handleSubmit(onOpenSubmit)} className="space-y-6 max-w-md mx-auto">
-            <div className="space-y-2">
-              <Label>Opening MMK (Physical Cash)</Label>
-              <Input type="number" step="0.01" {...openForm.register("mmk_amount")} />
-              {openForm.formState.errors.mmk_amount && (
-                <p className="text-sm text-red-500">{String(openForm.formState.errors.mmk_amount.message)}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Opening THB (Physical Cash)</Label>
-              <Input type="number" step="0.01" {...openForm.register("thb_amount")} />
-              {openForm.formState.errors.thb_amount && (
-                <p className="text-sm text-red-500">{String(openForm.formState.errors.thb_amount.message)}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Notes (Optional)</Label>
-              <Textarea {...openForm.register("notes")} />
-            </div>
-
-            <Button type="submit" className="w-full" disabled={openForm.formState.isSubmitting}>
-              {openForm.formState.isSubmitting ? "Opening..." : "Open Register"}
-            </Button>
-          </form>
-        </div>
-      )}
-
-      {status.status === "OPEN" && status.opening && (
-        <div className="space-y-6">
-          <div className="rounded-2xl border-0 bg-gradient-to-r from-emerald-50 to-teal-50 text-card-foreground shadow-md p-6 relative overflow-hidden">
-            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-emerald-400 to-teal-500"></div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-5 text-emerald-800">
-                <div className="bg-white p-3 rounded-xl shadow-sm">
-                  <Unlock className="w-7 h-7 text-emerald-600" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-800">Register is Open</h2>
-                  <p className="text-sm text-slate-600 mt-0.5">Opened by <span className="font-medium text-slate-800">{status.opening.creator.full_name}</span> at {new Date(status.opening.created_at).toLocaleTimeString()}</p>
-                </div>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => setIsEditingOpening(!isEditingOpening)}>
-                {isEditingOpening ? "Cancel Edit" : "Edit Opening Amount"}
-              </Button>
-            </div>
-            
-            {isEditingOpening && (
-              <div className="mt-6 pt-6 border-t border-green-200">
-                <form onSubmit={openForm.handleSubmit(onOpenSubmit)} className="space-y-4 max-w-md">
-                  <div className="space-y-2">
-                    <Label>Opening MMK</Label>
-                    <Input type="number" step="0.01" {...openForm.register("mmk_amount")} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Opening THB</Label>
-                    <Input type="number" step="0.01" {...openForm.register("thb_amount")} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Notes</Label>
-                    <Textarea {...openForm.register("notes")} />
-                  </div>
-                  <Button type="submit" className="w-full">Save Changes</Button>
-                </form>
-              </div>
-            )}
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-2xl border border-slate-100 bg-white text-card-foreground shadow-sm hover:shadow-md transition-all duration-300 p-8">
-              <h3 className="font-semibold text-lg mb-6 flex items-center text-slate-800">
-                <div className="bg-blue-50 p-2 rounded-lg mr-3">
-                  <Banknote className="w-5 h-5 text-blue-600" />
-                </div>
-                Expected Ledger Balances
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Expected MMK Cash</p>
-                  <p className="text-2xl font-bold">{new Intl.NumberFormat("en-US").format(status.expected_mmk_now || 0)} K</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Expected THB Inventory</p>
-                  <p className="text-2xl font-bold text-purple-600">{new Intl.NumberFormat("en-US").format(status.expected_thb_now || 0)} THB</p>
-                </div>
-              </div>
-            </div>
+          <div className="p-8 md:p-10 grid md:grid-cols-12 gap-8 items-start">
+            <div className="md:col-span-12 bg-slate-50/70 border border-slate-200/60 rounded-2xl p-6 sm:p-8">
+              <form onSubmit={openForm.handleSubmit(onOpenSubmit)} className="space-y-5">
+                <h3 className="text-lg font-bold text-slate-800 flex items-center">
+                  <Sparkles className="w-5 h-5 text-indigo-600 mr-2" /> {t('cash_register.open_register')}
+                </h3>
 
-            <div className="rounded-2xl border border-slate-100 bg-white text-card-foreground shadow-sm hover:shadow-md transition-all duration-300 p-8">
-              <h3 className="font-semibold text-lg mb-2 text-rose-600 flex items-center">
-                Close Shift
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Count the physical drawer and enter the actual amounts to close the shift.
-              </p>
-              <form onSubmit={closeForm.handleSubmit(onCloseSubmit)} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Actual MMK Count</Label>
-                  <Input type="number" step="0.01" {...closeForm.register("mmk_amount")} />
-                  {closeForm.formState.errors.mmk_amount && (
-                    <p className="text-sm text-red-500">{String(closeForm.formState.errors.mmk_amount.message)}</p>
-                  )}
-                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase text-slate-600 tracking-wider">
+                      {t('cash_register.opening_balance')} (MMK 🇲🇲)
+                    </Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      className="bg-white px-4 py-3 text-lg font-semibold text-slate-800 border-slate-200 focus:ring-2 focus:ring-indigo-500 rounded-xl"
+                      {...openForm.register("mmk_amount")}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label>Actual THB Count</Label>
-                  <Input type="number" step="0.01" {...closeForm.register("thb_amount")} />
-                  {closeForm.formState.errors.thb_amount && (
-                    <p className="text-sm text-red-500">{String(closeForm.formState.errors.thb_amount.message)}</p>
-                  )}
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase text-slate-600 tracking-wider">
+                      {t('cash_register.opening_balance')} (THB 🇹🇭)
+                    </Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      className="bg-white px-4 py-3 text-lg font-semibold text-slate-800 border-slate-200 focus:ring-2 focus:ring-purple-500 rounded-xl"
+                      {...openForm.register("thb_amount")}
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Discrepancy Notes</Label>
-                  <Textarea {...closeForm.register("notes")} placeholder="Explain any missing/extra cash..." />
+                  <Label className="text-xs font-bold uppercase text-slate-600 tracking-wider">
+                    {t('common.note')}
+                  </Label>
+                  <Textarea
+                    placeholder="..."
+                    className="bg-white border-slate-200 rounded-xl text-sm"
+                    rows={2}
+                    {...openForm.register("notes")}
+                  />
                 </div>
 
-                <Button type="submit" variant="destructive" className="w-full" disabled={closeForm.formState.isSubmitting}>
-                  {closeForm.formState.isSubmitting ? "Closing..." : "Close Register"}
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all"
+                  disabled={openForm.formState.isSubmitting}
+                >
+                  {openForm.formState.isSubmitting ? t('common.loading') : t('cash_register.open_register')}
                 </Button>
               </form>
             </div>
@@ -294,119 +278,66 @@ export default function CashRegisterPage() {
         </div>
       )}
 
-      {status.status === "CLOSED" && status.closing && (
-        <div className="rounded-2xl border-0 bg-gradient-to-br from-blue-50 via-white to-slate-50 text-card-foreground shadow-xl p-8 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
-          <div className="flex items-center justify-between mb-10">
-            <div className="flex items-center space-x-5 text-blue-800">
-              <div className="bg-white p-3 rounded-2xl shadow-sm">
-                <CheckCircle2 className="w-8 h-8 text-blue-600" />
+      {/* STATE 2: REGISTER OPEN */}
+      {status.status === "OPEN" && status.opening && (
+        <div className="space-y-8">
+          <div className="bg-white rounded-3xl border border-emerald-200/80 shadow-lg overflow-hidden p-6 md:p-8 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900">{t('cash_register.session_active')}</h2>
+              <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">{t('cash_register.status_open')}</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-2">
+                <span className="text-xs font-bold uppercase text-slate-500">{t('cash_register.expected_balance')} (MMK)</span>
+                <div className="text-3xl font-extrabold text-slate-900">
+                  {new Intl.NumberFormat("en-US").format(status.expected_mmk_now || 0)} K
+                </div>
               </div>
-              <h2 className="text-3xl font-bold text-slate-800">Shift is Closed</h2>
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-2">
+                <span className="text-xs font-bold uppercase text-slate-500">{t('cash_register.expected_balance')} (THB)</span>
+                <div className="text-3xl font-extrabold text-purple-900">
+                  {new Intl.NumberFormat("en-US").format(status.expected_thb_now || 0)} ฿
+                </div>
+              </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <Button variant="outline" onClick={() => setIsEditingOpening(!isEditingOpening)} className="bg-white/80 hover:bg-white text-slate-700">
-                {isEditingOpening ? "Cancel Edit Opening" : "Edit Opening Amount"}
+
+            <form onSubmit={closeForm.handleSubmit(onCloseSubmit)} className="space-y-6 pt-4 border-t border-slate-100">
+              <h3 className="text-lg font-bold text-slate-800">{t('cash_register.close_register')}</h3>
+              
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase text-slate-700">{t('cash_register.closing_balance')} (MMK)</Label>
+                  <Input type="number" step="0.01" className="bg-white py-3 text-lg font-bold rounded-xl" {...closeForm.register("mmk_amount")} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase text-slate-700">{t('cash_register.closing_balance')} (THB)</Label>
+                  <Input type="number" step="0.01" className="bg-white py-3 text-lg font-bold rounded-xl" {...closeForm.register("thb_amount")} />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase text-slate-700">{t('common.note')}</Label>
+                <Textarea className="border-slate-200 rounded-xl text-sm" rows={2} {...closeForm.register("notes")} />
+              </div>
+
+              <Button type="submit" size="lg" variant="destructive" className="w-full font-bold py-3 rounded-xl" disabled={closeForm.formState.isSubmitting}>
+                {closeForm.formState.isSubmitting ? t('common.loading') : t('cash_register.close_register')}
               </Button>
-              <Button variant="outline" onClick={() => setIsEditingClosing(!isEditingClosing)} className="bg-white/80 hover:bg-white text-blue-700 border-blue-200">
-                {isEditingClosing ? "Cancel Edit Closing" : "Edit Closing Amount"}
-              </Button>
-            </div>
+            </form>
           </div>
-          
-          {isEditingClosing && (
-            <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-xl">
-              <h3 className="font-semibold text-lg mb-4">Edit Closing Amounts</h3>
-              <form onSubmit={closeForm.handleSubmit(onCloseSubmit)} className="space-y-4 max-w-md">
-                <div className="space-y-2">
-                  <Label>Actual MMK Count</Label>
-                  <Input type="number" step="0.01" {...closeForm.register("mmk_amount")} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Actual THB Count</Label>
-                  <Input type="number" step="0.01" {...closeForm.register("thb_amount")} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Notes</Label>
-                  <Textarea {...closeForm.register("notes")} />
-                </div>
-                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">Save Changes</Button>
-              </form>
-            </div>
-          )}
-          <div className="max-w-2xl mx-auto space-y-6">
-            {isEditingOpening && (
-              <div className="mb-8 p-6 bg-green-50 border border-green-200 rounded-xl">
-                <h3 className="font-semibold text-lg mb-4 text-green-700">Edit Opening Amounts</h3>
-                <form onSubmit={openForm.handleSubmit(onOpenSubmit)} className="space-y-4 max-w-md">
-                  <div className="space-y-2">
-                    <Label>Opening MMK</Label>
-                    <Input type="number" step="0.01" {...openForm.register("mmk_amount")} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Opening THB</Label>
-                    <Input type="number" step="0.01" {...openForm.register("thb_amount")} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Notes</Label>
-                    <Textarea {...openForm.register("notes")} />
-                  </div>
-                  <Button type="submit" className="w-full bg-green-600 hover:bg-green-700">Save Opening Changes</Button>
-                </form>
-              </div>
-            )}
+        </div>
+      )}
 
-            <div className="grid grid-cols-2 gap-4 text-sm border-b pb-4">
-              <div>
-                <p className="text-muted-foreground">Closing Date</p>
-                <p className="font-medium">{status.closing.closing_date}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Closed By</p>
-                <p className="font-medium">{status.closing.creator.full_name}</p>
-              </div>
+      {/* STATE 3: REGISTER CLOSED */}
+      {status.status === "CLOSED" && status.closing && (
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden p-8 space-y-6">
+          <div className="flex items-center space-x-3">
+            <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">{t('cash_register.status_closed')}</h2>
+              <p className="text-xs text-slate-500">{status.closing.closing_date}</p>
             </div>
-
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-muted-foreground mb-1">Expected MMK</p>
-                <p className="font-semibold">{new Intl.NumberFormat("en-US").format(status.closing.expected_mmk_amount)}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground mb-1">Actual MMK</p>
-                <p className="font-semibold">{new Intl.NumberFormat("en-US").format(status.closing.mmk_amount)}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground mb-1">MMK Discrepancy</p>
-                <p className={`font-bold ${status.closing.mmk_discrepancy < 0 ? 'text-red-500' : status.closing.mmk_discrepancy > 0 ? 'text-green-500' : 'text-gray-500'}`}>
-                  {status.closing.mmk_discrepancy > 0 ? '+' : ''}{new Intl.NumberFormat("en-US").format(status.closing.mmk_discrepancy)}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 text-center border-t pt-4">
-              <div>
-                <p className="text-muted-foreground mb-1">Expected THB</p>
-                <p className="font-semibold text-purple-600">{new Intl.NumberFormat("en-US").format(status.closing.expected_thb_amount)}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground mb-1">Actual THB</p>
-                <p className="font-semibold text-purple-600">{new Intl.NumberFormat("en-US").format(status.closing.thb_amount)}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground mb-1">THB Discrepancy</p>
-                <p className={`font-bold ${status.closing.thb_discrepancy < 0 ? 'text-red-500' : status.closing.thb_discrepancy > 0 ? 'text-green-500' : 'text-gray-500'}`}>
-                  {status.closing.thb_discrepancy > 0 ? '+' : ''}{new Intl.NumberFormat("en-US").format(status.closing.thb_discrepancy)}
-                </p>
-              </div>
-            </div>
-
-            {status.closing.notes && (
-              <div className="bg-gray-50 p-4 rounded-md mt-6">
-                <p className="text-sm font-medium mb-1">Closing Notes:</p>
-                <p className="text-sm text-gray-600">{status.closing.notes}</p>
-              </div>
-            )}
           </div>
         </div>
       )}

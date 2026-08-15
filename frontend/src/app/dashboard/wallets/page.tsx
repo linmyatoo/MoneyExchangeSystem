@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Search } from "lucide-react";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ const THB_WALLET_TYPES = [
 ];
 
 export default function WalletsPage() {
+  const { t } = useLanguage();
   const [wallets, setWallets] = useState<WalletAccount[]>([]);
   const [walletTypes, setWalletTypes] = useState<WalletType[]>([]);
   const [search, setSearch] = useState("");
@@ -121,17 +123,17 @@ export default function WalletsPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Wallet Accounts</h1>
-          <p className="text-muted-foreground text-xs mt-1">Manage your Myanmar and Thai bank accounts.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t('wallets.title')}</h1>
+          <p className="text-muted-foreground text-xs mt-1">{t('wallets.desc')}</p>
         </div>
         <div className="flex space-x-2">
           <Button onClick={() => openCreateForm("myanmar")} className="shadow-sm transition-all rounded-md h-10 px-4 font-medium">
             <Plus className="mr-2 h-4 w-4" />
-            Add Myanmar Wallet
+            {t('wallets.add_mmk_wallet')}
           </Button>
           <Button onClick={() => openCreateForm("thai")} className="bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-all rounded-md h-10 px-4 font-medium">
             <Plus className="mr-2 h-4 w-4" />
-            Add Thai Wallet
+            {t('wallets.add_thb_wallet')}
           </Button>
         </div>
       </div>
@@ -140,7 +142,7 @@ export default function WalletsPage() {
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search wallets..."
+            placeholder={t('wallets.search_placeholder')}
             className="pl-9 h-10 border-slate-200 text-sm focus:ring-blue-500 transition-all placeholder:text-slate-400"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -157,7 +159,7 @@ export default function WalletsPage() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
               <h2 className="text-lg font-semibold text-slate-800 flex items-center">
-                Myanmar Bank Accounts
+                {t('wallets.myanmar_accounts')}
                 <span className="ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
                   {myanmarWallets.length}
                 </span>
@@ -175,7 +177,7 @@ export default function WalletsPage() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
               <h2 className="text-lg font-semibold text-slate-800 flex items-center">
-                Thai Bank Accounts
+                {t('wallets.thai_accounts')}
                 <span className="ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
                   {thaiWallets.length}
                 </span>
@@ -201,17 +203,17 @@ export default function WalletsPage() {
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
           >
-            Previous
+            {t('common.previous')}
           </Button>
           <div className="flex items-center px-4 font-medium">
-            Page {page} of {totalPages}
+            {t('common.page_of', { page, total: totalPages })}
           </div>
           <Button
             variant="outline"
             disabled={page === totalPages}
             onClick={() => setPage(page + 1)}
           >
-            Next
+            {t('common.next')}
           </Button>
         </div>
       )}

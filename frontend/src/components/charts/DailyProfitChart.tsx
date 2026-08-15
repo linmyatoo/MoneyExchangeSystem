@@ -11,6 +11,9 @@ export function DailyProfitChart({ data }: Props) {
   const option = {
     tooltip: {
       trigger: "axis",
+      backgroundColor: "rgba(15, 23, 42, 0.85)",
+      borderColor: "#334155",
+      textStyle: { color: "#f8fafc" },
     },
     grid: {
       left: "3%",
@@ -26,13 +29,13 @@ export function DailyProfitChart({ data }: Props) {
         return `${date.getMonth() + 1}/${date.getDate()}`;
       }),
       axisLabel: {
-        color: "#6b7280",
+        color: "#94a3b8",
       },
     },
     yAxis: {
       type: "value",
       axisLabel: {
-        color: "#6b7280",
+        color: "#94a3b8",
         formatter: (value: number) => {
           if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
           if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
@@ -41,7 +44,7 @@ export function DailyProfitChart({ data }: Props) {
       },
       splitLine: {
         lineStyle: {
-          color: "#e5e7eb",
+          color: "rgba(148, 163, 184, 0.15)",
         },
       },
     },

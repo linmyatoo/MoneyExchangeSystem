@@ -11,6 +11,9 @@ export function CurrencyExchangeChart({ data }: Props) {
   const option = {
     tooltip: {
       trigger: "axis",
+      backgroundColor: "rgba(15, 23, 42, 0.85)",
+      borderColor: "#334155",
+      textStyle: { color: "#f8fafc" },
       axisPointer: {
         type: "shadow",
       },
@@ -19,7 +22,7 @@ export function CurrencyExchangeChart({ data }: Props) {
       data: ["THB Bought", "THB Sold"],
       bottom: "0%",
       textStyle: {
-        color: "#6b7280",
+        color: "#94a3b8",
       },
     },
     grid: {
@@ -36,7 +39,7 @@ export function CurrencyExchangeChart({ data }: Props) {
           return `${date.getMonth() + 1}/${date.getDate()}`;
         }),
         axisLabel: {
-          color: "#6b7280",
+          color: "#94a3b8",
         },
       },
     ],
@@ -44,7 +47,7 @@ export function CurrencyExchangeChart({ data }: Props) {
       {
         type: "value",
         axisLabel: {
-          color: "#6b7280",
+          color: "#94a3b8",
           formatter: (value: number) => {
             if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
             if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
@@ -53,7 +56,7 @@ export function CurrencyExchangeChart({ data }: Props) {
         },
         splitLine: {
           lineStyle: {
-            color: "#e5e7eb",
+            color: "rgba(148, 163, 184, 0.15)",
           },
         },
       },
@@ -64,7 +67,7 @@ export function CurrencyExchangeChart({ data }: Props) {
         type: "bar",
         data: data.map((d) => d.thb_bought),
         itemStyle: {
-          color: "#3b82f6", // Blue 500
+          color: "#4f46e5", // Sapphire Indigo
           borderRadius: [4, 4, 0, 0],
         },
       },
@@ -73,7 +76,7 @@ export function CurrencyExchangeChart({ data }: Props) {
         type: "bar",
         data: data.map((d) => d.thb_sold),
         itemStyle: {
-          color: "#a855f7", // Purple 500
+          color: "#7c3aed", // Royal Violet
           borderRadius: [4, 4, 0, 0],
         },
       },

@@ -17,59 +17,62 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CurrencyExchange } from "@/lib/api/currency-exchange";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 interface ExchangeListProps {
   data: CurrencyExchange[];
 }
 
 export function ExchangeList({ data }: ExchangeListProps) {
+  const { t } = useLanguage();
+
   const columns: ColumnDef<CurrencyExchange>[] = [
     {
       accessorKey: "transaction_number",
-      header: "Receipt #",
+      header: t('transactions.reference_no'),
       cell: ({ row }) => (
         <span className="font-mono text-sm">{row.getValue("transaction_number")}</span>
       ),
     },
     {
       accessorKey: "transaction_date",
-      header: "Date",
+      header: t('common.date'),
       cell: ({ row }) => new Date(row.original.transaction_date).toLocaleString(),
     },
     {
       accessorKey: "type",
-      header: "Type",
+      header: t('common.type'),
       cell: ({ row }) => {
         const type = row.getValue("type") as string;
         if (type === "buy") {
           return (
             <div className="flex items-center text-emerald-600 font-semibold text-xs">
               <ArrowDownLeft className="w-3.5 h-3.5 mr-1" />
-              BUY
+              {t('thb_exchange.buy')}
             </div>
           );
         }
         return (
           <div className="flex items-center text-blue-600 font-semibold text-xs">
             <ArrowUpRight className="w-3.5 h-3.5 mr-1" />
-            SELL
+            {t('thb_exchange.sell')}
           </div>
         );
       },
     },
     {
       accessorKey: "customer",
-      header: "Customer",
+      header: t('common.customer'),
       cell: ({ row }) => row.original.customer?.name || row.original.customer_name || "Walk-in",
     },
     {
       accessorKey: "thb_wallet_name",
-      header: "THB Wallet",
+      header: t('wallets.add_thb_wallet'),
       cell: ({ row }) => row.getValue("thb_wallet_name") || "-",
     },
     {
       accessorKey: "foreign_amount",
-      header: "THB Amount",
+      header: t('thb_exchange.thb_amount'),
       cell: ({ row }) => (
         <span className="font-bold">
           {new Intl.NumberFormat("en-US", { minimumFractionDigits: 2 }).format(row.getValue("foreign_amount"))} ฿
@@ -78,12 +81,12 @@ export function ExchangeList({ data }: ExchangeListProps) {
     },
     {
       accessorKey: "rate_used",
-      header: "Rate",
+      header: t('thb_exchange.rate'),
       cell: ({ row }) => row.getValue("rate_used"),
     },
     {
       accessorKey: "local_amount",
-      header: "MMK Amount",
+      header: t('thb_exchange.mmk_amount'),
       cell: ({ row }) => (
         <span className="font-medium text-gray-700">
           {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(row.getValue("local_amount"))} K
@@ -92,7 +95,7 @@ export function ExchangeList({ data }: ExchangeListProps) {
     },
     {
       accessorKey: "profit",
-      header: "Profit (MMK)",
+      header: t('thb_exchange.profit'),
       cell: ({ row }) => {
         const type = row.getValue("type") as string;
         if (type === "buy") return <span className="text-gray-400">-</span>;
@@ -151,7 +154,7 @@ export function ExchangeList({ data }: ExchangeListProps) {
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center text-slate-500">
                 <div className="flex flex-col items-center justify-center">
-                  <span className="font-medium text-base">No transactions found.</span>
+                  <span className="font-medium text-base">{t('thb_exchange.no_exchanges')}</span>
                 </div>
               </TableCell>
             </TableRow>

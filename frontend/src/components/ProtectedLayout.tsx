@@ -1,27 +1,28 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/providers/AuthProvider';
+import { useLanguage } from '@/i18n/LanguageContext';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import {
   Loader2, LayoutDashboard, Users, LogOut, Wallet, ArrowLeftRight, CreditCard, DollarSign, LineChart, FileText, Lock, ShieldAlert, Menu
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['admin'] },
-  { label: 'Users', href: '/dashboard/users', icon: Users, roles: ['admin'] },
-  { label: 'Wallets', href: '/dashboard/wallets', icon: Wallet, roles: ['admin', 'staff'] },
-  { label: 'Transactions', href: '/dashboard/wallet-transactions', icon: ArrowLeftRight, roles: ['admin', 'staff'] },
-  { label: 'Credits', href: '/dashboard/credits', icon: CreditCard, roles: ['admin', 'staff'] },
-  { label: 'THB Exchange', href: '/dashboard/thb-exchange', icon: DollarSign, roles: ['admin'] },
-  { label: 'Exchange Rates', href: '/dashboard/exchange-rates', icon: LineChart, roles: ['admin'] },
-  { label: 'Reports', href: '/dashboard/reports', icon: FileText, roles: ['admin'] },
-  { label: 'Cash Register', href: '/dashboard/cash-register', icon: Lock, roles: ['admin'] },
-  { label: 'Audit Log', href: '/dashboard/audit-logs', icon: ShieldAlert, roles: ['admin'] },
+  { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['admin'] },
+  { key: 'transactions', href: '/dashboard/wallet-transactions', icon: ArrowLeftRight, roles: ['admin', 'staff'] },
+  { key: 'credits', href: '/dashboard/credits', icon: CreditCard, roles: ['admin', 'staff'] },
+  { key: 'thb_exchange', href: '/dashboard/thb-exchange', icon: DollarSign, roles: ['admin'] },
+  { key: 'exchange_rates', href: '/dashboard/exchange-rates', icon: LineChart, roles: ['admin'] },
+  { key: 'reports', href: '/dashboard/reports', icon: FileText, roles: ['admin'] },
+  { key: 'cash_register', href: '/dashboard/cash-register', icon: Lock, roles: ['admin'] },
+  { key: 'wallets', href: '/dashboard/wallets', icon: Wallet, roles: ['admin', 'staff'] },
+  { key: 'users', href: '/dashboard/users', icon: Users, roles: ['admin'] },
+  { key: 'audit_logs', href: '/dashboard/audit-logs', icon: ShieldAlert, roles: ['admin'] },
 ];
 
 export default function ProtectedLayout({
@@ -32,6 +33,7 @@ export default function ProtectedLayout({
   allowedRoles?: string[];
 }) {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -57,28 +59,32 @@ export default function ProtectedLayout({
   if (allowedRoles && !allowedRoles.includes(user.role.name)) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-50 px-4">
-        <h1 className="text-3xl font-bold text-gray-900">Access Denied</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('common.access_denied')}</h1>
         <p className="mt-2 text-gray-600 text-center">
-          You do not have the required permissions to view this page.
+          {t('common.access_denied_desc')}
         </p>
         <button
           onClick={() => router.push('/dashboard')}
           className="mt-6 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
-          Return to Dashboard
+          {t('common.return_to_dashboard')}
         </button>
       </div>
     );
   }
 
   const filteredNav = NAV_ITEMS.filter((item) => item.roles.includes(user.role.name));
+  const activeNavItem = filteredNav.find((n) => n.href === pathname);
+  const activeTitle = activeNavItem ? t(`nav.${activeNavItem.key}`) : t('nav.dashboard');
 
   const SidebarContent = (
     <>
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-gray-200">
-        <span className="text-xl font-bold text-blue-600">EMS</span>
-        <span className="ml-2 text-xs font-medium text-gray-400 uppercase">Dashboard</span>
+      <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
+        <div className="flex items-center">
+          <span className="text-xl font-bold text-blue-600">{t('nav.ems')}</span>
+          <span className="ml-2 text-xs font-medium text-gray-400 uppercase">{t('nav.dashboard_tag')}</span>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -98,7 +104,7 @@ export default function ProtectedLayout({
               }`}
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
-              {item.label}
+              {t(`nav.${item.key}`)}
             </Link>
           );
         })}
@@ -118,7 +124,7 @@ export default function ProtectedLayout({
           </div>
           <button
             onClick={logout}
-            title="Sign out"
+            title={t('nav.sign_out')}
             className="text-gray-400 hover:text-red-600 transition-colors"
           >
             <LogOut className="h-4 w-4" />
@@ -138,22 +144,28 @@ export default function ProtectedLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         {/* Top bar */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center px-4 md:px-6 gap-4">
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden shrink-0">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64 flex flex-col">
-              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-              {SidebarContent}
-            </SheetContent>
-          </Sheet>
-          <h2 className="text-lg font-semibold text-gray-800 truncate">
-            {filteredNav.find((n) => n.href === pathname)?.label || 'Dashboard'}
-          </h2>
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden shrink-0">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Toggle navigation menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-64 flex flex-col">
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                {SidebarContent}
+              </SheetContent>
+            </Sheet>
+            <h2 className="text-lg font-semibold text-gray-800 truncate">
+              {activeTitle}
+            </h2>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+          </div>
         </header>
 
         {/* Page Content */}

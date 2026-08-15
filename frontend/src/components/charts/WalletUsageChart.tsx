@@ -11,13 +11,17 @@ export function WalletUsageChart({ data }: Props) {
   const option = {
     tooltip: {
       trigger: "item",
+      backgroundColor: "rgba(15, 23, 42, 0.85)",
+      borderColor: "#334155",
+      textStyle: { color: "#f8fafc" },
       formatter: "{b}: {c} ({d}%)",
     },
+    color: ["#4f46e5", "#7c3aed", "#10b981", "#d97706", "#f43f5e", "#06b6d4"],
     legend: {
       bottom: "0%",
       left: "center",
       textStyle: {
-        color: "#6b7280",
+        color: "#94a3b8",
       },
     },
     series: [

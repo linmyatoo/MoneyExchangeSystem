@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Search } from "lucide-react";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ import { Customer, getCustomers } from "@/lib/api/customers";
 import { WalletAccount, getWalletAccounts } from "@/lib/api/wallets";
 
 export default function WalletTransactionsPage() {
+  const { t } = useLanguage();
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [wallets, setWallets] = useState<WalletAccount[]>([]);
@@ -130,12 +132,12 @@ export default function WalletTransactionsPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Wallet Transactions</h1>
-          <p className="text-muted-foreground text-xs mt-1">Manage deposits, withdrawals, and transfers.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t('transactions.title')}</h1>
+          <p className="text-muted-foreground text-xs mt-1">{t('transactions.desc')}</p>
         </div>
         <Button onClick={openCreateForm} className="bg-blue-600 hover:bg-blue-700 shadow-sm transition-all rounded-md h-10 px-4 font-medium">
           <Plus className="mr-2 h-4 w-4" />
-          New Transaction
+          {t('transactions.create_transaction')}
         </Button>
       </div>
 
@@ -143,7 +145,7 @@ export default function WalletTransactionsPage() {
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search receipt # or notes..."
+            placeholder={t('transactions.search_placeholder')}
             className="pl-9 h-10 border-slate-200 text-sm focus:ring-blue-500 transition-all placeholder:text-slate-400"
             value={search}
             onChange={(e) => {
@@ -161,10 +163,9 @@ export default function WalletTransactionsPage() {
             setPage(1);
           }}
         >
-          <option value="">All Time</option>
-          <option value="today">Today</option>
-          <option value="yesterday">Yesterday</option>
-          <option value="this_month">This Month</option>
+          <option value="">{t('common.all')}</option>
+          <option value="today">{t('dashboard.daily')}</option>
+          <option value="this_month">{t('dashboard.monthly')}</option>
         </select>
       </div>
 
@@ -188,17 +189,17 @@ export default function WalletTransactionsPage() {
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
           >
-            Previous
+            {t('common.previous')}
           </Button>
           <div className="flex items-center px-4 font-medium">
-            Page {page} of {totalPages}
+            {t('common.page_of', { page, total: totalPages })}
           </div>
           <Button
             variant="outline"
             disabled={page === totalPages}
             onClick={() => setPage(page + 1)}
           >
-            Next
+            {t('common.next')}
           </Button>
         </div>
       )}
@@ -216,16 +217,15 @@ export default function WalletTransactionsPage() {
       <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+            <AlertDialogTitle>{t('common.delete')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete transaction{" "}
-              <strong>{deleteTarget?.transaction_number}</strong>? This will reverse all wallet balance changes.
+              {deleteTarget?.transaction_number}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
