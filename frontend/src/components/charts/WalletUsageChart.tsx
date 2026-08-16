@@ -14,7 +14,8 @@ export function WalletUsageChart({ data }: Props) {
       backgroundColor: "rgba(15, 23, 42, 0.85)",
       borderColor: "#334155",
       textStyle: { color: "#f8fafc" },
-      formatter: "{b}: {c} ({d}%)",
+      formatter: (params: any) =>
+        `${params.name}: ${new Intl.NumberFormat("en-US").format(params.value || 0)} (${params.percent}%)`,
     },
     color: ["#4f46e5", "#7c3aed", "#10b981", "#d97706", "#f43f5e", "#06b6d4"],
     legend: {

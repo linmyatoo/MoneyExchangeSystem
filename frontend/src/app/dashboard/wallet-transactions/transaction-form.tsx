@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -77,18 +78,18 @@ const transactionSchema = z.object({
       });
     }
   } else if (data.transaction_type === "transfer") {
-    if (!data.from_wallet_account_id) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please select a source wallet",
-        path: ["from_wallet_account_id"],
-      });
-    }
     if (!data.to_wallet_account_id) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Please select a destination wallet",
+        message: "Please select the receiving wallet (Transfer In)",
         path: ["to_wallet_account_id"],
+      });
+    }
+    if (!data.from_wallet_account_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please select the sending wallet (Transfer Out)",
+        path: ["from_wallet_account_id"],
       });
     }
   }
@@ -100,7 +101,7 @@ const transactionSchema = z.object({
   ) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: "Source and destination wallets must be different",
+      message: "Sending and receiving wallets must be different",
       path: ["to_wallet_account_id"],
     });
   }
@@ -138,6 +139,7 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
     reset,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema) as any,
@@ -429,34 +431,14 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
             {transactionType === "transfer" && (
               <>
                 <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                  <Label className="text-sm font-medium">From Wallet (Sender)</Label>
-                  <Select
-                    value={fromWalletId || ""}
-                    onValueChange={(val) => setValue("from_wallet_account_id", val, { shouldValidate: true })}
-                  >
-                    <SelectTrigger className="h-10 rounded-lg">
-                      <SelectValue placeholder="Select Wallet">
-                        {fromWalletId ? wallets.find(w => w.id === fromWalletId)?.account_name : "Select Wallet"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {myanmarWallets.map((w) => (
-                        <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.from_wallet_account_id && <p className="text-xs text-red-500 font-medium">{errors.from_wallet_account_id.message}</p>}
-                </div>
-
-                <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                  <Label className="text-sm font-medium">To Wallet (Receiver)</Label>
+                  <Label className="text-sm font-medium">To Wallet (Transfer In / Receive)</Label>
                   <Select
                     value={toWalletId || ""}
                     onValueChange={(val) => setValue("to_wallet_account_id", val, { shouldValidate: true })}
                   >
                     <SelectTrigger className="h-10 rounded-lg">
-                      <SelectValue placeholder="Select Wallet">
-                        {toWalletId ? wallets.find(w => w.id === toWalletId)?.account_name : "Select Wallet"}
+                      <SelectValue placeholder="Select Receiving Wallet">
+                        {toWalletId ? wallets.find(w => w.id === toWalletId)?.account_name : "Select Receiving Wallet"}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -467,6 +449,26 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
                   </Select>
                   {errors.to_wallet_account_id && <p className="text-xs text-red-500 font-medium">{errors.to_wallet_account_id.message}</p>}
                 </div>
+
+                <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                  <Label className="text-sm font-medium">From Wallet (Transfer Out / Send)</Label>
+                  <Select
+                    value={fromWalletId || ""}
+                    onValueChange={(val) => setValue("from_wallet_account_id", val, { shouldValidate: true })}
+                  >
+                    <SelectTrigger className="h-10 rounded-lg">
+                      <SelectValue placeholder="Select Sending Wallet">
+                        {fromWalletId ? wallets.find(w => w.id === fromWalletId)?.account_name : "Select Sending Wallet"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {myanmarWallets.filter(w => w.id !== toWalletId).map((w) => (
+                        <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.from_wallet_account_id && <p className="text-xs text-red-500 font-medium">{errors.from_wallet_account_id.message}</p>}
+                </div>
               </>
             )}
 
@@ -475,14 +477,38 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
             {/* Amount */}
             <div className="space-y-1.5 col-span-2 sm:col-span-1">
               <Label className="text-sm font-medium">Amount</Label>
-              <Input type="number" step="0.01" {...register("amount")} placeholder="0.00" className="h-10 rounded-lg font-medium" />
+              <Controller
+                control={control}
+                name="amount"
+                render={({ field }) => (
+                  <NumberInput
+                    id="amount"
+                    value={field.value}
+                    onValueChange={(val) => field.onChange(val === undefined ? "" : val)}
+                    placeholder="0.00"
+                    className="h-10 rounded-lg font-medium"
+                  />
+                )}
+              />
               {errors.amount && <p className="text-xs text-red-500 font-medium">{errors.amount.message}</p>}
             </div>
 
             {/* Profit */}
             <div className="space-y-1.5 col-span-2 sm:col-span-1">
               <Label className="text-sm font-medium">Profit</Label>
-              <Input type="number" step="0.01" {...register("profit")} placeholder="0.00" className="h-10 rounded-lg font-medium text-emerald-600 dark:text-emerald-400" />
+              <Controller
+                control={control}
+                name="profit"
+                render={({ field }) => (
+                  <NumberInput
+                    id="profit"
+                    value={field.value}
+                    onValueChange={(val) => field.onChange(val === undefined ? 0 : val)}
+                    placeholder="0.00"
+                    className="h-10 rounded-lg font-medium text-emerald-600 dark:text-emerald-400"
+                  />
+                )}
+              />
               {errors.profit && <p className="text-xs text-red-500 font-medium">{errors.profit.message}</p>}
             </div>
 

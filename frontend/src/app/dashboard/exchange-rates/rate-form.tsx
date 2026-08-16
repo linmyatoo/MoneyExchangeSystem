@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 
 const rateSchema = z.object({
@@ -36,6 +37,7 @@ export function RateForm({ open, onOpenChange, onSubmit }: RateFormProps) {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<RateFormValues>({
     resolver: zodResolver(rateSchema) as any,
@@ -88,13 +90,37 @@ export function RateForm({ open, onOpenChange, onSubmit }: RateFormProps) {
 
           <div className="space-y-1.5">
             <Label className="font-medium text-blue-700">Buy Rate (THB per 100,000 MMK)</Label>
-            <Input type="number" step="0.0001" {...register("buy_rate")} className="h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all font-medium text-base" />
+            <Controller
+              control={control}
+              name="buy_rate"
+              render={({ field }) => (
+                <NumberInput
+                  id="buy_rate"
+                  value={field.value}
+                  onValueChange={(val) => field.onChange(val === undefined ? 0 : val)}
+                  placeholder="0.00"
+                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all font-medium text-base"
+                />
+              )}
+            />
             {errors.buy_rate && <p className="text-sm text-red-500 font-medium">{errors.buy_rate.message}</p>}
           </div>
 
           <div className="space-y-1.5">
             <Label className="font-medium text-purple-700">Sell Rate (THB per 100,000 MMK)</Label>
-            <Input type="number" step="0.0001" {...register("sell_rate")} className="h-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500 transition-all font-medium text-base" />
+            <Controller
+              control={control}
+              name="sell_rate"
+              render={({ field }) => (
+                <NumberInput
+                  id="sell_rate"
+                  value={field.value}
+                  onValueChange={(val) => field.onChange(val === undefined ? 0 : val)}
+                  placeholder="0.00"
+                  className="h-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500 transition-all font-medium text-base"
+                />
+              )}
+            />
             {errors.sell_rate && <p className="text-sm text-red-500 font-medium">{errors.sell_rate.message}</p>}
           </div>
 

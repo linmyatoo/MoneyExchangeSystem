@@ -82,7 +82,9 @@ export function ExchangeList({ data }: ExchangeListProps) {
     {
       accessorKey: "rate_used",
       header: t('thb_exchange.rate'),
-      cell: ({ row }) => row.getValue("rate_used"),
+      cell: ({ row }) => (
+        <span>{new Intl.NumberFormat("en-US").format(row.getValue("rate_used"))}</span>
+      ),
     },
     {
       accessorKey: "local_amount",

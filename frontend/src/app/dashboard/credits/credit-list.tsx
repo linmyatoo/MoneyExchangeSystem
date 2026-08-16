@@ -71,7 +71,7 @@ export function CreditList({ data, onMarkSettled }: CreditListProps) {
                     <h3 className="font-semibold text-gray-900 text-base">{customer}</h3>
                     <div className="flex items-center">
                       <span className="text-[11px] font-medium text-slate-500">
-                        {group.transactions.length} {t('common.active')}
+                        {new Intl.NumberFormat("en-US").format(group.transactions.length)} {t('common.active')}
                       </span>
                     </div>
                   </div>

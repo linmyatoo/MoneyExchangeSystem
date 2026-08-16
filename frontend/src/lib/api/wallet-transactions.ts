@@ -45,6 +45,7 @@ export interface CreateWalletTransactionData {
 
 export const getWalletTransactions = async (params?: {
   q?: string;
+  transaction_type?: string;
   wallet_account_id?: string;
   customer_id?: string;
   is_credit?: boolean;

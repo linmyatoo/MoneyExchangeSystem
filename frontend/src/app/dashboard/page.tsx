@@ -170,7 +170,7 @@ export default function DashboardPage() {
           </div>
           <div className="p-6 pt-0">
             <div className="text-2xl font-bold text-primary">
-              {cards.period_transactions_count}
+              {new Intl.NumberFormat("en-US").format(cards.period_transactions_count)}
             </div>
           </div>
         </div>
@@ -184,14 +184,18 @@ export default function DashboardPage() {
             <DollarSign className="h-5 w-5 text-muted-foreground" />
             <h3 className="tracking-tight text-sm font-medium">{t('dashboard.active_buy_rate')}</h3>
           </div>
-          <div className="text-xl font-bold text-foreground">{cards.active_buy_rate} K</div>
+          <div className="text-xl font-bold text-foreground">
+            {new Intl.NumberFormat("en-US").format(cards.active_buy_rate)} K
+          </div>
         </div>
         <div className="rounded-xl border bg-muted/40 text-card-foreground p-4 flex flex-row items-center justify-between space-y-0">
           <div className="flex items-center space-x-2">
             <LineChart className="h-5 w-5 text-muted-foreground" />
             <h3 className="tracking-tight text-sm font-medium">{t('dashboard.active_sell_rate')}</h3>
           </div>
-          <div className="text-xl font-bold text-foreground">{cards.active_sell_rate} K</div>
+          <div className="text-xl font-bold text-foreground">
+            {new Intl.NumberFormat("en-US").format(cards.active_sell_rate)} K
+          </div>
         </div>
       </div>
 

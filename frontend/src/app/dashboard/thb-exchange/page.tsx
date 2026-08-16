@@ -212,7 +212,7 @@ export default function THBExchangePage() {
       </div>
 
       <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative w-full sm:w-1/4 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder={t('thb_exchange.search_placeholder')}

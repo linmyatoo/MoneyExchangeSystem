@@ -36,6 +36,8 @@ export default function WalletTransactionsPage() {
 
   const [search, setSearch] = useState("");
   const [period, setPeriod] = useState<string>("today");
+  const [customDate, setCustomDate] = useState<string>("");
+  const [transactionType, setTransactionType] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
   // Pagination & Form states
@@ -53,7 +55,7 @@ export default function WalletTransactionsPage() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [page, search, period]);
+  }, [page, search, period, customDate, transactionType]);
 
   const fetchCustomersAndWallets = async () => {
     try {
@@ -71,11 +73,13 @@ export default function WalletTransactionsPage() {
   const fetchTransactions = async () => {
     setIsLoading(true);
     try {
+      const activePeriod = period === "custom" ? customDate : period;
       const response = await getWalletTransactions({
         page,
         page_size: 10,
         q: search,
-        period: period || undefined,
+        transaction_type: transactionType || undefined,
+        period: activePeriod || undefined,
       });
       setTransactions(response.items);
       setTotalPages(response.total_pages);
@@ -142,7 +146,7 @@ export default function WalletTransactionsPage() {
       </div>
 
       <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative w-full sm:w-1/4 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder={t('transactions.search_placeholder')}
@@ -155,6 +159,22 @@ export default function WalletTransactionsPage() {
           />
         </div>
 
+        {/* Transaction Type Filter Dropdown */}
+        <select
+          className="flex h-10 w-44 items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          value={transactionType}
+          onChange={(e) => {
+            setTransactionType(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="">{t('transactions.filter_type') || "All Types"}</option>
+          <option value="deposit">{t('transactions.deposit') || "Deposit (Cash In)"}</option>
+          <option value="withdrawal">{t('transactions.withdraw') || "Withdraw (Cash Out)"}</option>
+          <option value="transfer">{t('transactions.transfer') || "Transfer"}</option>
+        </select>
+
+        {/* Date / Period Filter Dropdown */}
         <select
           className="flex h-10 w-40 items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           value={period}
@@ -165,8 +185,23 @@ export default function WalletTransactionsPage() {
         >
           <option value="">{t('common.all')}</option>
           <option value="today">{t('dashboard.daily')}</option>
+          <option value="yesterday">Yesterday</option>
           <option value="this_month">{t('dashboard.monthly')}</option>
+          <option value="custom">{t('common.date') || "Custom Date"}</option>
         </select>
+
+        {/* Custom Date Input */}
+        {period === "custom" && (
+          <Input
+            type="date"
+            className="flex h-10 w-40 border-slate-200 text-sm focus:ring-blue-500 transition-all"
+            value={customDate}
+            onChange={(e) => {
+              setCustomDate(e.target.value);
+              setPage(1);
+            }}
+          />
+        )}
       </div>
 
       {isLoading ? (

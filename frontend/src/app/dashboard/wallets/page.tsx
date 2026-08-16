@@ -139,7 +139,7 @@ export default function WalletsPage() {
       </div>
 
       <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative w-full sm:w-1/4 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder={t('wallets.search_placeholder')}
@@ -161,7 +161,7 @@ export default function WalletsPage() {
               <h2 className="text-lg font-semibold text-slate-800 flex items-center">
                 {t('wallets.myanmar_accounts')}
                 <span className="ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
-                  {myanmarWallets.length}
+                  {new Intl.NumberFormat("en-US").format(myanmarWallets.length)}
                 </span>
               </h2>
             </div>
@@ -179,7 +179,7 @@ export default function WalletsPage() {
               <h2 className="text-lg font-semibold text-slate-800 flex items-center">
                 {t('wallets.thai_accounts')}
                 <span className="ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
-                  {thaiWallets.length}
+                  {new Intl.NumberFormat("en-US").format(thaiWallets.length)}
                 </span>
               </h2>
             </div>

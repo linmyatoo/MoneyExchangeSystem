@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -26,6 +26,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -49,6 +50,9 @@ const closeSchema = z.object({
   thb_amount: z.coerce.number().min(0, "Amount cannot be negative"),
   notes: z.string().optional(),
 });
+
+type OpenFormValues = z.infer<typeof openSchema>;
+type CloseFormValues = z.infer<typeof closeSchema>;
 
 export default function CashRegisterPage() {
   const { user } = useAuth();
@@ -98,8 +102,8 @@ export default function CashRegisterPage() {
     fetchStatus();
   }, []);
 
-  const openForm = useForm({
-    resolver: zodResolver(openSchema),
+  const openForm = useForm<OpenFormValues>({
+    resolver: zodResolver(openSchema) as any,
     defaultValues: {
       mmk_amount: 0,
       thb_amount: 0,
@@ -107,8 +111,8 @@ export default function CashRegisterPage() {
     },
   });
 
-  const closeForm = useForm({
-    resolver: zodResolver(closeSchema),
+  const closeForm = useForm<CloseFormValues>({
+    resolver: zodResolver(closeSchema) as any,
     defaultValues: {
       mmk_amount: 0,
       thb_amount: 0,
@@ -229,12 +233,18 @@ export default function CashRegisterPage() {
                     <Label className="text-xs font-bold uppercase text-slate-600 tracking-wider">
                       {t('cash_register.opening_balance')} (MMK 🇲🇲)
                     </Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      className="bg-white px-4 py-3 text-lg font-semibold text-slate-800 border-slate-200 focus:ring-2 focus:ring-indigo-500 rounded-xl"
-                      {...openForm.register("mmk_amount")}
+                    <Controller
+                      control={openForm.control}
+                      name="mmk_amount"
+                      render={({ field }) => (
+                        <NumberInput
+                          id="open_mmk_amount"
+                          value={field.value}
+                          onValueChange={(val) => field.onChange(val === undefined ? 0 : val)}
+                          placeholder="0.00"
+                          className="bg-white px-4 py-3 text-lg font-semibold text-slate-800 border-slate-200 focus:ring-2 focus:ring-indigo-500 rounded-xl"
+                        />
+                      )}
                     />
                   </div>
 
@@ -242,12 +252,18 @@ export default function CashRegisterPage() {
                     <Label className="text-xs font-bold uppercase text-slate-600 tracking-wider">
                       {t('cash_register.opening_balance')} (THB 🇹🇭)
                     </Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      className="bg-white px-4 py-3 text-lg font-semibold text-slate-800 border-slate-200 focus:ring-2 focus:ring-purple-500 rounded-xl"
-                      {...openForm.register("thb_amount")}
+                    <Controller
+                      control={openForm.control}
+                      name="thb_amount"
+                      render={({ field }) => (
+                        <NumberInput
+                          id="open_thb_amount"
+                          value={field.value}
+                          onValueChange={(val) => field.onChange(val === undefined ? 0 : val)}
+                          placeholder="0.00"
+                          className="bg-white px-4 py-3 text-lg font-semibold text-slate-800 border-slate-200 focus:ring-2 focus:ring-purple-500 rounded-xl"
+                        />
+                      )}
                     />
                   </div>
                 </div>
@@ -308,11 +324,33 @@ export default function CashRegisterPage() {
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label className="text-xs font-bold uppercase text-slate-700">{t('cash_register.closing_balance')} (MMK)</Label>
-                  <Input type="number" step="0.01" className="bg-white py-3 text-lg font-bold rounded-xl" {...closeForm.register("mmk_amount")} />
+                  <Controller
+                    control={closeForm.control}
+                    name="mmk_amount"
+                    render={({ field }) => (
+                      <NumberInput
+                        id="close_mmk_amount"
+                        value={field.value}
+                        onValueChange={(val) => field.onChange(val === undefined ? 0 : val)}
+                        className="bg-white py-3 text-lg font-bold rounded-xl"
+                      />
+                    )}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-bold uppercase text-slate-700">{t('cash_register.closing_balance')} (THB)</Label>
-                  <Input type="number" step="0.01" className="bg-white py-3 text-lg font-bold rounded-xl" {...closeForm.register("thb_amount")} />
+                  <Controller
+                    control={closeForm.control}
+                    name="thb_amount"
+                    render={({ field }) => (
+                      <NumberInput
+                        id="close_thb_amount"
+                        value={field.value}
+                        onValueChange={(val) => field.onChange(val === undefined ? 0 : val)}
+                        className="bg-white py-3 text-lg font-bold rounded-xl"
+                      />
+                    )}
+                  />
                 </div>
               </div>
 

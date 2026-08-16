@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -57,6 +58,7 @@ export function BuyForm({ open, onOpenChange, customers, mmkWallets, thbWallets,
     reset,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<ExchangeFormValues>({
     resolver: zodResolver(exchangeSchema) as any,
@@ -136,13 +138,38 @@ export function BuyForm({ open, onOpenChange, customers, mmkWallets, thbWallets,
 
           <div className="space-y-1.5">
             <Label className="font-semibold text-slate-700">THB Amount (We Receive)</Label>
-            <Input type="number" step="0.01" {...register("foreign_amount")} className="h-10 border-slate-200 focus:ring-emerald-500 transition-all font-medium" />
+            <Controller
+              control={control}
+              name="foreign_amount"
+              render={({ field }) => (
+                <NumberInput
+                  id="foreign_amount"
+                  value={field.value}
+                  onValueChange={(val) => field.onChange(val === undefined ? "" : val)}
+                  placeholder="0.00"
+                  className="h-10 border-slate-200 focus:ring-emerald-500 transition-all font-medium"
+                />
+              )}
+            />
             {errors.foreign_amount && <p className="text-sm text-red-500">{errors.foreign_amount.message}</p>}
           </div>
 
           <div className="space-y-1.5">
             <Label className="font-semibold text-slate-700">Exchange Rate (THB per 100,000 MMK)</Label>
-            <Input type="number" step="0.0001" {...register("rate_used")} className="h-10 border-slate-200 focus:ring-emerald-500 transition-all font-medium" />
+            <Controller
+              control={control}
+              name="rate_used"
+              render={({ field }) => (
+                <NumberInput
+                  id="rate_used"
+                  value={field.value}
+                  onValueChange={(val) => field.onChange(val === undefined ? "" : val)}
+                  placeholder="0.00"
+                  className="h-10 border-slate-200 focus:ring-emerald-500 transition-all font-medium"
+                />
+              )}
+            />
+            {errors.rate_used && <p className="text-sm text-red-500">{errors.rate_used.message}</p>}
           </div>
 
           <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl">

@@ -58,7 +58,7 @@ export function RateHistoryList({ data }: RateHistoryListProps) {
       header: t('exchange_rates.buy_rate'),
       cell: ({ row }) => (
         <span className="font-medium text-blue-600">
-          {row.getValue("buy_rate")}
+          {new Intl.NumberFormat("en-US").format(row.getValue("buy_rate"))}
         </span>
       ),
     },
@@ -67,7 +67,7 @@ export function RateHistoryList({ data }: RateHistoryListProps) {
       header: t('exchange_rates.sell_rate'),
       cell: ({ row }) => (
         <span className="font-medium text-purple-600">
-          {row.getValue("sell_rate")}
+          {new Intl.NumberFormat("en-US").format(row.getValue("sell_rate"))}
         </span>
       ),
     },

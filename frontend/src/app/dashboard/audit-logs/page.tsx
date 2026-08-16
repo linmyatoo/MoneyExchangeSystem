@@ -178,7 +178,7 @@ export default function AuditLogsPage() {
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {data?.total || 0}
+          {new Intl.NumberFormat("en-US").format(data?.total || 0)}
         </p>
         <div className="flex space-x-2">
           <Button

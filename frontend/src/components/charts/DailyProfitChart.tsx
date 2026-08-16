@@ -14,6 +14,7 @@ export function DailyProfitChart({ data }: Props) {
       backgroundColor: "rgba(15, 23, 42, 0.85)",
       borderColor: "#334155",
       textStyle: { color: "#f8fafc" },
+      valueFormatter: (value: any) => new Intl.NumberFormat("en-US").format(value ?? 0) + " MMK",
     },
     grid: {
       left: "3%",

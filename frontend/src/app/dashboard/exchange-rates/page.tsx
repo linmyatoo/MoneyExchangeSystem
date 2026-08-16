@@ -76,7 +76,7 @@ export default function ExchangeRatesPage() {
           </div>
           <div className="p-5 pt-0 relative z-10">
             <div className="text-2xl font-bold text-blue-600 tracking-tight">
-              {currentRate ? currentRate.buy_rate : "-"}
+              {currentRate ? new Intl.NumberFormat("en-US").format(currentRate.buy_rate) : "-"}
             </div>
           </div>
         </div>
@@ -90,7 +90,7 @@ export default function ExchangeRatesPage() {
           </div>
           <div className="p-5 pt-0 relative z-10">
             <div className="text-2xl font-bold text-purple-600 tracking-tight">
-              {currentRate ? currentRate.sell_rate : "-"}
+              {currentRate ? new Intl.NumberFormat("en-US").format(currentRate.sell_rate) : "-"}
             </div>
           </div>
         </div>

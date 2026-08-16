@@ -187,7 +187,7 @@ export default function UsersPage() {
         {/* Filters */}
         <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
           <div className="flex flex-wrap sm:flex-nowrap gap-3">
-            <div className="flex-1 min-w-[200px]">
+            <div className="w-full sm:w-1/4 min-w-[200px]">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input

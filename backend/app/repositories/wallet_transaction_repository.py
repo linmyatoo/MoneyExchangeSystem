@@ -23,6 +23,7 @@ class WalletTransactionRepository(BaseRepository[WalletTransaction]):
         customer_id: Optional[uuid.UUID] = None,
         is_credit: Optional[bool] = None,
         period: Optional[str] = None,
+        transaction_type: Optional[str] = None,
     ) -> Tuple[List[WalletTransaction], int]:
         query = self.db.query(WalletTransaction).filter(WalletTransaction.deleted_at.is_(None))
 
@@ -34,6 +35,9 @@ class WalletTransactionRepository(BaseRepository[WalletTransaction]):
                     WalletTransaction.notes.ilike(search_term),
                 )
             )
+
+        if transaction_type:
+            query = query.filter(WalletTransaction.transaction_type == transaction_type)
 
         if wallet_account_id:
             query = query.filter(
@@ -63,8 +67,13 @@ class WalletTransactionRepository(BaseRepository[WalletTransaction]):
                 _, last_day = calendar.monthrange(today_date.year, today_date.month)
                 end_dt = datetime.combine(today_date.replace(day=last_day), time.max)
             else:
-                start_dt = None
-                end_dt = None
+                try:
+                    target_date = datetime.strptime(period, "%Y-%m-%d").date()
+                    start_dt = datetime.combine(target_date, time.min)
+                    end_dt = datetime.combine(target_date, time.max)
+                except ValueError:
+                    start_dt = None
+                    end_dt = None
                 
             if start_dt and end_dt:
                 query = query.filter(WalletTransaction.transaction_date.between(start_dt, end_dt))

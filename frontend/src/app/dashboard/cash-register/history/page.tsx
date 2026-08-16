@@ -152,7 +152,7 @@ export default function CashHistoryPage() {
 
           <div className="flex items-center space-x-3">
             <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 text-xs">
-              <span className="text-slate-300">Total Logs:</span> <strong className="text-white ml-1">{data.length}</strong>
+              <span className="text-slate-300">Total Logs:</span> <strong className="text-white ml-1">{new Intl.NumberFormat("en-US").format(data.length)}</strong>
             </div>
           </div>
         </div>
@@ -162,15 +162,15 @@ export default function CashHistoryPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-1">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Recorded Shifts</p>
-          <p className="text-2xl font-extrabold text-slate-900">{data.length}</p>
+          <p className="text-2xl font-extrabold text-slate-900">{new Intl.NumberFormat("en-US").format(data.length)}</p>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-1">
           <p className="text-xs font-bold uppercase tracking-wider text-emerald-600">Reconciled & Closed</p>
-          <p className="text-2xl font-extrabold text-emerald-700">{closedCount}</p>
+          <p className="text-2xl font-extrabold text-emerald-700">{new Intl.NumberFormat("en-US").format(closedCount)}</p>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-1">
           <p className="text-xs font-bold uppercase tracking-wider text-amber-600">Open Shifts</p>
-          <p className="text-2xl font-extrabold text-amber-700">{openCount}</p>
+          <p className="text-2xl font-extrabold text-amber-700">{new Intl.NumberFormat("en-US").format(openCount)}</p>
         </div>
       </div>
 

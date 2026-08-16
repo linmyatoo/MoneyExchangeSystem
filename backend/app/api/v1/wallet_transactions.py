@@ -20,10 +20,11 @@ admin_staff_roles = RoleChecker(["admin", "staff"])
 @router.get("", response_model=PaginatedResponse[WalletTransactionResponse])
 def list_wallet_transactions(
     q: Optional[str] = Query(None, description="Search by transaction number or notes"),
+    transaction_type: Optional[str] = Query(None, description="Filter by transaction type (deposit, withdrawal, transfer)"),
     wallet_account_id: Optional[uuid.UUID] = Query(None, description="Filter by wallet account"),
     customer_id: Optional[uuid.UUID] = Query(None, description="Filter by customer"),
     is_credit: Optional[bool] = Query(None, description="Filter by credit status"),
-    period: Optional[str] = Query(None, description="Filter by 'today', 'yesterday', 'this_month'"),
+    period: Optional[str] = Query(None, description="Filter by 'today', 'yesterday', 'this_month', or YYYY-MM-DD"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     db: Session = Depends(get_db),
@@ -40,6 +41,7 @@ def list_wallet_transactions(
         customer_id=customer_id,
         is_credit=is_credit,
         period=period,
+        transaction_type=transaction_type,
     )
     return {
         "items": items,

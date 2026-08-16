@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -52,6 +53,7 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
     reset,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<WalletFormValues>({
     resolver: zodResolver(walletSchema) as any,
@@ -164,12 +166,18 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
           {!wallet && (
             <div className="space-y-1.5">
               <Label htmlFor="opening_balance" className="font-semibold text-slate-700">{t('cash_register.opening_balance')}</Label>
-              <Input 
-                id="opening_balance" 
-                type="number" 
-                step="0.01" 
-                {...register("opening_balance")} 
-                className="h-10 border-slate-200 focus:ring-blue-500 transition-all"
+              <Controller
+                control={control}
+                name="opening_balance"
+                render={({ field }) => (
+                  <NumberInput
+                    id="opening_balance"
+                    value={field.value}
+                    onValueChange={(val) => field.onChange(val === undefined ? 0 : val)}
+                    placeholder="0.00"
+                    className="h-10 border-slate-200 focus:ring-blue-500 transition-all"
+                  />
+                )}
               />
               {errors.opening_balance && <p className="text-sm text-red-500">{errors.opening_balance.message}</p>}
             </div>
@@ -178,12 +186,18 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
           {wallet && (
             <div className="space-y-1.5">
               <Label htmlFor="balance" className="font-semibold text-slate-700">{t('wallets.balance')}</Label>
-              <Input 
-                id="balance" 
-                type="number" 
-                step="0.01" 
-                {...register("balance")} 
-                className="h-10 border-slate-200 focus:ring-blue-500 transition-all"
+              <Controller
+                control={control}
+                name="balance"
+                render={({ field }) => (
+                  <NumberInput
+                    id="balance"
+                    value={field.value}
+                    onValueChange={(val) => field.onChange(val === undefined ? 0 : val)}
+                    placeholder="0.00"
+                    className="h-10 border-slate-200 focus:ring-blue-500 transition-all"
+                  />
+                )}
               />
               {errors.balance && <p className="text-sm text-red-500">{errors.balance.message}</p>}
             </div>
