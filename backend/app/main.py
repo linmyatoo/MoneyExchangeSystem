@@ -20,6 +20,26 @@ app = FastAPI(
     openapi_url="/openapi.json" if _docs_enabled else None,
 )
 
+# Registered BEFORE the CORS middleware on purpose. Starlette runs the most
+# recently added middleware outermost, so this one ends up *inside* CORS.
+# That placement is the whole point: an unhandled exception has to become a
+# response here, on the way out, while CORSMiddleware still gets to stamp
+# Access-Control-Allow-Origin on it. Starlette's own last-resort 500 handler
+# sits outside CORS, so anything that escapes to it reaches the browser with
+# no CORS headers, and the real error is reported as an opaque CORS failure.
+@app.middleware("http")
+async def handle_unhandled_exceptions(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as exc:
+        print(f"Unhandled exception on {request.method} {request.url.path}: {exc}")
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "An unexpected internal server error occurred. Please contact support."},
+        )
+
+
 # Setup CORS
 app.add_middleware(
     CORSMiddleware,
@@ -47,12 +67,3 @@ app.include_router(audit_logs.router, prefix="/api/v1/audit-logs", tags=["audit-
 @app.get("/")
 async def root():
     return {"message": "Welcome to EMS API"}
-
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    print(f"Unhandled exception: {exc}")
-    traceback.print_exc()
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "An unexpected internal server error occurred. Please contact support."},
-    )
