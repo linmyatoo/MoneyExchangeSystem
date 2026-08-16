@@ -177,6 +177,9 @@ export default function THBExchangePage() {
             <div className="text-2xl font-bold text-emerald-600 tracking-tight">
               {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_buy)} ฿
             </div>
+            <div className="text-sm font-semibold text-emerald-900/50 tracking-tight mt-1">
+              {new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(summary.today_buy_mmk)} MMK
+            </div>
           </div>
         </div>
         
@@ -191,6 +194,9 @@ export default function THBExchangePage() {
           <div className="p-5 pt-0 relative z-10">
             <div className="text-2xl font-bold text-blue-600 tracking-tight">
               {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_sell)} ฿
+            </div>
+            <div className="text-sm font-semibold text-blue-900/50 tracking-tight mt-1">
+              {new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(summary.today_sell_mmk)} MMK
             </div>
           </div>
         </div>
