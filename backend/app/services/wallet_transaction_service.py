@@ -82,7 +82,32 @@ class WalletTransactionService:
 
     def create_transaction(self, obj_in: WalletTransactionCreate, created_by: uuid.UUID) -> WalletTransaction:
         # Determine transaction type
-        if obj_in.from_wallet_account_id and obj_in.to_wallet_account_id:
+        if obj_in.transaction_type in ("deposit", "withdrawal", "transfer"):
+            transaction_type = obj_in.transaction_type
+            if transaction_type == "transfer":
+                if not obj_in.from_wallet_account_id or not obj_in.to_wallet_account_id:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Both source and destination wallets are required for a transfer.",
+                    )
+                if obj_in.from_wallet_account_id == obj_in.to_wallet_account_id:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Source and Destination wallets cannot be the same.",
+                    )
+            elif transaction_type == "deposit":
+                if not obj_in.from_wallet_account_id and not obj_in.to_wallet_account_id:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="A wallet must be provided for a deposit.",
+                    )
+            elif transaction_type == "withdrawal":
+                if not obj_in.from_wallet_account_id and not obj_in.to_wallet_account_id:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="A wallet must be provided for a withdrawal.",
+                    )
+        elif obj_in.from_wallet_account_id and obj_in.to_wallet_account_id:
             transaction_type = "transfer"
             if obj_in.from_wallet_account_id == obj_in.to_wallet_account_id:
                 raise HTTPException(
@@ -90,9 +115,9 @@ class WalletTransactionService:
                     detail="Source and Destination wallets cannot be the same.",
                 )
         elif obj_in.to_wallet_account_id:
-            transaction_type = "deposit"
-        elif obj_in.from_wallet_account_id:
             transaction_type = "withdrawal"
+        elif obj_in.from_wallet_account_id:
+            transaction_type = "deposit"
         else:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -158,12 +183,14 @@ class WalletTransactionService:
         if is_settling:
             # Only update the is_credit flag and related metadata, don't touch balances
             update_data = obj_in.model_dump(exclude={"customer_name", "profit_wallet_account_id"})
-            # Keep the original transaction_type
-            if obj_in.from_wallet_account_id and obj_in.to_wallet_account_id:
+            # Keep or update transaction_type
+            if obj_in.transaction_type in ("deposit", "withdrawal", "transfer"):
+                transaction_type = obj_in.transaction_type
+            elif obj_in.from_wallet_account_id and obj_in.to_wallet_account_id:
                 transaction_type = "transfer"
-            elif obj_in.to_wallet_account_id:
-                transaction_type = "deposit"
             elif obj_in.from_wallet_account_id:
+                transaction_type = "deposit"
+            elif obj_in.to_wallet_account_id:
                 transaction_type = "withdrawal"
             else:
                 transaction_type = tx.transaction_type
@@ -181,11 +208,13 @@ class WalletTransactionService:
         self._reverse_balances(tx)
 
         # Determine new transaction type
-        if obj_in.from_wallet_account_id and obj_in.to_wallet_account_id:
+        if obj_in.transaction_type in ("deposit", "withdrawal", "transfer"):
+            transaction_type = obj_in.transaction_type
+        elif obj_in.from_wallet_account_id and obj_in.to_wallet_account_id:
             transaction_type = "transfer"
-        elif obj_in.to_wallet_account_id:
-            transaction_type = "deposit"
         elif obj_in.from_wallet_account_id:
+            transaction_type = "deposit"
+        elif obj_in.to_wallet_account_id:
             transaction_type = "withdrawal"
         else:
             raise HTTPException(

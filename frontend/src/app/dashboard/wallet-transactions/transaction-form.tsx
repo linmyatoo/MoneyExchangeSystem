@@ -32,11 +32,11 @@ const THB_WALLET_TYPES = [
 
 const emptyToNull = z.preprocess(
   (val) => (val === "" || val === undefined ? null : val),
-  z.string().uuid("Invalid wallet").nullable()
+  z.string().uuid("Invalid wallet").nullable().optional()
 );
 
 const transactionSchema = z.object({
-  transaction_type: z.enum(["cash_to_wallet", "wallet_to_wallet", "wallet_to_cash"]),
+  transaction_type: z.enum(["deposit", "withdrawal", "transfer"]),
   customer_name: z.string().optional().nullable(),
   from_wallet_account_id: emptyToNull,
   to_wallet_account_id: emptyToNull,
@@ -45,11 +45,65 @@ const transactionSchema = z.object({
   profit_wallet_account_id: emptyToNull,
   notes: z.string().optional().nullable(),
   is_credit: z.boolean().default(false),
-}).refine(data => {
-  return !!data.from_wallet_account_id && !!data.to_wallet_account_id && data.from_wallet_account_id !== data.to_wallet_account_id;
-}, {
-  message: "Please select two different wallets",
-  path: ["from_wallet_account_id"]
+}).superRefine((data, ctx) => {
+  if (data.transaction_type === "deposit") {
+    if (!data.from_wallet_account_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please select the bank/wallet to transfer to customer",
+        path: ["from_wallet_account_id"],
+      });
+    }
+    if (!data.to_wallet_account_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please select the cash wallet to receive cash",
+        path: ["to_wallet_account_id"],
+      });
+    }
+  } else if (data.transaction_type === "withdrawal") {
+    if (!data.from_wallet_account_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please select the cash wallet to pay out cash",
+        path: ["from_wallet_account_id"],
+      });
+    }
+    if (!data.to_wallet_account_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please select the bank/wallet receiving customer transfer",
+        path: ["to_wallet_account_id"],
+      });
+    }
+  } else if (data.transaction_type === "transfer") {
+    if (!data.from_wallet_account_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please select a source wallet",
+        path: ["from_wallet_account_id"],
+      });
+    }
+    if (!data.to_wallet_account_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please select a destination wallet",
+        path: ["to_wallet_account_id"],
+      });
+    }
+  }
+
+  if (
+    data.from_wallet_account_id &&
+    data.to_wallet_account_id &&
+    data.from_wallet_account_id === data.to_wallet_account_id
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Source and destination wallets must be different",
+      path: ["to_wallet_account_id"],
+    });
+  }
 });
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
@@ -66,6 +120,18 @@ interface TransactionFormProps {
 export function TransactionForm({ open, onOpenChange, customers, wallets, transaction, onSubmit }: TransactionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const isCashWallet = (w: WalletAccount) =>
+    w.wallet_type?.name?.toLowerCase() === "cash" ||
+    w.wallet_type?.code?.toUpperCase() === "CASH" ||
+    w.account_name?.toLowerCase().includes("cash");
+
+  const myanmarWallets = wallets.filter(
+    (w) => w.is_active && w.wallet_type && !THB_WALLET_TYPES.includes(w.wallet_type.name)
+  );
+  const cashWallets = myanmarWallets.filter(isCashWallet);
+  const bankWallets = myanmarWallets.filter((w) => !isCashWallet(w));
+  const defaultCashWalletId = (cashWallets.length > 0 ? cashWallets[0] : myanmarWallets[0])?.id || "";
+
   const {
     register,
     handleSubmit,
@@ -76,10 +142,10 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
   } = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema) as any,
     defaultValues: {
-      transaction_type: "cash_to_wallet",
+      transaction_type: "deposit",
       customer_name: "",
       from_wallet_account_id: "",
-      to_wallet_account_id: "",
+      to_wallet_account_id: defaultCashWalletId,
       amount: "" as any,
       profit: "" as any,
       profit_wallet_account_id: "",
@@ -96,11 +162,19 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
 
   useEffect(() => {
     if (open && transaction) {
-      let txType: "cash_to_wallet" | "wallet_to_wallet" | "wallet_to_cash" = "cash_to_wallet";
-      if (transaction.from_wallet_account_id && transaction.to_wallet_account_id) {
-        txType = "wallet_to_wallet";
-      } else if (transaction.from_wallet_account_id && !transaction.to_wallet_account_id) {
-        txType = transaction.transaction_type === "withdrawal" ? "wallet_to_cash" : "cash_to_wallet";
+      let txType: "deposit" | "withdrawal" | "transfer" = "deposit";
+      if (transaction.transaction_type === "withdrawal") {
+        txType = "withdrawal";
+      } else if (transaction.transaction_type === "transfer") {
+        txType = "transfer";
+      } else if (transaction.transaction_type === "deposit") {
+        txType = "deposit";
+      } else if (transaction.from_wallet_account_id && transaction.to_wallet_account_id) {
+        txType = "transfer";
+      } else if (transaction.to_wallet_account_id) {
+        txType = "withdrawal";
+      } else {
+        txType = "deposit";
       }
 
       let customerName = "";
@@ -124,10 +198,10 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
       });
     } else if (open) {
       reset({
-        transaction_type: "cash_to_wallet",
+        transaction_type: "deposit",
         customer_name: "",
         from_wallet_account_id: "",
-        to_wallet_account_id: "",
+        to_wallet_account_id: defaultCashWalletId,
         amount: "" as any,
         profit: "" as any,
         profit_wallet_account_id: "",
@@ -135,15 +209,14 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
         is_credit: false,
       });
     }
-  }, [open, transaction, reset]);
-
-  const myanmarWallets = wallets.filter(w => w.is_active && w.wallet_type && !THB_WALLET_TYPES.includes(w.wallet_type.name));
+  }, [open, transaction, reset, defaultCashWalletId]);
 
   const handleFormSubmit = async (data: TransactionFormValues) => {
     try {
       setIsSubmitting(true);
 
       let payload = {
+        transaction_type: data.transaction_type,
         customer_name: data.customer_name || null,
         from_wallet_account_id: data.from_wallet_account_id || null,
         to_wallet_account_id: data.to_wallet_account_id || null,
@@ -165,21 +238,21 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
 
   const TYPE_OPTIONS = [
     {
-      value: "cash_to_wallet",
+      value: "deposit",
       label: "Deposit",
       icon: ArrowDownLeft,
       activeClass: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/30 font-bold shadow-sm",
       activeIconClass: "text-emerald-600 dark:text-emerald-400",
     },
     {
-      value: "wallet_to_cash",
+      value: "withdrawal",
       label: "Withdrawal",
       icon: ArrowUpRight,
       activeClass: "bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/30 font-bold shadow-sm",
       activeIconClass: "text-amber-600 dark:text-amber-400",
     },
     {
-      value: "wallet_to_wallet",
+      value: "transfer",
       label: "Transfer",
       icon: ArrowLeftRight,
       activeClass: "bg-blue-500/15 text-blue-700 dark:text-blue-300 ring-1 ring-blue-500/30 font-bold shadow-sm",
@@ -220,8 +293,16 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
                     type="button"
                     onClick={() => {
                       setValue("transaction_type", opt.value as any, { shouldValidate: true });
-                      setValue("from_wallet_account_id", "");
-                      setValue("to_wallet_account_id", "");
+                      if (opt.value === "deposit") {
+                        setValue("from_wallet_account_id", "");
+                        setValue("to_wallet_account_id", defaultCashWalletId);
+                      } else if (opt.value === "withdrawal") {
+                        setValue("from_wallet_account_id", defaultCashWalletId);
+                        setValue("to_wallet_account_id", "");
+                      } else {
+                        setValue("from_wallet_account_id", "");
+                        setValue("to_wallet_account_id", "");
+                      }
                     }}
                     className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm transition-all ${
                       isSelected
@@ -249,57 +330,145 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
             </div>
 
             {/* Wallet Selection depending on Type */}
-            <div className="space-y-1.5 col-span-2 sm:col-span-1">
-              <Label className="text-sm font-medium">
-                {transactionType === "cash_to_wallet"
-                  ? "Deposit To Wallet"
-                  : transactionType === "wallet_to_cash"
-                  ? "Withdraw From Wallet"
-                  : "From Wallet (Sender)"}
-              </Label>
-              <Select
-                value={fromWalletId || ""}
-                onValueChange={(val) => setValue("from_wallet_account_id", val, { shouldValidate: true })}
-              >
-                <SelectTrigger className="h-10 rounded-lg">
-                  <SelectValue placeholder="Select Wallet">
-                    {fromWalletId ? wallets.find(w => w.id === fromWalletId)?.account_name : "Select Wallet"}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {myanmarWallets.map((w) => (
-                    <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.from_wallet_account_id && <p className="text-xs text-red-500 font-medium">{errors.from_wallet_account_id.message}</p>}
-            </div>
+            {transactionType === "deposit" && (
+              <>
+                <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                  <Label className="text-sm font-medium">Bank / Wallet (Transfer Out)</Label>
+                  <Select
+                    value={fromWalletId || ""}
+                    onValueChange={(val) => setValue("from_wallet_account_id", val, { shouldValidate: true })}
+                  >
+                    <SelectTrigger className="h-10 rounded-lg">
+                      <SelectValue placeholder="Select Bank/Wallet">
+                        {fromWalletId ? wallets.find(w => w.id === fromWalletId)?.account_name : "Select Bank/Wallet"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(bankWallets.length > 0 ? bankWallets : myanmarWallets)
+                        .filter(w => w.id !== toWalletId)
+                        .map((w) => (
+                          <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.from_wallet_account_id && <p className="text-xs text-red-500 font-medium">{errors.from_wallet_account_id.message}</p>}
+                </div>
 
-            <div className="space-y-1.5 col-span-2 sm:col-span-1">
-              <Label className="text-sm font-medium">
-                {transactionType === "cash_to_wallet"
-                  ? "Source / Cash Wallet"
-                  : transactionType === "wallet_to_cash"
-                  ? "Destination / Cash Wallet"
-                  : "To Wallet (Receiver)"}
-              </Label>
-              <Select
-                value={toWalletId || ""}
-                onValueChange={(val) => setValue("to_wallet_account_id", val, { shouldValidate: true })}
-              >
-                <SelectTrigger className="h-10 rounded-lg">
-                  <SelectValue placeholder="Select Wallet">
-                    {toWalletId ? wallets.find(w => w.id === toWalletId)?.account_name : "Select Wallet"}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {myanmarWallets.filter(w => w.id !== fromWalletId).map((w) => (
-                    <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.to_wallet_account_id && <p className="text-xs text-red-500 font-medium">{errors.to_wallet_account_id.message}</p>}
-            </div>
+                <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                  <Label className="text-sm font-medium">Cash Wallet (Cash In)</Label>
+                  <Select
+                    value={toWalletId || ""}
+                    onValueChange={(val) => setValue("to_wallet_account_id", val, { shouldValidate: true })}
+                  >
+                    <SelectTrigger className="h-10 rounded-lg">
+                      <SelectValue placeholder="Select Cash Wallet">
+                        {toWalletId ? wallets.find(w => w.id === toWalletId)?.account_name : "Select Cash Wallet"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(cashWallets.length > 0 ? cashWallets : myanmarWallets)
+                        .filter(w => w.id !== fromWalletId)
+                        .map((w) => (
+                          <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.to_wallet_account_id && <p className="text-xs text-red-500 font-medium">{errors.to_wallet_account_id.message}</p>}
+                </div>
+              </>
+            )}
+
+            {transactionType === "withdrawal" && (
+              <>
+                <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                  <Label className="text-sm font-medium">Cash Wallet (Cash Out)</Label>
+                  <Select
+                    value={fromWalletId || ""}
+                    onValueChange={(val) => setValue("from_wallet_account_id", val, { shouldValidate: true })}
+                  >
+                    <SelectTrigger className="h-10 rounded-lg">
+                      <SelectValue placeholder="Select Cash Wallet">
+                        {fromWalletId ? wallets.find(w => w.id === fromWalletId)?.account_name : "Select Cash Wallet"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(cashWallets.length > 0 ? cashWallets : myanmarWallets)
+                        .filter(w => w.id !== toWalletId)
+                        .map((w) => (
+                          <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.from_wallet_account_id && <p className="text-xs text-red-500 font-medium">{errors.from_wallet_account_id.message}</p>}
+                </div>
+
+                <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                  <Label className="text-sm font-medium">Bank / Wallet (Receive In)</Label>
+                  <Select
+                    value={toWalletId || ""}
+                    onValueChange={(val) => setValue("to_wallet_account_id", val, { shouldValidate: true })}
+                  >
+                    <SelectTrigger className="h-10 rounded-lg">
+                      <SelectValue placeholder="Select Bank/Wallet">
+                        {toWalletId ? wallets.find(w => w.id === toWalletId)?.account_name : "Select Bank/Wallet"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(bankWallets.length > 0 ? bankWallets : myanmarWallets)
+                        .filter(w => w.id !== fromWalletId)
+                        .map((w) => (
+                          <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.to_wallet_account_id && <p className="text-xs text-red-500 font-medium">{errors.to_wallet_account_id.message}</p>}
+                </div>
+              </>
+            )}
+
+            {transactionType === "transfer" && (
+              <>
+                <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                  <Label className="text-sm font-medium">From Wallet (Sender)</Label>
+                  <Select
+                    value={fromWalletId || ""}
+                    onValueChange={(val) => setValue("from_wallet_account_id", val, { shouldValidate: true })}
+                  >
+                    <SelectTrigger className="h-10 rounded-lg">
+                      <SelectValue placeholder="Select Wallet">
+                        {fromWalletId ? wallets.find(w => w.id === fromWalletId)?.account_name : "Select Wallet"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {myanmarWallets.map((w) => (
+                        <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.from_wallet_account_id && <p className="text-xs text-red-500 font-medium">{errors.from_wallet_account_id.message}</p>}
+                </div>
+
+                <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                  <Label className="text-sm font-medium">To Wallet (Receiver)</Label>
+                  <Select
+                    value={toWalletId || ""}
+                    onValueChange={(val) => setValue("to_wallet_account_id", val, { shouldValidate: true })}
+                  >
+                    <SelectTrigger className="h-10 rounded-lg">
+                      <SelectValue placeholder="Select Wallet">
+                        {toWalletId ? wallets.find(w => w.id === toWalletId)?.account_name : "Select Wallet"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {myanmarWallets.filter(w => w.id !== fromWalletId).map((w) => (
+                        <SelectItem key={w.id} value={w.id}>{w.account_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.to_wallet_account_id && <p className="text-xs text-red-500 font-medium">{errors.to_wallet_account_id.message}</p>}
+                </div>
+              </>
+            )}
 
             {errors.root && <p className="text-xs text-red-500 font-medium col-span-2">{errors.root.message}</p>}
 

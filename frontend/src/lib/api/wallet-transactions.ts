@@ -31,6 +31,7 @@ export interface WalletTransactionsResponse {
 }
 
 export interface CreateWalletTransactionData {
+  transaction_type?: string;
   customer_id?: string | null;
   customer_name?: string | null;
   from_wallet_account_id?: string | null;

@@ -11,6 +11,7 @@ from app.schemas.wallet import WalletAccountResponse
 
 
 class WalletTransactionBase(BaseModel):
+    transaction_type: Optional[str] = None
     customer_id: Optional[uuid.UUID] = None
     customer_name: Optional[str] = None
     from_wallet_account_id: Optional[uuid.UUID] = None
