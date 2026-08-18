@@ -20,27 +20,37 @@ export default function ExchangeRatesPage() {
   const [currentRate, setCurrentRate] = useState<ExchangeRate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Filter
+  const [period, setPeriod] = useState<string>("today");
+
   // Pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   useEffect(() => {
     fetchRates();
-  }, [page]);
+  }, [page, period]);
 
   const fetchRates = async () => {
     setIsLoading(true);
     try {
       const [currentRes, historyRes] = await Promise.all([
         getCurrentRate("THB").catch(() => null),
-        getRateHistory({ page, page_size: 10, currency_code: "THB" }),
+        getRateHistory({
+          page,
+          page_size: 10,
+          currency_code: "THB",
+          period: period || undefined,
+        }),
       ]);
       
       setCurrentRate(currentRes);
       setHistory(historyRes.items);
       setTotalPages(historyRes.total_pages);
+      setTotal(historyRes.total);
     } catch (error) {
       console.error("Error fetching rates:", error);
     } finally {
@@ -52,6 +62,14 @@ export default function ExchangeRatesPage() {
     await createExchangeRate(data);
     fetchRates();
   };
+
+  const periodOptions = [
+    { value: "today", label: t('common.today') },
+    { value: "yesterday", label: t('common.yesterday') },
+    { value: "this_month", label: t('common.this_month') },
+    { value: "this_year", label: t('common.this_year') },
+    { value: "", label: t('common.all') },
+  ];
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -96,8 +114,36 @@ export default function ExchangeRatesPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-4">
-        <h2 className="text-xl font-bold text-gray-900 tracking-tight">{t('exchange_rates.rate_history')}</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 tracking-tight">{t('exchange_rates.rate_history')}</h2>
+          {!isLoading && (
+            <p className="text-muted-foreground text-xs mt-1">
+              {t('exchange_rates.records_found', { total })}
+            </p>
+          )}
+        </div>
+
+        {/* Period Filter */}
+        <div className="inline-flex flex-wrap items-center gap-1 rounded-lg border border-slate-200 bg-white p-1 shadow-sm">
+          {periodOptions.map((option) => (
+            <button
+              key={option.value || "all"}
+              type="button"
+              onClick={() => {
+                setPeriod(option.value);
+                setPage(1);
+              }}
+              className={`rounded-md px-3 h-8 text-sm font-medium transition-all ${
+                period === option.value
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (

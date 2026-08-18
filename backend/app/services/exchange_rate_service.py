@@ -24,10 +24,14 @@ class ExchangeRateService:
         return rate
 
     def get_rate_history(
-        self, currency_code: Optional[str] = None, skip: int = 0, limit: int = 20
+        self,
+        currency_code: Optional[str] = None,
+        period: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 20,
     ) -> Tuple[List[ExchangeRate], int]:
         return self.repo.get_rate_history(
-            currency_code=currency_code, skip=skip, limit=limit
+            currency_code=currency_code, period=period, skip=skip, limit=limit
         )
 
     def set_new_rate(self, obj_in: ExchangeRateCreate, created_by: uuid.UUID) -> ExchangeRate:

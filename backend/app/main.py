@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import traceback
 from app.core.config import get_settings
-from app.api.v1 import auth, health, roles, users, wallets, customers, wallet_transactions, currency_exchange, exchange_rates, reports, dashboard, cash_management, audit_logs
+from app.api.v1 import auth, health, roles, users, wallets, customers, wallet_transactions, currency_exchange, exchange_rates, reports, dashboard, audit_logs
 
 settings = get_settings()
 
@@ -61,7 +61,6 @@ app.include_router(currency_exchange.router, prefix="/api/v1/currency-exchange",
 app.include_router(exchange_rates.router, prefix="/api/v1/exchange-rates", tags=["exchange-rates"])
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["reports"])
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["dashboard"])
-app.include_router(cash_management.router, prefix="/api/v1/cash-management", tags=["cash-management"])
 app.include_router(audit_logs.router, prefix="/api/v1/audit-logs", tags=["audit-logs"])
 
 @app.get("/")

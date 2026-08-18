@@ -9,8 +9,6 @@ from app.models.wallet_transaction import WalletTransaction
 from app.models.exchange_rate import ExchangeRate
 from app.models.currency_buy_transaction import CurrencyBuyTransaction
 from app.models.currency_sell_transaction import CurrencySellTransaction
-from app.models.cash_opening import CashOpening
-from app.models.cash_closing import CashClosing
 from app.models.audit_log import AuditLog
 
 __all__ = [
@@ -25,7 +23,5 @@ __all__ = [
     "ExchangeRate",
     "CurrencyBuyTransaction",
     "CurrencySellTransaction",
-    "CashOpening",
-    "CashClosing",
     "AuditLog",
 ]

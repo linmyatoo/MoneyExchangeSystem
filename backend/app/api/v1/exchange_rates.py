@@ -28,6 +28,10 @@ def get_current_rate(
 @router.get("", response_model=PaginatedResponse[ExchangeRateResponse])
 def get_rate_history(
     currency_code: Optional[str] = Query(None, description="Filter by Currency Code"),
+    period: Optional[str] = Query(
+        None,
+        description="Filter by 'today', 'yesterday', 'this_month', 'this_year', or YYYY-MM-DD",
+    ),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     db: Session = Depends(get_db),
@@ -37,7 +41,7 @@ def get_rate_history(
     service = ExchangeRateService(db)
     skip = (page - 1) * page_size
     items, total = service.get_rate_history(
-        currency_code=currency_code, skip=skip, limit=page_size
+        currency_code=currency_code, period=period, skip=skip, limit=page_size
     )
     return {
         "items": items,

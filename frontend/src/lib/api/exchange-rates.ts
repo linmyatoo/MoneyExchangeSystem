@@ -41,6 +41,8 @@ export const getCurrentRate = async (currency_code: string = "THB"): Promise<Exc
 
 export const getRateHistory = async (params?: {
   currency_code?: string;
+  /** 'today' | 'yesterday' | 'this_month' | 'this_year' | 'YYYY-MM-DD' */
+  period?: string;
   page?: number;
   page_size?: number;
 }): Promise<ExchangeRatesResponse> => {

@@ -7,7 +7,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import {
-  Loader2, LayoutDashboard, Users, LogOut, Wallet, ArrowLeftRight, CreditCard, DollarSign, LineChart, FileText, Lock, ShieldAlert, Menu
+  Loader2, LayoutDashboard, Users, LogOut, Wallet, ArrowLeftRight, CreditCard, DollarSign, LineChart, FileText, ShieldAlert, Menu
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,6 @@ const NAV_ITEMS = [
   { key: 'thb_exchange', href: '/dashboard/thb-exchange', icon: DollarSign, roles: ['admin'] },
   { key: 'exchange_rates', href: '/dashboard/exchange-rates', icon: LineChart, roles: ['admin'] },
   { key: 'reports', href: '/dashboard/reports', icon: FileText, roles: ['admin'] },
-  { key: 'cash_register', href: '/dashboard/cash-register', icon: Lock, roles: ['admin'] },
   { key: 'wallets', href: '/dashboard/wallets', icon: Wallet, roles: ['admin', 'staff'] },
   { key: 'users', href: '/dashboard/users', icon: Users, roles: ['admin'] },
   { key: 'audit_logs', href: '/dashboard/audit-logs', icon: ShieldAlert, roles: ['admin'] },

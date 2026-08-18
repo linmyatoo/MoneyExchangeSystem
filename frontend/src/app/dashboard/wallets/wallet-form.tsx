@@ -165,7 +165,7 @@ export function WalletForm({ open, onOpenChange, wallet, walletTypes, onSubmit }
 
           {!wallet && (
             <div className="space-y-1.5">
-              <Label htmlFor="opening_balance" className="font-semibold text-slate-700">{t('cash_register.opening_balance')}</Label>
+              <Label htmlFor="opening_balance" className="font-semibold text-slate-700">{t('wallets.opening_balance')}</Label>
               <Controller
                 control={control}
                 name="opening_balance"
