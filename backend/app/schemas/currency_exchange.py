@@ -17,7 +17,7 @@ class CurrencyExchangeBase(BaseModel):
     thb_wallet_id: uuid.UUID
     currency_code: str = Field(default="THB")
     foreign_amount: Decimal = Field(..., gt=0, decimal_places=2)
-    rate_used: Decimal = Field(..., gt=0, decimal_places=4)
+    local_amount: Decimal = Field(..., gt=0, decimal_places=2)
     notes: Optional[str] = None
 
 
@@ -33,7 +33,7 @@ class CurrencyExchangeResponse(CurrencyExchangeBase):
     id: uuid.UUID
     transaction_number: str
     transaction_date: datetime
-    local_amount: Decimal
+    rate_used: Decimal
     profit: Decimal
     
     exchange_rate_id: Optional[uuid.UUID] = None
@@ -57,9 +57,9 @@ class THBWalletBalance(BaseModel):
 
 class THBInventorySummaryResponse(BaseModel):
     total_remaining: Decimal
-    today_buy: Decimal
-    today_buy_mmk: Decimal
-    today_sell: Decimal
-    today_sell_mmk: Decimal
-    today_profit: Decimal
+    buy_thb: Decimal
+    buy_mmk: Decimal
+    sell_thb: Decimal
+    sell_mmk: Decimal
+    profit: Decimal
     wallet_balances: List[THBWalletBalance] = []

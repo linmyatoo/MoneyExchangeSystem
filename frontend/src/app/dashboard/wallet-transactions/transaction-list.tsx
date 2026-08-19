@@ -73,6 +73,13 @@ export function TransactionList({ data, onEdit, onDelete }: TransactionListProps
               <span>{t('transactions.withdraw')}</span>
             </div>
           );
+        } else if (tx.transaction_type === "credit") {
+          return (
+            <div className="flex items-center text-purple-600">
+              <ArrowRight className="w-4 h-4 mr-1" />
+              <span>{t('transactions.credit')}</span>
+            </div>
+          );
         } else {
           return (
             <div className="flex items-center text-blue-600">

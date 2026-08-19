@@ -6,7 +6,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Pencil, Trash2 } from "lucide-react";
 
 import {
   Table,
@@ -17,13 +17,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CurrencyExchange } from "@/lib/api/currency-exchange";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 interface ExchangeListProps {
   data: CurrencyExchange[];
+  onEdit: (tx: CurrencyExchange) => void;
+  onDelete: (tx: CurrencyExchange) => void;
 }
 
-export function ExchangeList({ data }: ExchangeListProps) {
+export function ExchangeList({ data, onEdit, onDelete }: ExchangeListProps) {
   const { t } = useLanguage();
 
   const columns: ColumnDef<CurrencyExchange>[] = [
@@ -109,6 +112,32 @@ export function ExchangeList({ data }: ExchangeListProps) {
           </span>
         );
       },
+    },
+    {
+      id: "actions",
+      header: t('common.actions'),
+      cell: ({ row }) => (
+        <div className="flex items-center justify-end gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-slate-600 hover:text-slate-900"
+            onClick={() => onEdit(row.original)}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            <span className="sr-only">{t('common.edit')}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+            onClick={() => onDelete(row.original)}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span className="sr-only">{t('common.delete')}</span>
+          </Button>
+        </div>
+      ),
     }
   ];
 

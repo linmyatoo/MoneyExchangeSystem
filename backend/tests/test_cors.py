@@ -36,7 +36,7 @@ def test_cors_headers_present_on_unhandled_error(client: TestClient, monkeypatch
             "mmk_wallet_id": "00000000-0000-0000-0000-000000000001",
             "thb_wallet_id": "00000000-0000-0000-0000-000000000002",
             "foreign_amount": 100,
-            "rate_used": 1250,
+            "local_amount": 8000,
         },
     )
 

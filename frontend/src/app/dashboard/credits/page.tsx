@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, DollarSign } from "lucide-react";
+import { Search, DollarSign, Plus, Loader2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NumberInput } from "@/components/ui/number-input";
 import { CreditList } from "./credit-list";
 import {
   WalletTransaction,
+  createWalletTransaction,
   getWalletTransactions,
   updateWalletTransaction,
 } from "@/lib/api/wallet-transactions";
@@ -30,6 +33,18 @@ export default function CreditsPage() {
   const [totalOutstanding, setTotalOutstanding] = useState(0);
 
   const [settleTarget, setSettleTarget] = useState<WalletTransaction | null>(null);
+  const [isSettling, setIsSettling] = useState(false);
+
+  // Manually created credit
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creditName, setCreditName] = useState("");
+  const [creditAmount, setCreditAmount] = useState<number | undefined>(undefined);
+  const [isCreating, setIsCreating] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // Credits added from this page are a record only: neither creating nor
+  // repaying them touches a wallet balance.
+  const isManualCredit = settleTarget?.transaction_type === "credit";
 
   useEffect(() => {
     fetchCredits();
@@ -59,15 +74,56 @@ export default function CreditsPage() {
     }
   };
 
+  const openSettle = (tx: WalletTransaction) => {
+    setFormError(null);
+    setSettleTarget(tx);
+  };
+
+  const handleCreateCredit = async () => {
+    if (!creditName.trim()) {
+      setFormError(t('credits.name_required'));
+      return;
+    }
+    if (!creditAmount || creditAmount <= 0) {
+      setFormError(t('credits.amount_required'));
+      return;
+    }
+
+    setIsCreating(true);
+    setFormError(null);
+    try {
+      await createWalletTransaction({
+        transaction_type: "credit",
+        customer_name: creditName.trim(),
+        amount: creditAmount,
+        is_credit: true,
+      });
+      setCreateOpen(false);
+      setCreditName("");
+      setCreditAmount(undefined);
+      fetchCredits();
+    } catch (error: any) {
+      console.error("Failed to create credit", error);
+      setFormError(error?.response?.data?.detail || t('common.error'));
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const handleSettle = async () => {
     if (!settleTarget) return;
+
+    setIsSettling(true);
+    setFormError(null);
     try {
       const updateData = {
+        transaction_type: settleTarget.transaction_type,
         amount: parseFloat(settleTarget.amount.toString()),
         profit: parseFloat((settleTarget.profit || 0).toString()),
         is_credit: false,
         customer_id: settleTarget.customer_id,
-        customer_name: settleTarget.customer?.name || (settleTarget.notes?.startsWith("Customer: ") ? settleTarget.notes.split(" | ")[0].replace("Customer: ", "") : null),
+        // The name already lives in `notes`, so re-sending it would duplicate the prefix.
+        customer_name: null,
         from_wallet_account_id: settleTarget.from_wallet_account_id,
         to_wallet_account_id: settleTarget.to_wallet_account_id,
         profit_wallet_account_id: null,
@@ -75,20 +131,38 @@ export default function CreditsPage() {
       };
 
       await updateWalletTransaction(settleTarget.id, updateData);
-      fetchCredits();
-    } catch (error) {
-      console.error("Failed to settle credit", error);
-      alert("Failed to update transaction.");
-    } finally {
       setSettleTarget(null);
+      fetchCredits();
+    } catch (error: any) {
+      console.error("Failed to settle credit", error);
+      setFormError(error?.response?.data?.detail || t('common.error'));
+    } finally {
+      setIsSettling(false);
     }
   };
 
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "MMK", minimumFractionDigits: 0 }).format(amount);
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">{t('credits.title')}</h1>
-        <p className="text-muted-foreground text-sm">{t('credits.desc')}</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">{t('credits.title')}</h1>
+          <p className="text-muted-foreground text-sm">{t('credits.desc')}</p>
+        </div>
+        <Button
+          onClick={() => {
+            setCreditName("");
+            setCreditAmount(undefined);
+            setFormError(null);
+            setCreateOpen(true);
+          }}
+          className="self-start sm:self-auto"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          {t('credits.add_credit')}
+        </Button>
       </div>
       
       {/* Dashboard Cards */}
@@ -102,7 +176,7 @@ export default function CreditsPage() {
           </div>
           <div className="p-5 pt-0 relative z-10">
             <div className="text-2xl font-bold text-red-600 tracking-tight">
-              {new Intl.NumberFormat("en-US", { style: "currency", currency: "MMK", minimumFractionDigits: 0 }).format(totalOutstanding)}
+              {formatCurrency(totalOutstanding)}
             </div>
           </div>
         </div>
@@ -127,12 +201,55 @@ export default function CreditsPage() {
       ) : (
         <CreditList 
           data={transactions} 
-          onMarkSettled={setSettleTarget}
+          onMarkSettled={openSettle}
         />
       )}
 
+      {/* New Credit Dialog */}
+      <Dialog open={createOpen} onOpenChange={(open) => !isCreating && setCreateOpen(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('credits.add_credit')}</DialogTitle>
+            <DialogDescription>{t('credits.add_credit_desc')}</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="credit-name">{t('credits.borrower')}</Label>
+              <Input
+                id="credit-name"
+                value={creditName}
+                onChange={(e) => setCreditName(e.target.value)}
+                placeholder={t('credits.borrower')}
+                autoFocus
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="credit-amount">{t('common.amount')}</Label>
+              <NumberInput
+                id="credit-amount"
+                value={creditAmount ?? ""}
+                onValueChange={(value) => setCreditAmount(value)}
+                placeholder="0"
+              />
+            </div>
+            {formError && <p className="text-sm font-medium text-red-600">{formError}</p>}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={isCreating}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleCreateCredit} disabled={isCreating}>
+              {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {t('common.save')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Settle Confirmation Dialog */}
-      <Dialog open={!!settleTarget} onOpenChange={(open) => !open && setSettleTarget(null)}>
+      <Dialog open={!!settleTarget} onOpenChange={(open) => !open && !isSettling && setSettleTarget(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('credits.repay_credit')}</DialogTitle>
@@ -146,20 +263,26 @@ export default function CreditsPage() {
               <div className="bg-muted p-4 rounded-md flex justify-between items-center">
                 <span className="font-medium">{t('credits.repay_amount')}:</span>
                 <span className="text-xl font-bold text-red-600">
-                  {new Intl.NumberFormat("en-US", { style: "currency", currency: "MMK", minimumFractionDigits: 0 }).format(
-                    parseFloat(settleTarget.amount.toString())
-                  )}
+                  {formatCurrency(parseFloat(settleTarget.amount.toString()))}
                 </span>
               </div>
+
+              {isManualCredit && (
+                <p className="text-xs text-muted-foreground">{t('credits.repay_record_only')}</p>
+              )}
+
+              {formError && <p className="text-sm font-medium text-red-600">{formError}</p>}
             </div>
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSettleTarget(null)}>{t('common.cancel')}</Button>
+            <Button variant="outline" onClick={() => setSettleTarget(null)} disabled={isSettling}>{t('common.cancel')}</Button>
             <Button
               onClick={handleSettle}
+              disabled={isSettling}
               className="bg-green-600 hover:bg-green-700"
             >
+              {isSettling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t('common.confirm')}
             </Button>
           </DialogFooter>

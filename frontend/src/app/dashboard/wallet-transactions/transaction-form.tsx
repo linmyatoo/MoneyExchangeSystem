@@ -194,7 +194,7 @@ export function TransactionForm({ open, onOpenChange, customers, wallets, transa
         to_wallet_account_id: transaction.to_wallet_account_id || "",
         amount: transaction.amount,
         profit: transaction.profit,
-        profit_wallet_account_id: "",
+        profit_wallet_account_id: transaction.profit_wallet_account_id || "",
         notes: notes,
         is_credit: transaction.is_credit,
       });

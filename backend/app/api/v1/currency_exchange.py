@@ -1,3 +1,4 @@
+import uuid
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -19,12 +20,13 @@ admin_staff_roles = RoleChecker(["admin", "staff"])
 
 @router.get("/inventory", response_model=THBInventorySummaryResponse)
 def get_inventory(
+    period: Optional[str] = Query("today", description="Totals period: 'today', 'yesterday', 'this_month', or empty for all time"),
     db: Session = Depends(get_db),
     _: User = Depends(admin_staff_roles),
 ) -> Any:
-    """Get THB inventory summary for today."""
+    """Get THB inventory summary with buy/sell totals for the given period."""
     service = CurrencyExchangeService(db)
-    return service.get_inventory_summary()
+    return service.get_inventory_summary(period=period)
 
 
 @router.get("/history")
@@ -72,3 +74,49 @@ def sell_thb(
     """Sell THB to a customer."""
     service = CurrencyExchangeService(db)
     return service.sell_thb(obj_in=obj_in, created_by=current_user.id)
+
+
+@router.put("/buy/{transaction_id}", response_model=CurrencyExchangeResponse)
+def update_buy(
+    transaction_id: uuid.UUID,
+    obj_in: CurrencyBuyCreate,
+    db: Session = Depends(get_db),
+    _: User = Depends(admin_staff_roles),
+) -> Any:
+    """Edit a buy transaction, restoring the old wallet amounts first."""
+    service = CurrencyExchangeService(db)
+    return service.update_buy(id=transaction_id, obj_in=obj_in)
+
+
+@router.put("/sell/{transaction_id}", response_model=CurrencyExchangeResponse)
+def update_sell(
+    transaction_id: uuid.UUID,
+    obj_in: CurrencySellCreate,
+    db: Session = Depends(get_db),
+    _: User = Depends(admin_staff_roles),
+) -> Any:
+    """Edit a sell transaction, restoring the old wallet amounts first."""
+    service = CurrencyExchangeService(db)
+    return service.update_sell(id=transaction_id, obj_in=obj_in)
+
+
+@router.delete("/buy/{transaction_id}", response_model=CurrencyExchangeResponse)
+def delete_buy(
+    transaction_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    _: User = Depends(admin_staff_roles),
+) -> Any:
+    """Delete a buy transaction and restore the wallet amounts."""
+    service = CurrencyExchangeService(db)
+    return service.delete_buy(id=transaction_id)
+
+
+@router.delete("/sell/{transaction_id}", response_model=CurrencyExchangeResponse)
+def delete_sell(
+    transaction_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    _: User = Depends(admin_staff_roles),
+) -> Any:
+    """Delete a sell transaction and restore the wallet amounts."""
+    service = CurrencyExchangeService(db)
+    return service.delete_sell(id=transaction_id)

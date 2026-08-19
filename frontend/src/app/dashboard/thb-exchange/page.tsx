@@ -16,7 +16,19 @@ import {
   getInventorySummary,
   buyTHB,
   sellTHB,
+  updateExchange,
+  deleteExchange,
 } from "@/lib/api/currency-exchange";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Customer, getCustomers } from "@/lib/api/customers";
 import { WalletAccount, getWalletAccounts } from "@/lib/api/wallets";
 import { ExchangeRate, getCurrentRate } from "@/lib/api/exchange-rates";
@@ -26,11 +38,11 @@ export default function THBExchangePage() {
   const [history, setHistory] = useState<CurrencyExchange[]>([]);
   const [summary, setSummary] = useState<THBInventorySummary>({
     total_remaining: 0,
-    today_buy: 0,
-    today_buy_mmk: 0,
-    today_sell: 0,
-    today_sell_mmk: 0,
-    today_profit: 0,
+    buy_thb: 0,
+    buy_mmk: 0,
+    sell_thb: 0,
+    sell_mmk: 0,
+    profit: 0,
     wallet_balances: [],
   });
   
@@ -50,6 +62,12 @@ export default function THBExchangePage() {
 
   const [isBuyFormOpen, setIsBuyFormOpen] = useState(false);
   const [isSellFormOpen, setIsSellFormOpen] = useState(false);
+
+  // Edit / delete of an existing exchange
+  const [editTarget, setEditTarget] = useState<CurrencyExchange | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CurrencyExchange | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
 
   useEffect(() => {
@@ -85,7 +103,8 @@ export default function THBExchangePage() {
 
   const fetchSummary = async () => {
     try {
-      const res = await getInventorySummary();
+      // Totals follow the same period as the list below them.
+      const res = await getInventorySummary(period);
       setSummary(res);
     } catch (error) {
       console.error("Error fetching summary:", error);
@@ -111,24 +130,69 @@ export default function THBExchangePage() {
     }
   };
 
+  const periodLabel =
+    period === "today" ? t('dashboard.daily') : period === "this_month" ? t('dashboard.monthly') : t('common.all');
+
+  const refresh = () => {
+    fetchHistory();
+    fetchSummary();
+    fetchPrerequisites();
+  };
+
   const handleBuy = async (data: any) => {
     if (data.customer_id === "walkin") {
       data.customer_id = null;
     }
-    await buyTHB(data);
-    fetchHistory();
-    fetchSummary();
-    fetchPrerequisites();
+    if (editTarget) {
+      await updateExchange("buy", editTarget.id, data);
+      setEditTarget(null);
+    } else {
+      await buyTHB(data);
+    }
+    refresh();
   };
 
   const handleSell = async (data: any) => {
     if (data.customer_id === "walkin") {
       data.customer_id = null;
     }
-    await sellTHB(data);
-    fetchHistory();
-    fetchSummary();
-    fetchPrerequisites();
+    if (editTarget) {
+      await updateExchange("sell", editTarget.id, data);
+      setEditTarget(null);
+    } else {
+      await sellTHB(data);
+    }
+    refresh();
+  };
+
+  const openEdit = (tx: CurrencyExchange) => {
+    setEditTarget(tx);
+    if (tx.type === "sell") {
+      setIsSellFormOpen(true);
+    } else {
+      setIsBuyFormOpen(true);
+    }
+  };
+
+  // Closing either form drops the record it was editing.
+  const closeForm = (setOpen: (open: boolean) => void) => (open: boolean) => {
+    setOpen(open);
+    if (!open) setEditTarget(null);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteExchange(deleteTarget.type === "sell" ? "sell" : "buy", deleteTarget.id);
+      setDeleteTarget(null);
+      refresh();
+    } catch (error: any) {
+      setDeleteError(error?.response?.data?.detail || "Failed to delete this transaction.");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -168,17 +232,17 @@ export default function THBExchangePage() {
         {/* Today's Buy */}
         <div className="relative overflow-hidden rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white shadow-sm transition-all hover:shadow-md">
           <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <h3 className="tracking-tight text-sm font-semibold text-emerald-900/70 uppercase">{t('dashboard.buy_volume')}</h3>
+            <h3 className="tracking-tight text-sm font-semibold text-emerald-900/70 uppercase">{t('dashboard.buy_volume')} · {periodLabel}</h3>
             <div className="p-1.5 bg-emerald-100 rounded-full">
               <ArrowDownLeft className="h-4 w-4 text-emerald-600" />
             </div>
           </div>
           <div className="p-5 pt-0 relative z-10">
             <div className="text-2xl font-bold text-emerald-600 tracking-tight">
-              {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_buy)} ฿
+              {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.buy_thb)} ฿
             </div>
             <div className="text-sm font-semibold text-emerald-900/50 tracking-tight mt-1">
-              {new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(summary.today_buy_mmk)} MMK
+              {new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(summary.buy_mmk)} MMK
             </div>
           </div>
         </div>
@@ -186,17 +250,17 @@ export default function THBExchangePage() {
         {/* Today's Sell */}
         <div className="relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white shadow-sm transition-all hover:shadow-md">
           <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <h3 className="tracking-tight text-sm font-semibold text-blue-900/70 uppercase">{t('dashboard.sell_volume')}</h3>
+            <h3 className="tracking-tight text-sm font-semibold text-blue-900/70 uppercase">{t('dashboard.sell_volume')} · {periodLabel}</h3>
             <div className="p-1.5 bg-blue-100 rounded-full">
               <ArrowUpRight className="h-4 w-4 text-blue-600" />
             </div>
           </div>
           <div className="p-5 pt-0 relative z-10">
             <div className="text-2xl font-bold text-blue-600 tracking-tight">
-              {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.today_sell)} ฿
+              {new Intl.NumberFormat("en-US", { minimumFractionDigits: 0 }).format(summary.sell_thb)} ฿
             </div>
             <div className="text-sm font-semibold text-blue-900/50 tracking-tight mt-1">
-              {new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(summary.today_sell_mmk)} MMK
+              {new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(summary.sell_mmk)} MMK
             </div>
           </div>
         </div>
@@ -204,14 +268,14 @@ export default function THBExchangePage() {
         {/* Today's Profit */}
         <div className="relative overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white shadow-sm transition-all hover:shadow-md">
           <div className="p-5 flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <h3 className="tracking-tight text-sm font-semibold text-amber-900/70 uppercase">{t('dashboard.today_profit')}</h3>
+            <h3 className="tracking-tight text-sm font-semibold text-amber-900/70 uppercase">{t('thb_exchange.profit')} · {periodLabel}</h3>
             <div className="p-1.5 bg-amber-100 rounded-full">
               <TrendingUp className="h-4 w-4 text-amber-600" />
             </div>
           </div>
           <div className="p-5 pt-0 relative z-10">
             <div className="text-2xl font-bold text-amber-600 tracking-tight">
-              {new Intl.NumberFormat("en-US", { style: "currency", currency: "MMK", minimumFractionDigits: 0 }).format(summary.today_profit)}
+              {new Intl.NumberFormat("en-US", { style: "currency", currency: "MMK", minimumFractionDigits: 0 }).format(summary.profit)}
             </div>
           </div>
         </div>
@@ -263,7 +327,7 @@ export default function THBExchangePage() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>
       ) : (
-        <ExchangeList data={history} />
+        <ExchangeList data={history} onEdit={openEdit} onDelete={(tx) => { setDeleteError(null); setDeleteTarget(tx); }} />
       )}
 
       {/* Pagination Controls */}
@@ -291,23 +355,56 @@ export default function THBExchangePage() {
 
       <BuyForm
         open={isBuyFormOpen}
-        onOpenChange={setIsBuyFormOpen}
+        onOpenChange={closeForm(setIsBuyFormOpen)}
         customers={customers}
         mmkWallets={mmkWallets}
         thbWallets={thbWallets}
         currentRate={currentRate}
+        transaction={editTarget?.type === "sell" ? null : editTarget}
         onSubmit={handleBuy}
       />
       
       <SellForm
         open={isSellFormOpen}
-        onOpenChange={setIsSellFormOpen}
+        onOpenChange={closeForm(setIsSellFormOpen)}
         customers={customers}
         mmkWallets={mmkWallets}
         thbWallets={thbWallets}
         currentRate={currentRate}
+        transaction={editTarget?.type === "sell" ? editTarget : null}
         onSubmit={handleSell}
       />
+
+      {/* Delete Confirmation */}
+      <AlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) {
+            setDeleteTarget(null);
+            setDeleteError(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('common.delete')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget?.transaction_number} — {t('thb_exchange.delete_restores_wallets')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {deleteError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+              ⚠ {deleteError}
+            </div>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-red-600 hover:bg-red-700">
+              {t('common.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

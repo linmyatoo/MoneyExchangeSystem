@@ -13,6 +13,8 @@ export interface WalletTransaction {
   from_wallet_account: WalletAccount | null;
   to_wallet_account_id: string | null;
   to_wallet_account: WalletAccount | null;
+  profit_wallet_account_id: string | null;
+  profit_wallet_account: WalletAccount | null;
   amount: number;
   profit: number;
   notes: string | null;

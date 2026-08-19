@@ -16,6 +16,27 @@ class CurrencyExchangeRepository:
     def __init__(self, db: Session):
         self.db = db
 
+    def _period_bounds(self, period: Optional[str]) -> Tuple[Optional[datetime], Optional[datetime]]:
+        """Start/end of a named period, or (None, None) for all time."""
+        if not period:
+            return None, None
+
+        today_date = date.today()
+        if period == "today":
+            target = today_date
+        elif period == "yesterday":
+            target = today_date - timedelta(days=1)
+        elif period == "this_month":
+            _, last_day = calendar.monthrange(today_date.year, today_date.month)
+            return (
+                datetime.combine(today_date.replace(day=1), time.min),
+                datetime.combine(today_date.replace(day=last_day), time.max),
+            )
+        else:
+            return None, None
+
+        return datetime.combine(target, time.min), datetime.combine(target, time.max)
+
     def create_buy_transaction(self, data: dict) -> CurrencyBuyTransaction:
         db_obj = CurrencyBuyTransaction(**data)
         self.db.add(db_obj)
@@ -27,6 +48,23 @@ class CurrencyExchangeRepository:
         self.db.add(db_obj)
         self.db.flush()
         return db_obj
+
+    def get_buy_by_id(self, id) -> Optional[CurrencyBuyTransaction]:
+        return self.db.query(CurrencyBuyTransaction).filter(
+            CurrencyBuyTransaction.id == id,
+            CurrencyBuyTransaction.deleted_at.is_(None),
+        ).first()
+
+    def get_sell_by_id(self, id) -> Optional[CurrencySellTransaction]:
+        return self.db.query(CurrencySellTransaction).filter(
+            CurrencySellTransaction.id == id,
+            CurrencySellTransaction.deleted_at.is_(None),
+        ).first()
+
+    def soft_delete(self, tx):
+        tx.deleted_at = datetime.utcnow()
+        self.db.add(tx)
+        return tx
 
     def get_paginated_history(
         self,
@@ -53,10 +91,13 @@ class CurrencyExchangeRepository:
             CurrencyBuyTransaction.rate_used.label("rate_used"),
             CurrencyBuyTransaction.local_amount.label("local_amount"),
             CurrencyBuyTransaction.profit.label("profit"),
+            CurrencyBuyTransaction.notes.label("notes"),
+            CurrencyBuyTransaction.mmk_wallet_id.label("mmk_wallet_id"),
+            CurrencyBuyTransaction.thb_wallet_id.label("thb_wallet_id"),
             literal("buy").label("type"),
             mmk_wallet_alias.account_name.label("mmk_wallet_name"),
             thb_wallet_alias.account_name.label("thb_wallet_name")
-        ).outerjoin(mmk_wallet_alias, CurrencyBuyTransaction.mmk_wallet_id == mmk_wallet_alias.id).outerjoin(thb_wallet_alias, CurrencyBuyTransaction.thb_wallet_id == thb_wallet_alias.id)
+        ).filter(CurrencyBuyTransaction.deleted_at.is_(None)).outerjoin(mmk_wallet_alias, CurrencyBuyTransaction.mmk_wallet_id == mmk_wallet_alias.id).outerjoin(thb_wallet_alias, CurrencyBuyTransaction.thb_wallet_id == thb_wallet_alias.id)
         
         sells_q = self.db.query(
             CurrencySellTransaction.id.label("id"),
@@ -67,31 +108,18 @@ class CurrencyExchangeRepository:
             CurrencySellTransaction.rate_used.label("rate_used"),
             CurrencySellTransaction.local_amount.label("local_amount"),
             CurrencySellTransaction.profit.label("profit"),
+            CurrencySellTransaction.notes.label("notes"),
+            CurrencySellTransaction.mmk_wallet_id.label("mmk_wallet_id"),
+            CurrencySellTransaction.thb_wallet_id.label("thb_wallet_id"),
             literal("sell").label("type"),
             mmk_wallet_alias.account_name.label("mmk_wallet_name"),
             thb_wallet_alias.account_name.label("thb_wallet_name")
-        ).outerjoin(mmk_wallet_alias, CurrencySellTransaction.mmk_wallet_id == mmk_wallet_alias.id).outerjoin(thb_wallet_alias, CurrencySellTransaction.thb_wallet_id == thb_wallet_alias.id)
+        ).filter(CurrencySellTransaction.deleted_at.is_(None)).outerjoin(mmk_wallet_alias, CurrencySellTransaction.mmk_wallet_id == mmk_wallet_alias.id).outerjoin(thb_wallet_alias, CurrencySellTransaction.thb_wallet_id == thb_wallet_alias.id)
         
-        if period:
-            today_date = date.today()
-            if period == "today":
-                start_dt = datetime.combine(today_date, time.min)
-                end_dt = datetime.combine(today_date, time.max)
-            elif period == "yesterday":
-                yesterday_date = today_date - timedelta(days=1)
-                start_dt = datetime.combine(yesterday_date, time.min)
-                end_dt = datetime.combine(yesterday_date, time.max)
-            elif period == "this_month":
-                start_dt = datetime.combine(today_date.replace(day=1), time.min)
-                _, last_day = calendar.monthrange(today_date.year, today_date.month)
-                end_dt = datetime.combine(today_date.replace(day=last_day), time.max)
-            else:
-                start_dt = None
-                end_dt = None
-                
-            if start_dt and end_dt:
-                buys_q = buys_q.filter(CurrencyBuyTransaction.transaction_date.between(start_dt, end_dt))
-                sells_q = sells_q.filter(CurrencySellTransaction.transaction_date.between(start_dt, end_dt))
+        start_dt, end_dt = self._period_bounds(period)
+        if start_dt and end_dt:
+            buys_q = buys_q.filter(CurrencyBuyTransaction.transaction_date.between(start_dt, end_dt))
+            sells_q = sells_q.filter(CurrencySellTransaction.transaction_date.between(start_dt, end_dt))
         
         if tx_type == "buy":
             query = buys_q
@@ -121,6 +149,9 @@ class CurrencyExchangeRepository:
                 "rate_used": row.rate_used,
                 "local_amount": row.local_amount,
                 "profit": row.profit,
+                "notes": row.notes,
+                "mmk_wallet_id": row.mmk_wallet_id,
+                "thb_wallet_id": row.thb_wallet_id,
                 "type": row.type,
                 "mmk_wallet_name": row.mmk_wallet_name,
                 "thb_wallet_name": row.thb_wallet_name,
@@ -128,54 +159,39 @@ class CurrencyExchangeRepository:
             
         return items, total
 
-    def get_thb_inventory_summary(self) -> dict:
-        today_start = datetime.combine(date.today(), time.min)
-        today_end = datetime.combine(date.today(), time.max)
-        
-        # Today's Buy
-        today_buy = self.db.query(func.sum(CurrencyBuyTransaction.foreign_amount)).filter(
-            CurrencyBuyTransaction.transaction_date.between(today_start, today_end),
-            CurrencyBuyTransaction.deleted_at.is_(None)
-        ).scalar() or Decimal('0.00')
-        today_buy_mmk = self.db.query(func.sum(CurrencyBuyTransaction.local_amount)).filter(
-            CurrencyBuyTransaction.transaction_date.between(today_start, today_end),
-            CurrencyBuyTransaction.deleted_at.is_(None)
-        ).scalar() or Decimal('0.00')
-        
-        # Today's Sell
-        today_sell = self.db.query(func.sum(CurrencySellTransaction.foreign_amount)).filter(
-            CurrencySellTransaction.transaction_date.between(today_start, today_end),
-            CurrencySellTransaction.deleted_at.is_(None)
-        ).scalar() or Decimal('0.00')
-        today_sell_mmk = self.db.query(func.sum(CurrencySellTransaction.local_amount)).filter(
-            CurrencySellTransaction.transaction_date.between(today_start, today_end),
-            CurrencySellTransaction.deleted_at.is_(None)
-        ).scalar() or Decimal('0.00')
-        
-        # Today's Profit (from sells)
-        today_profit = self.db.query(func.sum(CurrencySellTransaction.profit)).filter(
-            CurrencySellTransaction.transaction_date.between(today_start, today_end),
-            CurrencySellTransaction.deleted_at.is_(None)
-        ).scalar() or Decimal('0.00')
-        
+    def get_thb_inventory_summary(self, period: Optional[str] = "today") -> dict:
+        start_dt, end_dt = self._period_bounds(period)
+
+        def total(column, model) -> Decimal:
+            q = self.db.query(func.sum(column)).filter(model.deleted_at.is_(None))
+            if start_dt and end_dt:
+                q = q.filter(model.transaction_date.between(start_dt, end_dt))
+            return q.scalar() or Decimal('0.00')
+
+        buy_thb = total(CurrencyBuyTransaction.foreign_amount, CurrencyBuyTransaction)
+        buy_mmk = total(CurrencyBuyTransaction.local_amount, CurrencyBuyTransaction)
+        sell_thb = total(CurrencySellTransaction.foreign_amount, CurrencySellTransaction)
+        sell_mmk = total(CurrencySellTransaction.local_amount, CurrencySellTransaction)
+        profit = total(CurrencySellTransaction.profit, CurrencySellTransaction)
+
         # Total Remaining (sum of all wallets of Thai Bank types)
         thai_bank_types = ['Thai Bank', 'KBank', 'BBL', 'SCB', 'KTB', 'TTB', 'CIMBT', 'BAY', 'LHBank', 'KKP', 'UOBT']
-        
+
         wallets_q = self.db.query(WalletAccount).join(WalletType).filter(
             WalletType.name.in_(thai_bank_types),
             WalletAccount.deleted_at.is_(None)
         ).all()
-        
+
         wallet_balances = [{"name": w.account_name, "balance": w.balance} for w in wallets_q]
         total_remaining = sum(w["balance"] for w in wallet_balances) if wallet_balances else Decimal('0.00')
 
         return {
             "total_remaining": total_remaining,
-            "today_buy": today_buy,
-            "today_buy_mmk": today_buy_mmk,
-            "today_sell": today_sell,
-            "today_sell_mmk": today_sell_mmk,
-            "today_profit": today_profit,
+            "buy_thb": buy_thb,
+            "buy_mmk": buy_mmk,
+            "sell_thb": sell_thb,
+            "sell_mmk": sell_mmk,
+            "profit": profit,
             "wallet_balances": wallet_balances
         }
 

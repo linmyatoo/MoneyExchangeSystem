@@ -84,7 +84,15 @@ class WalletTransactionService:
 
     def create_transaction(self, obj_in: WalletTransactionCreate, created_by: uuid.UUID) -> WalletTransaction:
         # Determine transaction type
-        if obj_in.transaction_type in ("deposit", "withdrawal", "transfer"):
+        if obj_in.transaction_type == "credit":
+            # Manually recorded credit: no money moves until it is repaid.
+            if obj_in.from_wallet_account_id or obj_in.to_wallet_account_id:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="A manually created credit cannot be linked to a wallet.",
+                )
+            transaction_type = "credit"
+        elif obj_in.transaction_type in ("deposit", "withdrawal", "transfer"):
             transaction_type = obj_in.transaction_type
             if transaction_type == "transfer":
                 if not obj_in.from_wallet_account_id or not obj_in.to_wallet_account_id:
@@ -142,7 +150,10 @@ class WalletTransactionService:
         tx_number = self._generate_transaction_number(now)
 
         # Create transaction record
-        tx_data = obj_in.model_dump(exclude={"customer_name", "profit_wallet_account_id"})
+        tx_data = obj_in.model_dump(exclude={"customer_name"})
+        # Only remember the profit wallet when profit actually landed in it.
+        if not obj_in.profit or obj_in.profit <= 0:
+            tx_data["profit_wallet_account_id"] = None
         
         # Append customer name to notes if provided
         if obj_in.customer_name:
@@ -155,6 +166,9 @@ class WalletTransactionService:
             "transaction_type": transaction_type,
             "created_by": created_by,
         })
+
+        if transaction_type == "credit":
+            tx_data["is_credit"] = True
 
         tx = self.transaction_repo.create(tx_data)
         self.db.commit()
@@ -175,6 +189,12 @@ class WalletTransactionService:
                 to_wallet.balance -= tx.amount
                 self.db.add(to_wallet)
 
+        if tx.profit_wallet_account_id and tx.profit:
+            profit_wallet = self.wallet_repo.get_by_id(tx.profit_wallet_account_id)
+            if profit_wallet:
+                profit_wallet.balance -= tx.profit
+                self.db.add(profit_wallet)
+
     def update_transaction(self, id: uuid.UUID, obj_in: WalletTransactionCreate) -> WalletTransaction:
         tx = self.get_transaction(id)
 
@@ -186,7 +206,13 @@ class WalletTransactionService:
             # Only update the is_credit flag and related metadata, don't touch balances
             update_data = obj_in.model_dump(exclude={"customer_name", "profit_wallet_account_id"})
             # Keep or update transaction_type
-            if obj_in.transaction_type in ("deposit", "withdrawal", "transfer"):
+            if tx.transaction_type == "credit":
+                # A manual credit is a record only: no wallet moved money when it
+                # was created, and repaying it must not move any either.
+                transaction_type = "credit"
+                update_data["from_wallet_account_id"] = None
+                update_data["to_wallet_account_id"] = None
+            elif obj_in.transaction_type in ("deposit", "withdrawal", "transfer"):
                 transaction_type = obj_in.transaction_type
             elif obj_in.from_wallet_account_id and obj_in.to_wallet_account_id:
                 transaction_type = "transfer"
@@ -210,7 +236,11 @@ class WalletTransactionService:
         self._reverse_balances(tx)
 
         # Determine new transaction type
-        if obj_in.transaction_type in ("deposit", "withdrawal", "transfer"):
+        if tx.transaction_type == "credit":
+            # A manual credit stays a record: it never moves money, whatever
+            # wallets an update happens to carry.
+            transaction_type = "credit"
+        elif obj_in.transaction_type in ("deposit", "withdrawal", "transfer"):
             transaction_type = obj_in.transaction_type
         elif obj_in.from_wallet_account_id and obj_in.to_wallet_account_id:
             transaction_type = "transfer"
@@ -225,18 +255,25 @@ class WalletTransactionService:
             )
 
         # Apply new balance changes
-        if obj_in.from_wallet_account_id:
-            self._debit_wallet(obj_in.from_wallet_account_id, obj_in.amount)
+        if transaction_type != "credit":
+            if obj_in.from_wallet_account_id:
+                self._debit_wallet(obj_in.from_wallet_account_id, obj_in.amount)
 
-        if obj_in.to_wallet_account_id:
-            self._credit_wallet(obj_in.to_wallet_account_id, obj_in.amount, "Destination wallet not found")
+            if obj_in.to_wallet_account_id:
+                self._credit_wallet(obj_in.to_wallet_account_id, obj_in.amount, "Destination wallet not found")
 
-        # Handle profit wallet
-        if obj_in.profit_wallet_account_id and obj_in.profit > 0:
-            self._credit_wallet(obj_in.profit_wallet_account_id, obj_in.profit, "Profit store wallet not found")
+            # Handle profit wallet
+            if obj_in.profit_wallet_account_id and obj_in.profit > 0:
+                self._credit_wallet(obj_in.profit_wallet_account_id, obj_in.profit, "Profit store wallet not found")
 
         # Update fields
-        update_data = obj_in.model_dump(exclude={"customer_name", "profit_wallet_account_id"})
+        update_data = obj_in.model_dump(exclude={"customer_name"})
+        if not obj_in.profit or obj_in.profit <= 0:
+            update_data["profit_wallet_account_id"] = None
+        if transaction_type == "credit":
+            update_data["from_wallet_account_id"] = None
+            update_data["to_wallet_account_id"] = None
+            update_data["profit_wallet_account_id"] = None
         update_data["transaction_type"] = transaction_type
 
         if obj_in.customer_name:

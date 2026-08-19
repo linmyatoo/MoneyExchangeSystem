@@ -25,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Customer } from "@/lib/api/customers";
 import { WalletAccount } from "@/lib/api/wallets";
 import { ExchangeRate } from "@/lib/api/exchange-rates";
+import { CurrencyExchange } from "@/lib/api/currency-exchange";
 
 const exchangeSchema = z.object({
   customer_id: z.string().optional().nullable(),
@@ -32,7 +33,7 @@ const exchangeSchema = z.object({
   mmk_wallet_id: z.string().uuid("Please select MMK Wallet"),
   thb_wallet_id: z.string().uuid("Please select THB Wallet"),
   foreign_amount: z.coerce.number().min(0.01, "Amount must be > 0"),
-  rate_used: z.coerce.number().min(0.0001, "Rate must be > 0"),
+  local_amount: z.coerce.number().min(1, "MMK amount must be > 0"),
   notes: z.string().optional().nullable(),
 });
 
@@ -45,10 +46,12 @@ interface BuyFormProps {
   mmkWallets: WalletAccount[];
   thbWallets: WalletAccount[];
   currentRate?: ExchangeRate | null;
+  transaction?: CurrencyExchange | null;
   onSubmit: (data: any) => Promise<void>;
 }
 
-export function BuyForm({ open, onOpenChange, customers, mmkWallets, thbWallets, currentRate, onSubmit }: BuyFormProps) {
+export function BuyForm({ open, onOpenChange, customers, mmkWallets, thbWallets, currentRate, transaction, onSubmit }: BuyFormProps) {
+  const isEditing = !!transaction;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -68,30 +71,45 @@ export function BuyForm({ open, onOpenChange, customers, mmkWallets, thbWallets,
       mmk_wallet_id: "",
       thb_wallet_id: "",
       foreign_amount: "" as any,
-      rate_used: 0,
+      local_amount: "" as any,
       notes: "",
     },
   });
 
   const foreignAmount = watch("foreign_amount") || 0;
-  const rateUsed = watch("rate_used") || 0;
+  const localAmount = watch("local_amount") || 0;
+  // The rate is derived from the two amounts, quoted as THB per 100,000 MMK.
+  const derivedRate = foreignAmount > 0 && localAmount > 0 ? (100000 * foreignAmount) / localAmount : 0;
   const mmkWalletId = watch("mmk_wallet_id");
   const thbWalletId = watch("thb_wallet_id");
 
 
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+
+    if (transaction) {
       reset({
         customer_id: null,
-        customer_name: "",
-        mmk_wallet_id: "",
-        thb_wallet_id: "",
-        foreign_amount: "" as any,
-        rate_used: currentRate ? currentRate.buy_rate : 0,
-        notes: "",
+        customer_name: transaction.customer_name || "",
+        mmk_wallet_id: transaction.mmk_wallet_id || "",
+        thb_wallet_id: transaction.thb_wallet_id || "",
+        foreign_amount: transaction.foreign_amount,
+        local_amount: transaction.local_amount,
+        notes: transaction.notes || "",
       });
+      return;
     }
-  }, [open, reset, currentRate]);
+
+    reset({
+      customer_id: null,
+      customer_name: "",
+      mmk_wallet_id: "",
+      thb_wallet_id: "",
+      foreign_amount: "" as any,
+      local_amount: "" as any,
+      notes: "",
+    });
+  }, [open, reset, currentRate, transaction]);
 
   const handleFormSubmit = async (data: ExchangeFormValues) => {
     try {
@@ -120,7 +138,7 @@ export function BuyForm({ open, onOpenChange, customers, mmkWallets, thbWallets,
         <div className="px-5 py-5 border-b border-slate-100 bg-slate-50/50">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold tracking-tight text-emerald-600 flex items-center gap-2">
-              Buy THB <span className="text-sm font-medium text-slate-500">(Customer gives THB)</span>
+              {isEditing ? "Edit Buy" : "Buy THB"} <span className="text-sm font-medium text-slate-500">(Customer gives THB)</span>
             </DialogTitle>
           </DialogHeader>
         </div>
@@ -155,28 +173,33 @@ export function BuyForm({ open, onOpenChange, customers, mmkWallets, thbWallets,
           </div>
 
           <div className="space-y-1.5">
-            <Label className="font-semibold text-slate-700">Exchange Rate (THB per 100,000 MMK)</Label>
+            <Label className="font-semibold text-slate-700">MMK Amount (We Pay)</Label>
             <Controller
               control={control}
-              name="rate_used"
+              name="local_amount"
               render={({ field }) => (
                 <NumberInput
-                  id="rate_used"
+                  id="local_amount"
                   value={field.value}
                   onValueChange={(val) => field.onChange(val === undefined ? "" : val)}
-                  placeholder="0.00"
+                  placeholder="0"
                   className="h-10 border-slate-200 focus:ring-emerald-500 transition-all font-medium"
                 />
               )}
             />
-            {errors.rate_used && <p className="text-sm text-red-500">{errors.rate_used.message}</p>}
+            {errors.local_amount && <p className="text-sm text-red-500">{errors.local_amount.message}</p>}
           </div>
 
           <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl">
-            <Label className="text-emerald-700 font-semibold text-xs uppercase tracking-wider">MMK Amount (We Pay)</Label>
+            <Label className="text-emerald-700 font-semibold text-xs uppercase tracking-wider">Exchange Rate (THB per 100,000 MMK)</Label>
             <div className="text-2xl font-bold text-emerald-900 mt-1">
-              {new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(rateUsed ? (100000 / rateUsed) * foreignAmount : 0)} K
+              {new Intl.NumberFormat("en-US", { maximumFractionDigits: 4 }).format(derivedRate)}
             </div>
+            {currentRate && (
+              <div className="text-xs font-medium text-emerald-900/60 mt-1">
+                Current buy rate: {new Intl.NumberFormat("en-US", { maximumFractionDigits: 4 }).format(currentRate.buy_rate)}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -231,7 +254,7 @@ export function BuyForm({ open, onOpenChange, customers, mmkWallets, thbWallets,
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting} className="h-10 px-4 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-sm">
-              {isSubmitting ? "Processing..." : "Confirm Buy"}
+              {isSubmitting ? "Processing..." : isEditing ? "Save Changes" : "Confirm Buy"}
             </Button>
           </div>
         </form>

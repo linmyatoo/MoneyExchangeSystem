@@ -113,9 +113,10 @@ export function CreditList({ data, onMarkSettled }: CreditListProps) {
                               <span className={`${
                                 tx.transaction_type === 'deposit' ? 'text-emerald-600 font-medium' :
                                 tx.transaction_type === 'withdrawal' ? 'text-orange-600 font-medium' :
+                                tx.transaction_type === 'credit' ? 'text-purple-600 font-medium' :
                                 'text-blue-600 font-medium'
                               }`}>
-                                {tx.transaction_type === "deposit" ? t('transactions.deposit') : tx.transaction_type === "withdrawal" ? t('transactions.withdraw') : t('transactions.transfer')}
+                                {tx.transaction_type === "deposit" ? t('transactions.deposit') : tx.transaction_type === "withdrawal" ? t('transactions.withdraw') : tx.transaction_type === "credit" ? t('transactions.credit') : t('transactions.transfer')}
                               </span>
                             </td>
                             <td className="px-4 py-2 whitespace-nowrap text-right font-medium text-slate-700">

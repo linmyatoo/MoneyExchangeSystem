@@ -43,11 +43,11 @@ export interface THBWalletBalance {
 
 export interface THBInventorySummary {
   total_remaining: number;
-  today_buy: number;
-  today_buy_mmk: number;
-  today_sell: number;
-  today_sell_mmk: number;
-  today_profit: number;
+  buy_thb: number;
+  buy_mmk: number;
+  sell_thb: number;
+  sell_mmk: number;
+  profit: number;
   wallet_balances: THBWalletBalance[];
 }
 
@@ -57,12 +57,14 @@ export interface CreateExchangeData {
   mmk_wallet_id: string;
   thb_wallet_id: string;
   foreign_amount: number;
-  rate_used: number;
+  local_amount: number;
   notes?: string | null;
 }
 
-export const getInventorySummary = async (): Promise<THBInventorySummary> => {
-  const response = await apiClient.get("/currency-exchange/inventory");
+export const getInventorySummary = async (period?: string): Promise<THBInventorySummary> => {
+  const response = await apiClient.get("/currency-exchange/inventory", {
+    params: { period: period || "" },
+  });
   return response.data;
 };
 
@@ -84,5 +86,22 @@ export const buyTHB = async (data: CreateExchangeData): Promise<CurrencyExchange
 
 export const sellTHB = async (data: CreateExchangeData): Promise<CurrencyExchange> => {
   const response = await apiClient.post("/currency-exchange/sell", data);
+  return response.data;
+};
+
+export const updateExchange = async (
+  type: "buy" | "sell",
+  id: string,
+  data: CreateExchangeData
+): Promise<CurrencyExchange> => {
+  const response = await apiClient.put(`/currency-exchange/${type}/${id}`, data);
+  return response.data;
+};
+
+export const deleteExchange = async (
+  type: "buy" | "sell",
+  id: string
+): Promise<CurrencyExchange> => {
+  const response = await apiClient.delete(`/currency-exchange/${type}/${id}`);
   return response.data;
 };

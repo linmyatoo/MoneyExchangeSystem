@@ -41,6 +41,9 @@ class WalletTransaction(BaseModel):
     to_wallet_account_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("wallet_accounts.id"), nullable=True, index=True
     )
+    profit_wallet_account_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("wallet_accounts.id"), nullable=True, index=True
+    )
     created_by: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
@@ -52,6 +55,9 @@ class WalletTransaction(BaseModel):
     )
     to_wallet_account = relationship(
         "WalletAccount", foreign_keys=[to_wallet_account_id], lazy="joined"
+    )
+    profit_wallet_account = relationship(
+        "WalletAccount", foreign_keys=[profit_wallet_account_id], lazy="joined"
     )
     creator = relationship("User", foreign_keys=[created_by], lazy="joined")
 

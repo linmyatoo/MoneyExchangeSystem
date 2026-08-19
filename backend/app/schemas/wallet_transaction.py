@@ -38,6 +38,7 @@ class WalletTransactionResponse(WalletTransactionBase):
     customer: Optional[CustomerResponse] = None
     from_wallet_account: Optional[WalletAccountResponse] = None
     to_wallet_account: Optional[WalletAccountResponse] = None
+    profit_wallet_account: Optional[WalletAccountResponse] = None
     creator: Optional[UserResponse] = None
 
     created_at: datetime
